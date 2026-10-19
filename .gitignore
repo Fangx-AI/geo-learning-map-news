@@ -1,0 +1,23 @@
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+.cache/
+.DS_Store
+.data/
+.data-*.log
+output/
+.playwright-cli/
+
+# Web production build
+apps/web/build/
+apps/web/.react-router/
+
+# Font package unpacked to regenerate the report nameplates (docs/customize.md)
+package/
+fontsource-noto-sans-sc-*.tgz
+
+# Python runtime caches
+__pycache__/
+*.py[cod]

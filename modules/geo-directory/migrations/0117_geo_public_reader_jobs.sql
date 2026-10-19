@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS geo_public_reader_jobs (
+  canonical_id text PRIMARY KEY,
+  item_id text NOT NULL REFERENCES geo_public_items(id) ON DELETE CASCADE,
+  input_hash text NOT NULL,
+  title_original text NOT NULL,
+  summary_original text,
+  url_original text NOT NULL,
+  body_url text,
+  body_hash text,
+  private_body text,
+  paragraphs jsonb,
+  draft jsonb,
+  status text NOT NULL CHECK (status IN ('processing','ready-draft','failed')),
+  attempts integer NOT NULL DEFAULT 0,
+  next_attempt_at timestamptz NOT NULL DEFAULT now(),
+  model text,
+  prompt_version text,
+  error text,
+  fetched_at timestamptz,
+  updated_at timestamptz NOT NULL DEFAULT now()
+);

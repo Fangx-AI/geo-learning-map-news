@@ -1,0 +1,550 @@
+{
+  "$comment": "可选社交接入模板，默认全部暂停；不含密钥，不自动启用。X query 可直接用于既有 x_search，需配置 SocialData 和预算。external 只接收授权导出/自有采集器提交的元数据，不会自动抓取平台。公众号原始 ID 必须由实际账号确认，本文件不虚构 ghid。安装与接入见 docs/geo-social.md。",
+  "verifiedAt": "2026-10-16",
+  "sources": [
+    {
+      "id": "geo-social-x-geo-global",
+      "name": "X：GEO / 生成式引擎优化（跨语言）",
+      "kind": "x_search",
+      "config": {
+        "query": "(\"generative engine optimization\" OR \"generative engine optimisation\")",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-x-aeo-global",
+      "name": "X：AEO / 答案引擎优化（跨语言）",
+      "kind": "x_search",
+      "config": {
+        "query": "(\"answer engine optimization\" OR \"answer engine optimisation\" OR \"AI search optimization\" OR \"AI search optimisation\" OR LLMO)",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-x-ai-search",
+      "name": "X：AI 搜索平台与发布者",
+      "kind": "x_search",
+      "config": {
+        "query": "(\"AI Overviews\" OR \"AI Mode\" OR \"ChatGPT search\" OR Perplexity) (SEO OR citation OR citations OR indexing OR crawler OR publisher OR referral)",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-x-visibility",
+      "name": "X：AI 可见性与测量研究",
+      "kind": "x_search",
+      "config": {
+        "query": "(\"AI visibility\" OR \"LLM visibility\" OR \"generative search\" OR \"answer engine\") (benchmark OR study OR experiment OR research OR measurement)",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-x-chinese",
+      "name": "X：中文 GEO 讨论",
+      "kind": "x_search",
+      "config": {
+        "query": "(\"生成式引擎优化\" OR \"生成式搜索优化\" OR \"AI搜索优化\" OR \"AI搜索\" OR \"AI引用\" OR \"答案引擎优化\" OR \"大模型优化\" OR \"AI可见性\" OR \"GEO优化\") lang:zh",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-x-japanese",
+      "name": "X：日语 GEO / LLMO 讨论",
+      "kind": "x_search",
+      "config": {
+        "query": "(\"生成AI検索\" OR \"AI検索最適化\" OR \"生成エンジン最適化\" OR ((GEO OR LLMO OR AEO) (SEO OR AI))) lang:ja",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-x-korean",
+      "name": "X：韩语 GEO / AI 검색 讨论",
+      "kind": "x_search",
+      "config": {
+        "query": "(\"생성형 엔진 최적화\" OR \"AI 검색 최적화\" OR \"생성형 검색\" OR ((GEO OR AEO) SEO)) lang:ko",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-x-spanish",
+      "name": "X：西班牙语 GEO 讨论",
+      "kind": "x_search",
+      "config": {
+        "query": "(\"optimización generativa\" OR \"motores generativos\" OR \"búsqueda con IA\" OR ((GEO OR AEO) SEO)) lang:es",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-x-portuguese",
+      "name": "X：葡萄牙语 GEO 讨论",
+      "kind": "x_search",
+      "config": {
+        "query": "(\"otimização generativa\" OR \"motores generativos\" OR \"busca com IA\" OR ((GEO OR AEO) SEO)) lang:pt",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-x-french",
+      "name": "X：法语 GEO 讨论",
+      "kind": "x_search",
+      "config": {
+        "query": "(\"moteurs génératifs\" OR \"recherche générative\" OR \"visibilité IA\" OR ((GEO OR AEO) SEO)) lang:fr",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-x-german",
+      "name": "X：德语 GEO 讨论",
+      "kind": "x_search",
+      "config": {
+        "query": "(\"generative Suchmaschinen\" OR \"KI-Suche\" OR \"KI Sichtbarkeit\" OR ((GEO OR AEO) SEO)) lang:de",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-x-italian",
+      "name": "X：意大利语 GEO 讨论",
+      "kind": "x_search",
+      "config": {
+        "query": "(\"motori generativi\" OR \"ricerca generativa\" OR \"visibilità AI\" OR ((GEO OR AEO) SEO)) lang:it",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-x-dutch",
+      "name": "X：荷兰语 GEO 讨论",
+      "kind": "x_search",
+      "config": {
+        "query": "(\"generatieve zoekmachines\" OR \"AI-zoekmachines\" OR \"AI zichtbaarheid\" OR ((GEO OR AEO) SEO)) lang:nl",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-x-arabic",
+      "name": "X：阿拉伯语 GEO 讨论",
+      "kind": "x_search",
+      "config": {
+        "query": "(\"محركات البحث التوليدية\" OR \"تحسين محركات الذكاء الاصطناعي\" OR ((GEO OR AEO) SEO)) lang:ar",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-x-hindi",
+      "name": "X：印地语 GEO 讨论",
+      "kind": "x_search",
+      "config": {
+        "query": "(\"एआई खोज\" OR \"जनरेटिव सर्च\" OR ((GEO OR AEO) SEO)) lang:hi",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-x-turkish",
+      "name": "X：土耳其语 GEO 讨论",
+      "kind": "x_search",
+      "config": {
+        "query": "(\"üretken arama\" OR \"yapay zeka arama\" OR ((GEO OR AEO) SEO)) lang:tr",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-x",
+      "name": "X：GEO 外部导入",
+      "kind": "external",
+      "config": {},
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 1440,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-reddit",
+      "name": "Reddit：GEO 外部导入",
+      "kind": "external",
+      "config": {},
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 1440,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-youtube",
+      "name": "YouTube：GEO 外部导入",
+      "kind": "external",
+      "config": {},
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 1440,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-linkedin",
+      "name": "LinkedIn：GEO 外部导入",
+      "kind": "external",
+      "config": {},
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 1440,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-bluesky",
+      "name": "Bluesky：GEO 外部导入",
+      "kind": "external",
+      "config": {},
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 1440,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-mastodon",
+      "name": "Mastodon：GEO 外部导入",
+      "kind": "external",
+      "config": {},
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 1440,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-wechat",
+      "name": "微信公众号：GEO 外部导入",
+      "kind": "external",
+      "config": {},
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 1440,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-zhihu",
+      "name": "知乎：GEO 外部导入",
+      "kind": "external",
+      "config": {},
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 1440,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-xiaohongshu",
+      "name": "小红书：GEO 外部导入",
+      "kind": "external",
+      "config": {},
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 1440,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-weibo",
+      "name": "微博：GEO 外部导入",
+      "kind": "external",
+      "config": {},
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 1440,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-bilibili",
+      "name": "哔哩哔哩：GEO 外部导入",
+      "kind": "external",
+      "config": {},
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 1440,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-douyin",
+      "name": "抖音：GEO 外部导入",
+      "kind": "external",
+      "config": {},
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 1440,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-juejin",
+      "name": "掘金：GEO 外部导入",
+      "kind": "external",
+      "config": {},
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 1440,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-csdn",
+      "name": "CSDN：GEO 外部导入",
+      "kind": "external",
+      "config": {},
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 1440,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    },
+    {
+      "id": "geo-social-v2ex",
+      "name": "V2EX：GEO 外部导入",
+      "kind": "external",
+      "config": {},
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 1440,
+      "tags": [
+        "GEO",
+        "社交发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false
+    }
+  ]
+}

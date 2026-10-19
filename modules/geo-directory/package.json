@@ -1,0 +1,19 @@
+{
+  "name": "@aihot/geo-directory",
+  "private": true,
+  "type": "module",
+  "exports": { "./module": "./module.ts", "./web": "./web.tsx" },
+  "dependencies": {
+    "@aihot/api": "*",
+    "@aihot/backend": "*",
+    "@aihot/contracts": "*",
+    "@aihot/industry": "*",
+    "@aihot/site": "*",
+    "@aihot/web": "*",
+    "cheerio": "1.2.0",
+    "entities": "4.5.0",
+    "react": "19.3.0",
+    "react-router": "8.4.0",
+    "zod": "4.6.5"
+  }
+}

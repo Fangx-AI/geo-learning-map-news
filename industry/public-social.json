@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "id": "public-x-geo",
+      "name": "X · 公开原帖（嵌入读取）",
+      "platform": "x",
+      "url": "https://x.com/",
+      "enabled": true,
+      "maxPostsPerRun": 40,
+      "refreshHours": 168,
+      "seedUrls": [
+        "https://x.com/aleyda/status/1943065200829088177",
+        "https://x.com/aleyda/status/1955897205082001864",
+        "https://x.com/aleyda/status/2083901187447828484",
+        "https://x.com/alexgroberman/status/2063608784996721065",
+        "https://x.com/timsoulo/status/2049183614378897449",
+        "https://x.com/thinking_slow/status/1971814933139435995",
+        "https://x.com/BrisbaneJohn87/status/2058118714546110564"
+      ],
+      "discovery": [
+        {
+          "kind": "rss",
+          "url": "https://michelfortin.com/feed/atom/",
+          "articlePathPrefix": "/",
+          "maxArticlePages": 3,
+          "articleRefreshHours": 168
+        },
+        {
+          "kind": "rss",
+          "url": "https://www.growth-memo.com/feed",
+          "articlePathPrefix": "/p/",
+          "maxArticlePages": 3,
+          "articleRefreshHours": 168
+        },
+        {
+          "kind": "html",
+          "url": "https://pici.id/reports/",
+          "articleSelector": "main a[href*='/reports/']:not([href*='/types/'])",
+          "articlePathPrefix": "/reports/",
+          "maxArticlePages": 4
+        },
+        {
+          "kind": "rss",
+          "url": "https://www.abondance.com/feed",
+          "articlePathPrefix": "/",
+          "maxArticlePages": 3,
+          "articleRefreshHours": 168
+        },
+        {
+          "kind": "rss",
+          "url": "https://brodieclark.com/feed/",
+          "articlePathPrefix": "/",
+          "maxArticlePages": 3,
+          "articleRefreshHours": 168
+        },
+        {
+          "kind": "rss",
+          "url": "https://www.seoforlunch.com/feed",
+          "articlePathPrefix": "/p/",
+          "maxArticlePages": 3,
+          "articleRefreshHours": 168
+        },
+        {
+          "kind": "html",
+          "url": "https://www.seroundtable.com/",
+          "articleSelector": "h1 a[href$=\".html\"],h2 a[href$=\".html\"]",
+          "articlePathPrefix": "/",
+          "maxArticlePages": 4
+        },
+        {
+          "kind": "html",
+          "url": "https://www.suzukikenichi.com/blog/",
+          "articleSelector": "h2.entry-title a[href]",
+          "articlePathPrefix": "/blog/",
+          "maxArticlePages": 4
+        },
+        {
+          "kind": "rss",
+          "url": "https://lilyray.nyc/feed/",
+          "articlePathPrefix": "/",
+          "maxArticlePages": 3,
+          "articleRefreshHours": 168
+        },
+        {
+          "kind": "rss",
+          "url": "https://ahrefs.com/blog/feed/",
+          "articlePathPrefix": "/blog/",
+          "maxArticlePages": 4
+        },
+        {
+          "kind": "rss",
+          "url": "https://lilyraynyc.substack.com/feed",
+          "articlePathPrefix": "/p/",
+          "maxArticlePages": 3,
+          "articleRefreshHours": 168
+        },
+        {
+          "kind": "html",
+          "url": "https://richsanger.com/",
+          "articleSelector": "h3.entry-title a[href]",
+          "articlePathPrefix": "/",
+          "maxArticlePages": 3
+        },
+        {
+          "kind": "html",
+          "url": "https://www.mariehaynes.com/blog/",
+          "articleSelector": "h3 a[href]",
+          "articlePathPrefix": "/",
+          "maxArticlePages": 4
+        },
+        {
+          "kind": "html",
+          "url": "https://ahrefs.com/blog/category/ai-search/",
+          "articleSelector": "a[href]:has(h3)",
+          "articlePathPrefix": "/blog/",
+          "maxArticlePages": 4,
+          "articleRefreshHours": 168
+        }
+      ]
+    },
+    {
+      "id": "public-reddit-geo",
+      "name": "Reddit · 公开原帖（嵌入读取）",
+      "platform": "reddit",
+      "url": "https://www.reddit.com/r/SEO/",
+      "enabled": true,
+      "maxPostsPerRun": 40,
+      "refreshHours": 168,
+      "seedUrls": [
+        "https://www.reddit.com/r/SEO/comments/1ss0drr/why_chatgpt_cites_one_page_over_another_study_of/",
+        "https://www.reddit.com/r/seogrowth/comments/1ueosr5/how_different_is_seo_vs_geo_generative_engine/",
+        "https://www.reddit.com/r/LLMTraffic/comments/1t44tn7/which_geo_marketing_agencies_are_actually_worth/",
+        "https://www.reddit.com/r/TechSEO/comments/1jb9dt8/",
+        "https://www.reddit.com/r/SEO/comments/1te4t71/",
+        "https://www.reddit.com/r/SEO_Digital_Marketing/comments/1uiqmb8/",
+        "https://www.reddit.com/r/GenerativeSEOstrategy/comments/1u10o6u/",
+        "https://www.reddit.com/r/GenerativeSEOstrategy/comments/1v412t9/",
+        "https://www.reddit.com/r/WebsiteSEO/comments/1tw275g/",
+        "https://www.reddit.com/r/seo_saas/comments/1qgx4py/",
+        "https://www.reddit.com/r/GenerativeSEOstrategy/comments/1w71bcd/",
+        "https://www.reddit.com/r/DigitalMarketingHack/comments/1q64pp0/",
+        "https://www.reddit.com/r/SEO/comments/1u99uq4/",
+        "https://www.reddit.com/r/MarketingFR/comments/1uosiic/",
+        "https://www.reddit.com/r/AISEOTricks/comments/1u8ijio/",
+        "https://www.reddit.com/r/bigseo/comments/1qnvegf/",
+        "https://www.reddit.com/r/bigseo/comments/1s9dpxu/",
+        "https://www.reddit.com/r/bigseo/comments/1nkh6ux/",
+        "https://www.reddit.com/r/GEO_optimization/comments/1uc6rb0/"
+      ],
+      "discovery": [
+        {
+          "kind": "rss",
+          "url": "https://www.growth-memo.com/feed",
+          "articlePathPrefix": "/p/",
+          "maxArticlePages": 3,
+          "articleRefreshHours": 168
+        },
+        {
+          "kind": "html",
+          "url": "https://pici.id/reports/",
+          "articleSelector": "main a[href*='/reports/']:not([href*='/types/'])",
+          "articlePathPrefix": "/reports/",
+          "maxArticlePages": 4
+        },
+        {
+          "kind": "rss",
+          "url": "https://www.abondance.com/feed",
+          "articlePathPrefix": "/",
+          "maxArticlePages": 3,
+          "articleRefreshHours": 168
+        },
+        {
+          "kind": "rss",
+          "url": "https://lilyraynyc.substack.com/feed",
+          "articlePathPrefix": "/p/",
+          "maxArticlePages": 3,
+          "articleRefreshHours": 168
+        },
+        {
+          "kind": "html",
+          "url": "https://ahrefs.com/blog/category/ai-search/",
+          "articleSelector": "a[href]:has(h3)",
+          "articlePathPrefix": "/blog/",
+          "maxArticlePages": 4,
+          "articleRefreshHours": 168
+        }
+      ]
+    }
+  ]
+}

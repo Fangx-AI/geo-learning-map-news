@@ -1,0 +1,1790 @@
+{
+  "$comment": "GEO 学习地图公开采集配置：70 个经项目实际读取的无登录/无 key RSS、网页列表与公开索引。环境正常代理沿用 EGRESS_PROXY_URL。全部仅展示摘要和链接，configured 不代表后台正在运行。独立公开社交配置见 public-social.json；官方发布、原始论文与方法透明来源见 docs/geo-quality-sources.md、docs/geo-quality-expansion.md 与 docs/geo-sources-20261017.md、docs/geo-sources-20261017-round2.md，国内公开索引边界见 docs/geo-domestic-research.md。",
+  "sources": [
+    {
+      "id": "rss-google-search-central",
+      "name": "Google Search Central",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://feeds.feedburner.com/blogspot/amDG",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T1",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "平台规则",
+        "抓取与索引",
+        "测量"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-bing-webmaster",
+      "name": "Bing Webmaster Blog",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://blogs.bing.com/webmaster/feed/",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T1",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "平台规则",
+        "测量",
+        "引用"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-openai-news",
+      "name": "OpenAI News",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://openai.com/news/rss.xml",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T1",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "平台规则",
+        "ChatGPT",
+        "内容发现"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-arxiv-ir",
+      "name": "arXiv · Information Retrieval",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://rss.arxiv.org/rss/cs.IR",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T1",
+      "participation_mode": "editorial",
+      "interval_minutes": 360,
+      "tags": [
+        "论文",
+        "检索",
+        "测量"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-search-engine-journal",
+      "name": "Search Engine Journal",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.searchenginejournal.com/feed/",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "行业动态",
+        "SEO",
+        "内容策略"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-search-engine-roundtable",
+      "name": "Search Engine Roundtable",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.seroundtable.com/index.xml",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "行业动态",
+        "SEO",
+        "测量"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-abondance",
+      "name": "Abondance",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.abondance.com/feed",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "多语言",
+        "SEO",
+        "GEO"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-seo-suedwest",
+      "name": "SEO Südwest",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.seo-suedwest.de/?format=feed&type=rss",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "多语言",
+        "SEO",
+        "平台规则"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-suzuki",
+      "name": "海外SEO情報ブログ · 鈴木謙一",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.suzukikenichi.com/blog/feed/",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "多语言",
+        "SEO",
+        "技术实施"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-cloudflare",
+      "name": "Cloudflare Blog",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://blog.cloudflare.com/rss/",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T1",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "抓取与索引",
+        "机器人",
+        "测量"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-ahrefs",
+      "name": "Ahrefs Blog",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://ahrefs.com/blog/feed/",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "测量",
+        "SEO",
+        "GEO"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-growth-memo",
+      "name": "Growth Memo · Kevin Indig",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.growth-memo.com/feed",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "测量",
+        "内容策略"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-hacker-news-geo",
+      "name": "Hacker News · GEO 检索",
+      "kind": "json_list",
+      "config": {
+        "url": "https://hn.algolia.com/api/v1/search_by_date?query=generative+engine+optimization&tags=story&hitsPerPage=100",
+        "itemsPath": "hits",
+        "titlePaths": [
+          "title"
+        ],
+        "summaryPaths": [
+          "story_text"
+        ],
+        "authorPaths": [
+          "author"
+        ],
+        "publishedAtPath": "created_at",
+        "externalIdPath": "objectID",
+        "urlTemplate": "https://news.ycombinator.com/item?id={objectID}",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "hot_signal",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "技术实施",
+        "社区讨论"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-screaming-frog",
+      "name": "Screaming Frog",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.screamingfrog.co.uk/blog/feed/",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "技术实施",
+        "抓取与索引",
+        "测量"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-se-ranking",
+      "name": "SE Ranking",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://seranking.com/blog/feed/",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "SEO",
+        "测量"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-wordlift",
+      "name": "WordLift",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://wordlift.io/blog/en/feed/",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "SEO",
+        "测量"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-oncrawl",
+      "name": "Oncrawl",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.oncrawl.com/feed/",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "SEO",
+        "测量"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-marie-haynes",
+      "name": "Marie Haynes",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.mariehaynes.com/feed/",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "内容策略",
+        "SEO",
+        "GEO"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-brodie-clark",
+      "name": "Brodie Clark",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://brodieclark.com/feed/",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "行业动态",
+        "测量",
+        "GEO"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-ipullrank",
+      "name": "iPullRank",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://ipullrank.com/feed/",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "技术实施",
+        "内容策略"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-rich-sanger",
+      "name": "Rich Sanger",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://richsanger.com/feed/",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "SEO",
+        "测量"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-semrush",
+      "name": "Semrush",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.semrush.com/blog/feed/",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "测量",
+        "GEO",
+        "内容策略"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-hn-ai-search",
+      "name": "Hacker News · AI Search",
+      "kind": "json_list",
+      "config": {
+        "url": "https://hn.algolia.com/api/v1/search_by_date?query=%22AI+search%22&tags=story&hitsPerPage=100&advancedSyntax=true",
+        "itemsPath": "hits",
+        "titlePaths": [
+          "title"
+        ],
+        "summaryPaths": [
+          "story_text"
+        ],
+        "authorPaths": [
+          "author"
+        ],
+        "publishedAtPath": "created_at",
+        "externalIdPath": "objectID",
+        "urlTemplate": "https://news.ycombinator.com/item?id={objectID}",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "hot_signal",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "SEO",
+        "测量"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-google-news-en",
+      "name": "Google News · GEO English",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://news.google.com/rss/search?q=%22generative+engine+optimization%22+OR+%22answer+engine+optimization%22&hl=en-US&gl=US&ceid=US:en",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "AEO",
+        "行业动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-google-news-zh",
+      "name": "Google News · GEO 中文",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://news.google.com/rss/search?q=GEO+%E7%94%9F%E6%88%90%E5%BC%8F%E5%BC%95%E6%93%8E%E4%BC%98%E5%8C%96&hl=zh-CN&gl=CN&ceid=CN:zh-Hans",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "AEO",
+        "行业动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-google-news-ja",
+      "name": "Google News · GEO 日本語",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://news.google.com/rss/search?q=GEO+AI%E6%A4%9C%E7%B4%A2&hl=ja&gl=JP&ceid=JP:ja",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "AEO",
+        "行业动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-google-news-fr",
+      "name": "Google News · GEO Français",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://news.google.com/rss/search?q=GEO+%22moteurs+g%C3%A9n%C3%A9ratifs%22&hl=fr&gl=FR&ceid=FR:fr",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "AEO",
+        "行业动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-google-news-pt",
+      "name": "Google News · GEO Português",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://news.google.com/rss/search?q=GEO+%22busca%22+IA&hl=pt-BR&gl=BR&ceid=BR:pt-419",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "AEO",
+        "行业动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-seozac",
+      "name": "SEO 每天一帖 · Zac",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.seozac.com/feed/",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "SEO",
+        "测量"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-seo-for-lunch",
+      "name": "SEO for Lunch",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.seoforlunch.com/feed",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "SEO",
+        "测量"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-google-news-de",
+      "name": "Google News · GEO Deutsch",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://news.google.com/rss/search?q=GEO+KI-Suche&hl=de&gl=DE&ceid=DE:de",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "AEO",
+        "行业动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-google-news-es",
+      "name": "Google News · GEO Español",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://news.google.com/rss/search?q=GEO+%22b%C3%BAsqueda%22+IA&hl=es&gl=ES&ceid=ES:es",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "AEO",
+        "行业动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-google-news-ko",
+      "name": "Google News · GEO 한국어",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://news.google.com/rss/search?q=GEO+AI+%EA%B2%80%EC%83%89&hl=ko&gl=KR&ceid=KR:ko",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "GEO",
+        "AEO",
+        "行业动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "web-perplexity-blog",
+      "name": "Perplexity Blog",
+      "kind": "web_list",
+      "config": {
+        "url": "https://www.perplexity.ai/en-GB/hub/blog",
+        "parseMode": "html",
+        "itemSelector": "a[href*=\"/hub/blog/\"]:has(time)",
+        "linkSelector": "a",
+        "titleSelector": ".min-w-0 > span.text-pretty",
+        "publishedAtSelector": "time",
+        "allowUrlPrefixes": [
+          "https://www.perplexity.ai/en-GB/hub/blog/"
+        ],
+        "publishedAtUtcOffset": "+00:00",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T1",
+      "participation_mode": "editorial",
+      "interval_minutes": 180,
+      "tags": [
+        "平台规则",
+        "Perplexity",
+        "引用"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "web-profound",
+      "name": "Profound Blog",
+      "kind": "web_list",
+      "config": {
+        "url": "https://www.tryprofound.com/blog",
+        "parseMode": "html",
+        "itemSelector": "article:has(time)",
+        "linkSelector": "a[href^=\"/blog/\"]",
+        "titleSelector": "h2",
+        "publishedAtSelector": "time",
+        "allowUrlPrefixes": [
+          "https://www.tryprofound.com/blog/"
+        ],
+        "publishedAtUtcOffset": "+00:00",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 180,
+      "tags": [
+        "GEO",
+        "测量",
+        "引用"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "web-human-level",
+      "name": "Human Level",
+      "kind": "web_list",
+      "config": {
+        "url": "https://www.humanlevel.com/blog",
+        "parseMode": "html",
+        "itemSelector": "article.cards-blog-loop-element",
+        "linkSelector": "a.cards-blog-link",
+        "titleSelector": "h3",
+        "publishedAtSelector": ".cards-blog-date",
+        "allowUrlPrefixes": [
+          "https://www.humanlevel.com/blog/"
+        ],
+        "publishedAtUtcOffset": "+00:00",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 180,
+      "tags": [
+        "多语言",
+        "SEO",
+        "技术实施"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-bluesky-barry-schwartz",
+      "name": "Bluesky · Barry Schwartz",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://bsky.app/profile/rustybrick.com/rss",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "hot_signal",
+      "interval_minutes": 180,
+      "tags": [
+        "AI 搜索",
+        "测量",
+        "社区讨论"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-bluesky-lily-ray",
+      "name": "Bluesky · Lily Ray",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://bsky.app/profile/lilyray.nyc/rss",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "hot_signal",
+      "interval_minutes": 180,
+      "tags": [
+        "AI 搜索",
+        "研究与实验",
+        "社区讨论"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-bluesky-glenn-gabe",
+      "name": "Bluesky · Glenn Gabe",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://bsky.app/profile/glenngabe.bsky.social/rss",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "hot_signal",
+      "interval_minutes": 180,
+      "tags": [
+        "AI 搜索",
+        "测量",
+        "社区讨论"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-mastodon-generativeengineoptimization",
+      "name": "Mastodon · GEO 公开标签",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://mastodon.social/tags/generativeengineoptimization.rss",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "hot_signal",
+      "interval_minutes": 180,
+      "tags": [
+        "GEO",
+        "社区讨论"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-mastodon-ai-search",
+      "name": "Mastodon · AI Search 公开标签",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://mastodon.social/tags/aisearch.rss",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "hot_signal",
+      "interval_minutes": 180,
+      "tags": [
+        "AI 搜索",
+        "社区讨论"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-v2ex-geo",
+      "name": "V2EX · GEO 生成引擎优化",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.v2ex.com/feed/geo.xml",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "hot_signal",
+      "interval_minutes": 180,
+      "tags": [
+        "GEO",
+        "中文平台",
+        "社区讨论"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-woshipm-geo",
+      "name": "人人都是产品经理 · GEO",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.woshipm.com/tag/geo/feed",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "hot_signal",
+      "interval_minutes": 180,
+      "tags": [
+        "GEO",
+        "中文平台",
+        "社区讨论"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-duanwenjie",
+      "name": "段文杰 · 杰哥 SEO 博客",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://duanwenjie.com/feed/",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 180,
+      "tags": [
+        "GEO",
+        "SEO",
+        "实践"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-csdn-venture-ai",
+      "name": "CSDN · V哥AI增长",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://rss.csdn.net/Venture_ai/rss/map",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tags": [
+        "GEO",
+        "中文平台",
+        "实践"
+      ],
+      "tier": "T2",
+      "participation_mode": "hot_signal",
+      "interval_minutes": 180,
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "web-chinaz-geo",
+      "name": "站长之家 · GEO",
+      "kind": "web_list",
+      "config": {
+        "url": "https://www.chinaz.com/tags/GEO.shtml",
+        "parseMode": "html",
+        "itemSelector": ".scrollload-content li.single-mode",
+        "linkSelector": "h3 a",
+        "titleSelector": "h3",
+        "publishedAtSelector": ".time",
+        "publishedAtUtcOffset": "+08:00",
+        "allowUrlPrefixes": [
+          "https://www.chinaz.com/"
+        ],
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tags": [
+        "GEO",
+        "中文平台",
+        "行业动态"
+      ],
+      "tier": "T2",
+      "participation_mode": "hot_signal",
+      "interval_minutes": 180,
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "web-niaogebiji-geo",
+      "name": "鸟哥笔记 · GEO",
+      "kind": "web_list",
+      "config": {
+        "url": "https://www.niaogebiji.com/tag/GEO",
+        "parseMode": "html",
+        "itemSelector": ".articleListBox .articleBox",
+        "linkSelector": ".article > a",
+        "titleSelector": ".articleTitle",
+        "publishedAtSelector": ".writeTime",
+        "publishedAtUtcOffset": "+08:00",
+        "allowUrlPrefixes": [
+          "https://www.niaogebiji.com/article-"
+        ],
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tags": [
+        "GEO",
+        "中文平台",
+        "实践"
+      ],
+      "tier": "T2",
+      "participation_mode": "hot_signal",
+      "interval_minutes": 180,
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "web-yunyingpai-geo",
+      "name": "运营派 · GEO",
+      "kind": "web_list",
+      "config": {
+        "url": "https://www.yunyingpai.com/tag/geo",
+        "parseMode": "html",
+        "itemSelector": ".blockCards .blockCard",
+        "linkSelector": "h3.title > a",
+        "titleSelector": "h3.title",
+        "allowUrlPrefixes": [
+          "https://www.yunyingpai.com/"
+        ],
+        "publishedAtUtcOffset": "+08:00",
+        "detail": {
+          "publishedAtRegex": "\"pubDate\"\\s*:\\s*\"([^\"]+)\"",
+          "publishedAtAuthoritative": true,
+          "maxFetches": 8
+        },
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tags": [
+        "GEO",
+        "中文平台",
+        "行业观察"
+      ],
+      "tier": "T2",
+      "participation_mode": "hot_signal",
+      "interval_minutes": 180,
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "tier": "T2",
+      "participation_mode": "hot_signal",
+      "interval_minutes": 180,
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true,
+      "id": "web-wechat-sogou-geo",
+      "name": "搜狗微信 · GEO 公开索引",
+      "kind": "web_list",
+      "config": {
+        "url": "https://weixin.sogou.com/weixin?type=2&query=GEO%20%E7%94%9F%E6%88%90%E5%BC%8F%E5%BC%95%E6%93%8E%E4%BC%98%E5%8C%96",
+        "parseMode": "html",
+        "itemSelector": ".news-list > li",
+        "linkSelector": "h3 a",
+        "titleSelector": "h3 a",
+        "allowUrlPrefixes": [
+          "https://weixin.sogou.com/link?"
+        ],
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tags": [
+        "GEO",
+        "公众号",
+        "公开索引"
+      ]
+    },
+    {
+      "tier": "T2",
+      "participation_mode": "hot_signal",
+      "interval_minutes": 180,
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true,
+      "id": "rss-google-news-zhihu-geo",
+      "name": "Google News · 知乎 GEO 索引",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://news.google.com/rss/search?q=site%3Azhihu.com%20%22%E7%94%9F%E6%88%90%E5%BC%8F%E5%BC%95%E6%93%8E%E4%BC%98%E5%8C%96%22%20-%E6%9C%8D%E5%8A%A1%E5%95%86%20-%E5%85%AC%E5%8F%B8%20-%E6%A6%9C%E5%8D%95%20-%E6%8E%A8%E8%8D%90&hl=zh-CN&gl=CN&ceid=CN%3Azh-Hans",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tags": [
+        "GEO",
+        "知乎",
+        "公开索引"
+      ]
+    },
+    {
+      "tier": "T2",
+      "participation_mode": "hot_signal",
+      "interval_minutes": 180,
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true,
+      "id": "web-10100-geo",
+      "name": "大数跨境 · GEO 公开转载与作者文章",
+      "kind": "web_list",
+      "config": {
+        "url": "https://www.10100.com/search/article?q=GEO",
+        "parseMode": "html",
+        "itemSelector": ".index-shadow:has(a.text-title[href^=\"/article/\"])",
+        "linkSelector": "a.text-title[href^=\"/article/\"]",
+        "titleSelector": "a.text-title[href^=\"/article/\"]",
+        "allowUrlPrefixes": [
+          "https://www.10100.com/article/"
+        ],
+        "publishedAtUtcOffset": "+08:00",
+        "detail": {
+          "publishedAtRegex": "\"datePublished\"\\s*:\\s*\"([^\"]+)\"",
+          "publishedAtAuthoritative": true,
+          "maxFetches": 8
+        },
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tags": [
+        "GEO",
+        "公众号",
+        "公开转载"
+      ]
+    },
+    {
+      "tier": "T2",
+      "participation_mode": "hot_signal",
+      "interval_minutes": 180,
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true,
+      "id": "web-wechat-sogou-geo-page2",
+      "name": "搜狗微信 · GEO 公开索引第 2 页",
+      "kind": "web_list",
+      "config": {
+        "url": "https://weixin.sogou.com/weixin?type=2&query=GEO%20%E7%94%9F%E6%88%90%E5%BC%8F%E5%BC%95%E6%93%8E%E4%BC%98%E5%8C%96&page=2",
+        "parseMode": "html",
+        "itemSelector": ".news-list > li",
+        "linkSelector": "h3 a",
+        "titleSelector": "h3 a",
+        "allowUrlPrefixes": [
+          "https://weixin.sogou.com/link?"
+        ],
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tags": [
+        "GEO",
+        "公众号",
+        "公开索引"
+      ]
+    },
+    {
+      "tier": "T2",
+      "participation_mode": "hot_signal",
+      "interval_minutes": 180,
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true,
+      "id": "web-wechat-sogou-ai-search",
+      "name": "搜狗微信 · AI 搜索优化公开索引",
+      "kind": "web_list",
+      "config": {
+        "url": "https://weixin.sogou.com/weixin?type=2&query=AI%E6%90%9C%E7%B4%A2%E4%BC%98%E5%8C%96",
+        "parseMode": "html",
+        "itemSelector": ".news-list > li",
+        "linkSelector": "h3 a",
+        "titleSelector": "h3 a",
+        "allowUrlPrefixes": [
+          "https://weixin.sogou.com/link?"
+        ],
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tags": [
+        "GEO",
+        "公众号",
+        "公开索引"
+      ]
+    },
+    {
+      "id": "rss-google-search-product",
+      "name": "Google Search · 产品更新",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://blog.google/products/search/rss/",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T1",
+      "participation_mode": "editorial",
+      "interval_minutes": 180,
+      "tags": [
+        "平台规则",
+        "AI 搜索",
+        "引用"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-bing-search",
+      "name": "Bing Search Blog",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://blogs.bing.com/search/feed/",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T1",
+      "participation_mode": "editorial",
+      "interval_minutes": 180,
+      "tags": [
+        "平台规则",
+        "AI 搜索",
+        "检索"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-arxiv-geo",
+      "name": "arXiv · GEO 原始论文",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://export.arxiv.org/api/query?search_query=all%3A%22generative%20engine%20optimization%22&start=0&max_results=30&sortBy=submittedDate&sortOrder=descending",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T1",
+      "participation_mode": "editorial",
+      "interval_minutes": 1440,
+      "tags": [
+        "论文",
+        "GEO",
+        "测量"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-tow-center",
+      "name": "Tow Center · 数字新闻研究",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.cjr.org/tow_center/feed",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T1",
+      "participation_mode": "editorial",
+      "interval_minutes": 360,
+      "tags": [
+        "引用",
+        "可复现研究",
+        "出版商"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-sparktoro-research",
+      "name": "SparkToro · Research",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://sparktoro.com/blog/category/research/feed/",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 360,
+      "tags": [
+        "测量",
+        "AI 搜索",
+        "公开研究"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-gsqi",
+      "name": "Glenn Gabe · GSQi",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.gsqi.com/marketing-blog/feed/",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 360,
+      "tags": [
+        "技术实施",
+        "测量",
+        "AI 搜索"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-searchpilot",
+      "name": "SearchPilot · GEO / SEO 实验",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.searchpilot.com/resources/blog/rss.xml",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 360,
+      "tags": [
+        "可复现研究",
+        "测量",
+        "GEO"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-dejan",
+      "name": "DEJAN · AI 搜索实测",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://dejan.ai/feed/",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 360,
+      "tags": [
+        "AI 搜索",
+        "测量",
+        "查询扇出"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-zyppy-signal",
+      "name": "Zyppy Signal · Cyrus Shepard",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://signal.zyppy.com/feed",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 360,
+      "tags": [
+        "AI 搜索",
+        "引用",
+        "方法与调查"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "json-pew-ai-summaries",
+      "name": "Pew Research · AI 搜索摘要研究",
+      "kind": "web_list",
+      "config": {
+        "url": "https://www.pewresearch.org/?s=AI+summaries",
+        "parseMode": "html",
+        "itemSelector": "article.in-query-loop",
+        "linkSelector": ".header a",
+        "titleSelector": ".header",
+        "publishedAtSelector": "time.date",
+        "publishedAtUtcOffset": "+00:00",
+        "excerptSelector": ".description",
+        "allowUrlPrefixes": [
+          "https://www.pewresearch.org/short-reads/",
+          "https://www.pewresearch.org/data-labs/",
+          "https://www.pewresearch.org/internet/",
+          "https://www.pewresearch.org/journalism/"
+        ],
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T1",
+      "participation_mode": "editorial",
+      "interval_minutes": 360,
+      "tags": [
+        "AI 搜索",
+        "测量",
+        "用户行为"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true,
+      "publicDatePrecision": "day"
+    },
+    {
+      "id": "rss-google-search-doc-updates",
+      "name": "Google 搜索文档更新",
+      "kind": "rss",
+      "publicEntryIdentity": "feed-id",
+      "config": {
+        "feedUrl": "https://developers.google.com/search/updates/search_docs_updates.rss",
+        "preserveUrlFragment": true,
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T1",
+      "participation_mode": "editorial",
+      "interval_minutes": 360,
+      "tags": [
+        "平台规则",
+        "抓取与索引",
+        "AI 搜索"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-microsoft-clarity",
+      "name": "Microsoft Clarity · AI 可见度与测量",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://clarity.microsoft.com/blog/feed/",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T1",
+      "participation_mode": "editorial",
+      "interval_minutes": 360,
+      "tags": [
+        "AI 搜索",
+        "引用",
+        "测量"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-brave-search",
+      "name": "Brave Search · 官方动态",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://brave.com/category/brave-search-news/index.xml",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T1",
+      "participation_mode": "editorial",
+      "interval_minutes": 360,
+      "tags": [
+        "AI 搜索",
+        "检索",
+        "平台规则"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-suganthan-research",
+      "name": "Suganthan · AI 搜索原始观察",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://suganthan.com/rss.xml",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 360,
+      "tags": [
+        "AI 搜索",
+        "引用",
+        "方法与调查"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-arxiv-ai-citations",
+      "name": "arXiv · AI 搜索引用与评估",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://export.arxiv.org/api/query?search_query=(all%3A%22AI%20search%22%20OR%20all%3A%22generative%20search%22)%20AND%20(all%3Acitation%20OR%20all%3Acitations)%20ANDNOT%20all%3A%22generative%20engine%20optimization%22&start=0&max_results=30&sortBy=submittedDate&sortOrder=descending",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T1",
+      "participation_mode": "editorial",
+      "interval_minutes": 1440,
+      "tags": [
+        "论文",
+        "AI 搜索",
+        "引用",
+        "测量"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "web-authoritas-research",
+      "name": "Authoritas · AI 搜索实测",
+      "kind": "web_list",
+      "config": {
+        "url": "https://www.authoritas.com/blog",
+        "parseMode": "html",
+        "itemSelector": "article.blog_item-link",
+        "linkSelector": "a.blog_post-title-wrapper",
+        "titleSelector": ".blog_item-title",
+        "publishedAtSelector": ".blog_date",
+        "publishedAtUtcOffset": "+00:00",
+        "excerptSelector": ".blog_summary",
+        "allowUrlPrefixes": [
+          "https://www.authoritas.com/blog/"
+        ],
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 360,
+      "tags": [
+        "AI 搜索",
+        "引用",
+        "测量"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "web-similarweb-ai-search",
+      "name": "Similarweb · AI Search 数据",
+      "kind": "web_list",
+      "config": {
+        "url": "https://aisearch.similarweb.com/blog/",
+        "parseMode": "html",
+        "itemSelector": "article[id^=grid-post-]",
+        "linkSelector": "h3 a",
+        "titleSelector": "h3",
+        "publishedAtSelector": "[class*=PostCardNotes_dateWrapper] span",
+        "publishedAtUtcOffset": "+00:00",
+        "allowUrlPrefixes": [
+          "https://aisearch.similarweb.com/blog/"
+        ],
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 360,
+      "tags": [
+        "AI 搜索",
+        "引用",
+        "测量"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rss-sistrix-research",
+      "name": "SISTRIX · AI 搜索数据研究",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.sistrix.com/feed/",
+        "_aihot": {
+          "initialBackfillLimit": 8,
+          "initialBackfillMonths": 3
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 360,
+      "tags": [
+        "AI 搜索",
+        "引用",
+        "测量"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    }
+  ]
+}

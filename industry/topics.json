@@ -1,0 +1,740 @@
+{
+  "groups": [
+    {
+      "key": "company",
+      "name": "平台与工具",
+      "blurb": "国内外答案引擎、搜索平台与 GEO 工具"
+    },
+    {
+      "key": "field",
+      "name": "GEO 学习方向",
+      "blurb": "从抓取、内容、引用到测量，覆盖实践、研究与社区"
+    },
+    {
+      "key": "genre",
+      "name": "内容形态",
+      "blurb": "按更新、研究、教程、案例和观点浏览"
+    }
+  ],
+  "topics": [
+    {
+      "slug": "google",
+      "name": "Google / Gemini",
+      "group": "company",
+      "entityId": "google",
+      "definition": "跟踪 Google Search、AI Overviews、AI Mode 与 Gemini 对网页发现、引用和流量的变化。",
+      "aliases": [
+        "Google",
+        "谷歌",
+        "Gemini",
+        "Google Search",
+        "AI Overviews",
+        "AI Mode",
+        "Google Search Central",
+        "Google DeepMind",
+        "Google Research"
+      ]
+    },
+    {
+      "slug": "microsoft",
+      "name": "Microsoft / Bing / Copilot",
+      "group": "company",
+      "entityId": "microsoft",
+      "definition": "跟踪 Bing 索引、Copilot 答案、站长工具、引用与流量报告的变化。",
+      "aliases": [
+        "Microsoft",
+        "微软",
+        "Bing",
+        "必应",
+        "Microsoft Copilot",
+        "Bing Webmaster",
+        "Bing Webmaster Tools",
+        "Microsoft Research",
+        "Microsoft AI"
+      ]
+    },
+    {
+      "slug": "openai",
+      "name": "OpenAI / ChatGPT",
+      "group": "company",
+      "entityId": "openai",
+      "definition": "跟踪 ChatGPT 搜索、引用、网页访问、发布者控制和商业发现入口。",
+      "aliases": [
+        "OpenAI",
+        "ChatGPT",
+        "ChatGPT Search",
+        "OpenAI Developers",
+        "OAI-SearchBot",
+        "GPTBot",
+        "ChatGPT-User"
+      ]
+    },
+    {
+      "slug": "perplexity",
+      "name": "Perplexity",
+      "group": "company",
+      "entityId": "perplexity",
+      "definition": "跟踪答案引用、搜索产品、发布者关系、爬虫与内容发现机制。",
+      "aliases": [
+        "Perplexity",
+        "Perplexity AI",
+        "PerplexityBot",
+        "Perplexity-User"
+      ]
+    },
+    {
+      "slug": "anthropic",
+      "name": "Anthropic / Claude",
+      "group": "company",
+      "entityId": "anthropic",
+      "definition": "跟踪 Claude 联网搜索、引用、抓取控制及相关研究。",
+      "aliases": [
+        "Anthropic",
+        "Claude",
+        "ClaudeBot",
+        "Claude-SearchBot",
+        "Claude-User"
+      ]
+    },
+    {
+      "slug": "baidu",
+      "name": "百度 / 文心",
+      "group": "company",
+      "entityId": "baidu",
+      "definition": "跟踪百度 AI 搜索、文心、搜索资源平台与中文内容发现。",
+      "aliases": [
+        "百度",
+        "Baidu",
+        "文心",
+        "文心一言",
+        "ERNIE",
+        "百度搜索",
+        "百度智能云",
+        "百度搜索资源平台"
+      ]
+    },
+    {
+      "slug": "doubao",
+      "name": "豆包 / 字节跳动",
+      "group": "company",
+      "entityId": "doubao",
+      "definition": "跟踪豆包搜索、答案来源与引用、品牌发现及有关平台公开说明。",
+      "aliases": [
+        "豆包",
+        "Doubao",
+        "字节跳动",
+        "ByteDance",
+        "火山引擎",
+        "Volcengine"
+      ]
+    },
+    {
+      "slug": "deepseek",
+      "name": "DeepSeek",
+      "group": "company",
+      "entityId": "deepseek",
+      "definition": "跟踪 DeepSeek 联网搜索、引用及与 GEO 有直接关系的研究和实测。",
+      "aliases": [
+        "DeepSeek",
+        "深度求索"
+      ]
+    },
+    {
+      "slug": "tencent",
+      "name": "腾讯 / 元宝",
+      "group": "company",
+      "entityId": "tencent",
+      "definition": "跟踪元宝搜索、腾讯内容生态、答案引用与信息发现。",
+      "aliases": [
+        "腾讯",
+        "Tencent",
+        "腾讯元宝",
+        "元宝",
+        "混元",
+        "Hunyuan",
+        "腾讯混元",
+        "腾讯云",
+        "Tencent Cloud"
+      ]
+    },
+    {
+      "slug": "kimi",
+      "name": "Kimi / 月之暗面",
+      "group": "company",
+      "entityId": "kimi",
+      "definition": "跟踪 Kimi 联网搜索、来源引用、长文研究场景与 GEO 实测。",
+      "aliases": [
+        "Kimi",
+        "月之暗面",
+        "Moonshot AI",
+        "Moonshot"
+      ]
+    },
+    {
+      "slug": "qwen",
+      "name": "千问 / 阿里巴巴",
+      "group": "company",
+      "entityId": "qwen",
+      "definition": "跟踪千问搜索、答案引用、商业发现与有关开放说明。",
+      "aliases": [
+        "Qwen",
+        "千问",
+        "通义千问",
+        "通义",
+        "阿里巴巴",
+        "Alibaba",
+        "阿里云",
+        "Alibaba Cloud",
+        "Qwen Team"
+      ]
+    },
+    {
+      "slug": "xai",
+      "name": "xAI / Grok",
+      "group": "company",
+      "entityId": "xai",
+      "definition": "跟踪 Grok 搜索、社交内容发现、引用方式与可见度实测。",
+      "aliases": [
+        "xAI",
+        "Grok"
+      ]
+    },
+    {
+      "slug": "meta",
+      "name": "Meta AI",
+      "group": "company",
+      "entityId": "meta",
+      "definition": "跟踪 Meta AI 的信息检索、内容发现与品牌提及研究。",
+      "aliases": [
+        "Meta",
+        "Meta AI",
+        "Llama",
+        "AI at Meta"
+      ]
+    },
+    {
+      "slug": "mistral",
+      "name": "Mistral / Le Chat",
+      "group": "company",
+      "entityId": "mistral",
+      "definition": "跟踪 Le Chat 搜索、来源展示与多语言信息发现。",
+      "aliases": [
+        "Mistral",
+        "Mistral AI",
+        "Le Chat"
+      ]
+    },
+    {
+      "slug": "brave",
+      "name": "Brave Search",
+      "group": "company",
+      "entityId": "brave",
+      "definition": "跟踪 Brave 搜索索引、答案服务、搜索 API 与网页发现。",
+      "aliases": [
+        "Brave",
+        "Brave Search"
+      ]
+    },
+    {
+      "slug": "you",
+      "name": "You.com",
+      "group": "company",
+      "entityId": "you",
+      "definition": "跟踪 You.com 搜索、研究产品及来源引用。",
+      "aliases": [
+        "You.com"
+      ]
+    },
+    {
+      "slug": "ahrefs",
+      "name": "Ahrefs",
+      "group": "company",
+      "entityId": "ahrefs",
+      "definition": "跟踪 Ahrefs 的 AI 可见度、引用、流量研究及相关工具。",
+      "aliases": [
+        "Ahrefs",
+        "Ahrefs Brand Radar"
+      ]
+    },
+    {
+      "slug": "semrush",
+      "name": "Semrush",
+      "group": "company",
+      "entityId": "semrush",
+      "definition": "跟踪 Semrush 的 GEO 工具、AI 搜索数据与方法研究。",
+      "aliases": [
+        "Semrush",
+        "SEMrush"
+      ]
+    },
+    {
+      "slug": "moz",
+      "name": "Moz",
+      "group": "company",
+      "entityId": "moz",
+      "definition": "跟踪 Moz 关于 SEO 与 GEO 的研究、技术方法和产品变化。",
+      "aliases": [
+        "Moz"
+      ]
+    },
+    {
+      "slug": "similarweb",
+      "name": "Similarweb",
+      "group": "company",
+      "entityId": "similarweb",
+      "definition": "跟踪 Similarweb 的 AI 搜索流量、用户行为和归因研究。",
+      "aliases": [
+        "Similarweb",
+        "SimilarWeb"
+      ]
+    },
+    {
+      "slug": "sistrix",
+      "name": "SISTRIX",
+      "group": "company",
+      "entityId": "sistrix",
+      "definition": "跟踪 SISTRIX 的搜索可见度、AI 引用与不同语言市场研究。",
+      "aliases": [
+        "SISTRIX"
+      ]
+    },
+    {
+      "slug": "screaming-frog",
+      "name": "Screaming Frog",
+      "group": "company",
+      "entityId": "screaming-frog",
+      "definition": "跟踪 SEO Spider 与 GEO 有关的抓取、审计和集成功能。",
+      "aliases": [
+        "Screaming Frog",
+        "SEO Spider"
+      ]
+    },
+    {
+      "slug": "oncrawl",
+      "name": "Oncrawl",
+      "group": "company",
+      "entityId": "oncrawl",
+      "definition": "跟踪技术 SEO、爬虫日志、可发现性和 AI 搜索研究。",
+      "aliases": [
+        "Oncrawl",
+        "OnCrawl"
+      ]
+    },
+    {
+      "slug": "botify",
+      "name": "Botify",
+      "group": "company",
+      "entityId": "botify",
+      "definition": "跟踪 Botify 的 AI 搜索发现、技术审计和企业案例。",
+      "aliases": [
+        "Botify"
+      ]
+    },
+    {
+      "slug": "brightedge",
+      "name": "BrightEdge",
+      "group": "company",
+      "entityId": "brightedge",
+      "definition": "跟踪 BrightEdge 的 AI 搜索监测、数据研究和工具变化。",
+      "aliases": [
+        "BrightEdge"
+      ]
+    },
+    {
+      "slug": "conductor",
+      "name": "Conductor",
+      "group": "company",
+      "entityId": "conductor",
+      "definition": "跟踪 Conductor 的 GEO 研究、内容与可见度工具。",
+      "aliases": [
+        "Conductor",
+        "Conductor AI"
+      ]
+    },
+    {
+      "slug": "profound",
+      "name": "Profound",
+      "group": "company",
+      "entityId": "profound",
+      "definition": "跟踪 Profound 的答案可见度、引用分析、研究和产品变化。",
+      "aliases": [
+        "Profound",
+        "Profound AI"
+      ]
+    },
+    {
+      "slug": "peec-ai",
+      "name": "Peec AI",
+      "group": "company",
+      "entityId": "peec-ai",
+      "definition": "跟踪 Peec AI 的多平台可见度监测、数据分析和产品变化。",
+      "aliases": [
+        "Peec AI",
+        "Peec"
+      ]
+    },
+    {
+      "slug": "otterly",
+      "name": "Otterly.AI",
+      "group": "company",
+      "entityId": "otterly",
+      "definition": "跟踪 Otterly.AI 的 AI 搜索监测、审计与研究。",
+      "aliases": [
+        "Otterly.AI",
+        "Otterly AI",
+        "Otterly"
+      ]
+    },
+    {
+      "slug": "athena-hq",
+      "name": "AthenaHQ",
+      "group": "company",
+      "entityId": "athena-hq",
+      "definition": "跟踪 AthenaHQ 的 GEO 工具、监测方法和案例。",
+      "aliases": [
+        "AthenaHQ",
+        "Athena HQ"
+      ]
+    },
+    {
+      "slug": "scrunch-ai",
+      "name": "Scrunch AI",
+      "group": "company",
+      "entityId": "scrunch-ai",
+      "definition": "跟踪 Scrunch AI 的 AI 搜索可见度、网站研究和产品变化。",
+      "aliases": [
+        "Scrunch AI",
+        "Scrunch"
+      ]
+    },
+    {
+      "slug": "cloudflare",
+      "name": "Cloudflare",
+      "group": "company",
+      "entityId": "cloudflare",
+      "definition": "跟踪 AI 爬虫、访问控制、日志与互联网流量研究。",
+      "aliases": [
+        "Cloudflare",
+        "Cloudflare Radar"
+      ]
+    },
+    {
+      "slug": "geo-foundations",
+      "name": "GEO 与 AEO",
+      "group": "field",
+      "tags": [
+        "GEO",
+        "AEO"
+      ],
+      "definition": "生成式引擎优化、答案引擎优化的定义、方法、争议与适用边界。"
+    },
+    {
+      "slug": "ai-search",
+      "name": "AI 搜索",
+      "group": "field",
+      "tags": [
+        "AI搜索"
+      ],
+      "definition": "生成式搜索、联网助手与答案引擎如何发现、选择并展示信息。"
+    },
+    {
+      "slug": "citations",
+      "name": "答案引用",
+      "group": "field",
+      "tags": [
+        "答案引用"
+      ],
+      "definition": "引用来源、链接、位置、频次和完整性的研究；引用不等于点击或排名。"
+    },
+    {
+      "slug": "brand-mentions",
+      "name": "品牌提及",
+      "group": "field",
+      "tags": [
+        "品牌提及"
+      ],
+      "definition": "品牌及产品在生成式答案中的提及、推荐与信息准确性。"
+    },
+    {
+      "slug": "crawlers",
+      "name": "抓取与爬虫",
+      "group": "field",
+      "tags": [
+        "抓取/爬虫"
+      ],
+      "definition": "搜索抓取、用户触发访问、日志审计与访问控制；不把抓取当成收录或引用。"
+    },
+    {
+      "slug": "indexing",
+      "name": "索引与收录",
+      "group": "field",
+      "tags": [
+        "索引/收录"
+      ],
+      "definition": "页面索引、渲染、站点地图、更新发现与检索可访问性。"
+    },
+    {
+      "slug": "robots",
+      "name": "robots.txt",
+      "group": "field",
+      "tags": [
+        "robots.txt"
+      ],
+      "definition": "不同平台与机器人对 robots.txt 的规则、控制范围和实际观察。"
+    },
+    {
+      "slug": "llms-txt",
+      "name": "llms.txt",
+      "group": "field",
+      "tags": [
+        "llms.txt"
+      ],
+      "definition": "追踪 llms.txt 提案、采用情况、实验与争论；不预设它是排名信号。"
+    },
+    {
+      "slug": "structured-data",
+      "name": "结构化数据",
+      "group": "field",
+      "tags": [
+        "结构化数据"
+      ],
+      "definition": "Schema.org、JSON-LD、结构化商品与组织数据的实现和证据边界。"
+    },
+    {
+      "slug": "content-quality",
+      "name": "内容质量",
+      "group": "field",
+      "tags": [
+        "内容质量"
+      ],
+      "definition": "清楚、可核验、原创、及时的内容组织方法和效果研究。"
+    },
+    {
+      "slug": "entities",
+      "name": "实体与知识图谱",
+      "group": "field",
+      "tags": [
+        "实体/知识图谱"
+      ],
+      "definition": "组织、人物、产品及其关系的准确表达、一致性和可识别性。"
+    },
+    {
+      "slug": "trust",
+      "name": "权威性与信任",
+      "group": "field",
+      "tags": [
+        "权威性/信任"
+      ],
+      "definition": "来源、作者、事实证据和第三方记录；区分实践建议与已验证影响。"
+    },
+    {
+      "slug": "retrieval",
+      "name": "RAG 与检索",
+      "group": "field",
+      "tags": [
+        "RAG/检索"
+      ],
+      "definition": "与网页发现和答案引用有关的检索、重排、查询扩展与生成研究。"
+    },
+    {
+      "slug": "visibility",
+      "name": "可见度监测",
+      "group": "field",
+      "tags": [
+        "可见度监测"
+      ],
+      "definition": "问题集、重复采样、平台与地区差异、可见度指标及测量局限。"
+    },
+    {
+      "slug": "attribution",
+      "name": "流量与归因",
+      "group": "field",
+      "tags": [
+        "流量/归因"
+      ],
+      "definition": "AI 引荐、点击、转化、零点击与来源归因；不同指标分别报告。"
+    },
+    {
+      "slug": "experiments",
+      "name": "实验设计",
+      "group": "field",
+      "tags": [
+        "实验设计"
+      ],
+      "definition": "对照、时间窗口、样本选择、变量控制、复现与因果解释。"
+    },
+    {
+      "slug": "failed-experiments",
+      "name": "失败实验与反例",
+      "group": "field",
+      "tags": [
+        "失败实验"
+      ],
+      "definition": "无效、下降、复现失败和与常见说法相反的结果，也保留局限。"
+    },
+    {
+      "slug": "local-search",
+      "name": "本地 GEO",
+      "group": "field",
+      "tags": [
+        "本地搜索"
+      ],
+      "definition": "本地商家、地点、评价与地理查询中的生成式答案和来源。"
+    },
+    {
+      "slug": "commerce",
+      "name": "电商与购物",
+      "group": "field",
+      "tags": [
+        "电商/购物"
+      ],
+      "definition": "商品信息、商家数据、购物答案、推荐与商业发现。"
+    },
+    {
+      "slug": "multilingual",
+      "name": "全球与多语言",
+      "group": "field",
+      "tags": [
+        "多语言"
+      ],
+      "definition": "不同语言、国家、地区和小语种市场中的 GEO 方法与差异。"
+    },
+    {
+      "slug": "rights",
+      "name": "版权与授权",
+      "group": "field",
+      "tags": [
+        "版权/授权"
+      ],
+      "definition": "发布者授权、抓取控制、内容使用政策和相关争议的原始资料。"
+    },
+    {
+      "slug": "spam-safety",
+      "name": "反垃圾与安全",
+      "group": "field",
+      "tags": [
+        "反垃圾/安全"
+      ],
+      "definition": "答案污染、虚假信息、提示词注入、品牌冒用与平台防护研究。"
+    },
+    {
+      "slug": "open-data",
+      "name": "开放数据",
+      "group": "field",
+      "tags": [
+        "开放数据"
+      ],
+      "definition": "可访问的问题集、实验数据、引用样本和测量方法。"
+    },
+    {
+      "slug": "open-tools",
+      "name": "开源工具",
+      "group": "field",
+      "tags": [
+        "开源工具",
+        "开源/仓库"
+      ],
+      "definition": "用于 GEO 分析、抓取审计、引用追踪与实验复现的开源项目。"
+    },
+    {
+      "slug": "communities",
+      "name": "社区与社媒",
+      "group": "field",
+      "tags": [
+        "社区讨论",
+        "社媒发现"
+      ],
+      "definition": "X、Reddit、论坛、公众号、知乎、小红书等公开讨论中的经验、提问、观点和实验线索。"
+    },
+    {
+      "slug": "platform-news",
+      "name": "平台更新",
+      "group": "genre",
+      "tags": [
+        "平台更新"
+      ],
+      "definition": "搜索平台的正式发布、功能与规则变化。"
+    },
+    {
+      "slug": "tool-releases",
+      "name": "工具发布",
+      "group": "genre",
+      "tags": [
+        "工具发布"
+      ],
+      "definition": "与 GEO 工作有关的工具发布及更新。"
+    },
+    {
+      "slug": "papers",
+      "name": "论文与研究",
+      "group": "genre",
+      "tags": [
+        "论文/研究"
+      ],
+      "definition": "引用、检索、生成式搜索与优化研究，包含预印本和复现。"
+    },
+    {
+      "slug": "benchmarks",
+      "name": "评测与基准",
+      "group": "genre",
+      "tags": [
+        "评测/基准"
+      ],
+      "definition": "GEO 测量方法、基准、公开实验与结果比较。"
+    },
+    {
+      "slug": "tutorials",
+      "name": "教程与实践",
+      "group": "genre",
+      "tags": [
+        "教程/实践"
+      ],
+      "definition": "有具体步骤和适用条件的实施、检查与分析方法。"
+    },
+    {
+      "slug": "case-studies",
+      "name": "案例与复盘",
+      "group": "genre",
+      "tags": [
+        "案例/复盘"
+      ],
+      "definition": "有明确对象和过程的实施记录，包含负结果和失败经验。"
+    },
+    {
+      "slug": "opinions",
+      "name": "观点与分析",
+      "group": "genre",
+      "tags": [
+        "观点/分析"
+      ],
+      "definition": "创作者、研究者、从业者的判断与争论，观点明确归于作者。"
+    },
+    {
+      "slug": "trends",
+      "name": "现象与趋势",
+      "group": "genre",
+      "tags": [
+        "现象/趋势"
+      ],
+      "definition": "AI 搜索使用、引用、流量和内容生态的变化与观察。"
+    },
+    {
+      "slug": "industry",
+      "name": "行业动态",
+      "group": "genre",
+      "tags": [
+        "行业动态"
+      ],
+      "definition": "直接影响 GEO 的合作、业务、投资与市场变化。"
+    },
+    {
+      "slug": "policy",
+      "name": "政策与规则",
+      "group": "genre",
+      "tags": [
+        "政策/规则"
+      ],
+      "definition": "平台规则、发布者政策、抓取权限与相关监管材料。"
+    }
+  ]
+}

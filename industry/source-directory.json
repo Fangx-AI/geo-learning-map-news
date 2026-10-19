@@ -1,0 +1,2839 @@
+{
+  "sources": [
+    {
+      "id": "google-search-central",
+      "name": "Google Search Central",
+      "url": "https://developers.google.com/search/blog",
+      "description": "Google 搜索官方博客；跟踪 AI 搜索、抓取、索引、展示控制与 Search Console 的变化。",
+      "language": "en",
+      "region": "全球",
+      "type": "官方平台",
+      "topics": [
+        "平台规则",
+        "抓取与索引",
+        "测量"
+      ],
+      "access": "rss",
+      "feedUrl": "https://feeds.feedburner.com/blogspot/amDG",
+      "evidence": "official",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured",
+      "sourceId": "rss-google-search-central"
+    },
+    {
+      "id": "google-search-updates",
+      "name": "Google 搜索文档更新",
+      "url": "https://developers.google.com/search/updates",
+      "description": "Google 搜索官方文档修订订阅，筛选 AI 搜索、生成内容、抓取与展示控制等相关更新；同月公告可能共用页面锚点，以官方订阅 GUID 区分，保留真实原文链接和公告日期。文档变化不等于搜索效果保证，也不是 Search Central 博客的完整替代。",
+      "language": "en",
+      "region": "全球",
+      "type": "官方平台",
+      "topics": [
+        "平台规则",
+        "抓取与索引",
+        "AI 搜索"
+      ],
+      "access": "rss",
+      "feedUrl": "https://developers.google.com/search/updates/search_docs_updates.rss",
+      "sourceId": "rss-google-search-doc-updates",
+      "evidence": "official",
+      "checkedAt": "2026-10-17",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "bing-webmaster",
+      "name": "Bing Webmaster Blog",
+      "url": "https://blogs.bing.com/webmaster/",
+      "description": "Bing 官方站长博客；关注 AI Performance、Copilot 引用与 IndexNow，指标解释以当期文档为准。",
+      "language": "en",
+      "region": "全球",
+      "type": "官方平台",
+      "topics": [
+        "平台规则",
+        "测量",
+        "引用"
+      ],
+      "access": "rss",
+      "feedUrl": "https://blogs.bing.com/webmaster/feed/",
+      "evidence": "official",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured",
+      "sourceId": "rss-bing-webmaster"
+    },
+    {
+      "id": "openai-news",
+      "name": "OpenAI News",
+      "url": "https://openai.com/news/",
+      "description": "OpenAI 官方发布；只筛选 ChatGPT Search、来源引用、内容发现和出版商相关变化，排除泛模型新闻。",
+      "language": "en",
+      "region": "全球",
+      "type": "官方平台",
+      "topics": [
+        "平台规则",
+        "ChatGPT",
+        "内容发现"
+      ],
+      "access": "rss",
+      "feedUrl": "https://openai.com/news/rss.xml",
+      "evidence": "official",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured",
+      "sourceId": "rss-openai-news"
+    },
+    {
+      "id": "openai-crawlers",
+      "name": "OpenAI Crawlers",
+      "url": "https://developers.openai.com/api/docs/bots",
+      "description": "搜索、训练与用户请求机器人的官方说明；规则参考页，不是新闻订阅。",
+      "language": "en",
+      "region": "全球",
+      "type": "官方平台",
+      "topics": [
+        "抓取与索引",
+        "ChatGPT",
+        "技术实施"
+      ],
+      "access": "website",
+      "evidence": "official",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "manual"
+    },
+    {
+      "id": "perplexity-blog",
+      "name": "Perplexity Blog",
+      "url": "https://www.perplexity.ai/en-GB/hub/blog",
+      "description": "Perplexity 官方发布与研究；关注检索、来源引用、出版商和搜索产品变化，产品自述需结合实测。",
+      "language": "en",
+      "region": "全球",
+      "type": "官方平台",
+      "topics": [
+        "平台规则",
+        "Perplexity",
+        "引用"
+      ],
+      "access": "website",
+      "evidence": "official",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured",
+      "sourceId": "web-perplexity-blog"
+    },
+    {
+      "id": "perplexity-crawlers",
+      "name": "Perplexity Crawlers",
+      "url": "https://docs.perplexity.ai/docs/resources/perplexity-crawlers",
+      "description": "Perplexity 抓取器与网络访问官方说明；用于核查机器人身份和访问条件。",
+      "language": "en",
+      "region": "全球",
+      "type": "官方平台",
+      "topics": [
+        "抓取与索引",
+        "Perplexity",
+        "技术实施"
+      ],
+      "access": "website",
+      "evidence": "official",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "manual"
+    },
+    {
+      "id": "indexnow",
+      "name": "IndexNow",
+      "url": "https://www.indexnow.org/documentation",
+      "description": "URL 更新通知协议原文；提交成功不等于已收录、被引用或获得推荐。",
+      "language": "en",
+      "region": "全球",
+      "type": "官方平台",
+      "topics": [
+        "抓取与索引",
+        "技术实施"
+      ],
+      "access": "website",
+      "evidence": "official",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "manual"
+    },
+    {
+      "id": "microsoft-clarity",
+      "name": "Microsoft Clarity AI Visibility",
+      "url": "https://learn.microsoft.com/en-us/clarity/ai-visibility/citations-dashboard",
+      "description": "引用、品牌查询与 AI 引荐流量的官方指标说明；须保留统计分母及样本范围。",
+      "language": "en",
+      "region": "全球",
+      "type": "官方平台",
+      "topics": [
+        "测量",
+        "引用",
+        "转化"
+      ],
+      "access": "website",
+      "evidence": "official",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "manual"
+    },
+    {
+      "id": "baidu-search",
+      "name": "百度搜索资源平台",
+      "url": "https://ziyuan.baidu.com/college/index",
+      "description": "中文站长学堂和搜索规范；未确认官方 RSS，部分列表与规则较旧，逐篇核对日期和适用产品。",
+      "language": "zh",
+      "region": "中国",
+      "type": "官方平台",
+      "topics": [
+        "平台规则",
+        "中文平台",
+        "抓取与索引"
+      ],
+      "access": "website",
+      "evidence": "official",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "manual"
+    },
+    {
+      "id": "baidu-search-api",
+      "name": "百度搜索 API",
+      "url": "https://ai.baidu.com/ai-doc/AppBuilder/pmaxd1hvy",
+      "description": "百度官方联网搜索接口文档；用于可记录的接口实验，不能推断文心消费端的排序规则。",
+      "language": "zh",
+      "region": "中国",
+      "type": "官方平台",
+      "topics": [
+        "中文平台",
+        "测量",
+        "技术实施"
+      ],
+      "access": "website",
+      "evidence": "official",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "manual"
+    },
+    {
+      "id": "volcengine-search",
+      "name": "火山引擎联网搜索 MCP",
+      "url": "https://github.com/volcengine/mcp-server/blob/main/server/mcp_server_askecho_search_infinity/README.md",
+      "description": "豆包搜索 Custom 版的官方搜索工具实现；API 实验与豆包 App 观察须分组记录。",
+      "language": "zh",
+      "region": "中国",
+      "type": "官方平台",
+      "topics": [
+        "中文平台",
+        "豆包",
+        "技术实施"
+      ],
+      "access": "website",
+      "evidence": "official",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "manual"
+    },
+    {
+      "id": "tencent-yuanbao",
+      "name": "腾讯元宝",
+      "url": "https://yuanbao.tencent.com/",
+      "description": "腾讯元宝官方产品入口；用于记录真实联网回答与引用，公开首页未提供可验证的站长排名规则。",
+      "language": "zh",
+      "region": "中国",
+      "type": "官方平台",
+      "topics": [
+        "中文平台",
+        "元宝",
+        "引用"
+      ],
+      "access": "website",
+      "evidence": "official",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "manual"
+    },
+    {
+      "id": "naver-search-advisor",
+      "name": "Naver Search Advisor",
+      "url": "https://searchadvisor.naver.com/guide",
+      "description": "韩国 Naver 官方站长指南；用于本地搜索技术与内容规范，不外推为其他引擎规则。",
+      "language": "ko",
+      "region": "韩国",
+      "type": "官方平台",
+      "topics": [
+        "平台规则",
+        "多语言",
+        "抓取与索引"
+      ],
+      "access": "website",
+      "evidence": "official",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "manual"
+    },
+    {
+      "id": "arxiv-ir",
+      "name": "arXiv · Information Retrieval",
+      "url": "https://arxiv.org/list/cs.IR/recent",
+      "description": "信息检索原始预印本目录；筛选生成式检索、GEO、引用评估和搜索实验，预印本不等同于已验证结论。",
+      "language": "en",
+      "region": "全球",
+      "type": "学术研究",
+      "topics": [
+        "论文",
+        "检索",
+        "测量"
+      ],
+      "access": "rss",
+      "feedUrl": "https://rss.arxiv.org/rss/cs.IR",
+      "evidence": "research",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured",
+      "sourceId": "rss-arxiv-ir"
+    },
+    {
+      "id": "geo-paper-code",
+      "name": "GEO 原论文与代码",
+      "url": "https://github.com/GEO-optim/GEO",
+      "description": "GEO 作者实现与数据入口；用于复查实验设置，离线候选集收益不能直接外推到线上平台。",
+      "language": "en",
+      "region": "全球",
+      "type": "学术研究",
+      "topics": [
+        "论文",
+        "可复现研究",
+        "GEO"
+      ],
+      "access": "research",
+      "evidence": "research",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "manual"
+    },
+    {
+      "id": "sageo-arena",
+      "name": "SAGEO Arena",
+      "url": "https://github.com/happysnail06/SAGEO_Arena",
+      "description": "作者发布的检索、重排与生成联合评估代码；按版本复现，分别报告各环节结果。",
+      "language": "en",
+      "region": "全球",
+      "type": "学术研究",
+      "topics": [
+        "论文",
+        "可复现研究",
+        "检索"
+      ],
+      "access": "research",
+      "evidence": "research",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "manual"
+    },
+    {
+      "id": "alce",
+      "name": "ALCE 引用评估",
+      "url": "https://github.com/princeton-nlp/ALCE",
+      "description": "带引用生成的作者代码与评估协议；关注正确性、引用支持与覆盖，区别于品牌可见度。",
+      "language": "en",
+      "region": "全球",
+      "type": "学术研究",
+      "topics": [
+        "论文",
+        "引用",
+        "可复现研究"
+      ],
+      "access": "research",
+      "evidence": "research",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "manual"
+    },
+    {
+      "id": "acl-anthology",
+      "name": "ACL Anthology",
+      "url": "https://aclanthology.org/",
+      "description": "计算语言学论文原文库；按检索增强、归因和引用评估筛选，记录论文版本与发表场合。",
+      "language": "en",
+      "region": "全球",
+      "type": "学术研究",
+      "topics": [
+        "论文",
+        "检索",
+        "引用"
+      ],
+      "access": "research",
+      "evidence": "research",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "manual"
+    },
+    {
+      "id": "sigir",
+      "name": "ACM SIGIR",
+      "url": "https://sigir.org/",
+      "description": "信息检索学术社区与会议入口；从论文和评估任务查找原始证据。",
+      "language": "en",
+      "region": "全球",
+      "type": "学术研究",
+      "topics": [
+        "论文",
+        "检索",
+        "测量"
+      ],
+      "access": "research",
+      "evidence": "research",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "manual"
+    },
+    {
+      "id": "search-engine-land",
+      "name": "Search Engine Land",
+      "url": "https://searchengineland.com/",
+      "description": "搜索行业专业媒体；用于发现动态，平台规则和数字须回溯官方或原始研究。 本轮普通 HTTP 访问受限，保留人工入口。",
+      "language": "en",
+      "region": "全球",
+      "type": "专业媒体",
+      "topics": [
+        "行业动态",
+        "SEO",
+        "GEO"
+      ],
+      "access": "website",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "manual"
+    },
+    {
+      "id": "search-engine-journal",
+      "name": "Search Engine Journal",
+      "url": "https://www.searchenginejournal.com/",
+      "description": "搜索营销媒体；新闻、作者意见与赞助内容需区分，方法和效果主张需核验。",
+      "language": "en",
+      "region": "全球",
+      "type": "专业媒体",
+      "topics": [
+        "行业动态",
+        "SEO",
+        "内容策略"
+      ],
+      "access": "rss",
+      "feedUrl": "https://www.searchenginejournal.com/feed/",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured",
+      "sourceId": "rss-search-engine-journal"
+    },
+    {
+      "id": "search-engine-roundtable",
+      "name": "Search Engine Roundtable",
+      "url": "https://www.seroundtable.com/",
+      "description": "搜索更新和站长讨论的报道入口；社区异常与传闻作为线索，不能当作已确认算法变化。",
+      "language": "en",
+      "region": "全球",
+      "type": "专业媒体",
+      "topics": [
+        "行业动态",
+        "SEO",
+        "测量"
+      ],
+      "access": "rss",
+      "feedUrl": "https://www.seroundtable.com/index.xml",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured",
+      "sourceId": "rss-search-engine-roundtable"
+    },
+    {
+      "id": "abondance",
+      "name": "Abondance",
+      "url": "https://www.abondance.com/",
+      "description": "法语 SEO 与搜索资讯；关注欧洲语境的生成式搜索，观点与转述需要回查原文。",
+      "language": "fr",
+      "region": "欧洲",
+      "type": "专业媒体",
+      "topics": [
+        "多语言",
+        "SEO",
+        "GEO"
+      ],
+      "access": "rss",
+      "feedUrl": "https://www.abondance.com/feed",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured",
+      "sourceId": "rss-abondance"
+    },
+    {
+      "id": "seo-suedwest",
+      "name": "SEO Südwest",
+      "url": "https://www.seo-suedwest.de/",
+      "description": "德语搜索专业报道；平台发言须保留时间和上下文，不将解读写成排名承诺。",
+      "language": "de",
+      "region": "欧洲",
+      "type": "专业媒体",
+      "topics": [
+        "多语言",
+        "SEO",
+        "平台规则"
+      ],
+      "access": "rss",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured",
+      "feedUrl": "https://www.seo-suedwest.de/?format=feed&type=rss",
+      "sourceId": "rss-seo-suedwest"
+    },
+    {
+      "id": "suzuki",
+      "name": "海外SEO情報ブログ · 鈴木謙一",
+      "url": "https://www.suzukikenichi.com/blog/",
+      "description": "日语搜索技术与官方变化解读；作者观点需回查引用原文和实验条件。",
+      "language": "ja",
+      "region": "日本",
+      "type": "实践作者",
+      "topics": [
+        "多语言",
+        "SEO",
+        "技术实施"
+      ],
+      "access": "rss",
+      "feedUrl": "https://www.suzukikenichi.com/blog/feed/",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured",
+      "sourceId": "rss-suzuki"
+    },
+    {
+      "id": "webtan",
+      "name": "Web担当者Forum",
+      "url": "https://webtan.impress.co.jp/",
+      "description": "日本网站运营与搜索专业媒体；仅选检索、AI 搜索、测量和内容实践，区分广告内容。 普通 HTTP 访问受限，已通过公开网页检索确认入口。",
+      "language": "ja",
+      "region": "日本",
+      "type": "专业媒体",
+      "topics": [
+        "多语言",
+        "SEO",
+        "测量"
+      ],
+      "access": "website",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "manual"
+    },
+    {
+      "id": "cloudflare",
+      "name": "Cloudflare Blog",
+      "url": "https://blog.cloudflare.com/",
+      "description": "基础设施厂商的一手机器人与流量分析；数据覆盖 Cloudflare 网络，不能代表整个互联网。",
+      "language": "en",
+      "region": "全球",
+      "type": "工具与数据",
+      "topics": [
+        "抓取与索引",
+        "机器人",
+        "测量"
+      ],
+      "access": "rss",
+      "feedUrl": "https://blog.cloudflare.com/rss/",
+      "evidence": "vendor",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured",
+      "sourceId": "rss-cloudflare"
+    },
+    {
+      "id": "ahrefs",
+      "name": "Ahrefs Blog",
+      "url": "https://ahrefs.com/blog/",
+      "description": "SEO 工具厂商的数据研究与实践；自报样本、指标口径、商业立场和因果推断须核验。",
+      "language": "en",
+      "region": "全球",
+      "type": "工具与数据",
+      "topics": [
+        "测量",
+        "SEO",
+        "GEO"
+      ],
+      "access": "rss",
+      "feedUrl": "https://ahrefs.com/blog/feed/",
+      "evidence": "vendor",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured",
+      "sourceId": "rss-ahrefs"
+    },
+    {
+      "id": "semrush",
+      "name": "Semrush Blog",
+      "url": "https://www.semrush.com/blog/",
+      "description": "工具厂商的搜索与 AI 可见度研究；样本和效果为厂商自报，保留方法与局限。",
+      "language": "en",
+      "region": "全球",
+      "type": "工具与数据",
+      "topics": [
+        "测量",
+        "GEO",
+        "内容策略"
+      ],
+      "access": "rss",
+      "evidence": "vendor",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured",
+      "feedUrl": "https://www.semrush.com/blog/feed/",
+      "sourceId": "rss-semrush"
+    },
+    {
+      "id": "moz",
+      "name": "Moz Blog",
+      "url": "https://moz.com/blog",
+      "description": "SEO 方法、搜索研究和实践文章；观点及工具自报数据需独立核验。",
+      "language": "en",
+      "region": "全球",
+      "type": "工具与数据",
+      "topics": [
+        "SEO",
+        "内容策略",
+        "测量"
+      ],
+      "access": "website",
+      "evidence": "vendor",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "manual"
+    },
+    {
+      "id": "sistrix-de",
+      "name": "SISTRIX 德语博客",
+      "url": "https://www.sistrix.de/news/",
+      "description": "德国搜索数据与可见度研究；保留指数定义、市场、样本和工具商业立场。",
+      "language": "de",
+      "region": "欧洲",
+      "type": "工具与数据",
+      "topics": [
+        "多语言",
+        "测量",
+        "SEO"
+      ],
+      "access": "website",
+      "evidence": "vendor",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "manual"
+    },
+    {
+      "id": "screaming-frog",
+      "name": "Screaming Frog Blog",
+      "url": "https://www.screamingfrog.co.uk/blog/",
+      "description": "抓取与技术诊断的工具实践；可复现实操优先，工具检测通过不等于 AI 引用提升。",
+      "language": "en",
+      "region": "全球",
+      "type": "工具与数据",
+      "topics": [
+        "技术实施",
+        "抓取与索引",
+        "测量"
+      ],
+      "access": "rss",
+      "evidence": "vendor",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured",
+      "feedUrl": "https://www.screamingfrog.co.uk/blog/feed/",
+      "sourceId": "rss-screaming-frog"
+    },
+    {
+      "id": "searchpilot",
+      "name": "SearchPilot · GEO / SEO 实验",
+      "url": "https://www.searchpilot.com/resources/blog",
+      "description": "SearchPilot 的实验方法与案例；公开说明对照/变体页面、反事实估计及可信区间。作者销售测试平台，算法实现和客户原始数据未必公开；总订阅亦含访谈与产品观点，SEO 实验结论不直接外推至所有 AI 平台。",
+      "language": "en",
+      "region": "全球",
+      "type": "工具与数据",
+      "topics": [
+        "可复现研究",
+        "测量",
+        "GEO"
+      ],
+      "access": "rss",
+      "feedUrl": "https://www.searchpilot.com/resources/blog/rss.xml",
+      "sourceId": "rss-searchpilot",
+      "evidence": "vendor",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "profound",
+      "name": "Profound Blog",
+      "url": "https://www.tryprofound.com/blog",
+      "description": "AI 搜索可见度厂商的研究和案例；自报引用数据须核验题集、引擎、周期和分母。",
+      "language": "en",
+      "region": "全球",
+      "type": "工具与数据",
+      "topics": [
+        "GEO",
+        "测量",
+        "引用"
+      ],
+      "access": "website",
+      "evidence": "vendor",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured",
+      "sourceId": "web-profound"
+    },
+    {
+      "id": "otterly",
+      "name": "OtterlyAI Blog",
+      "url": "https://otterly.ai/blog/",
+      "description": "AI 搜索监测工具的文章与实践；工具自报数据和产品宣传需核验，不视为平台规则。",
+      "language": "en",
+      "region": "欧洲",
+      "type": "工具与数据",
+      "topics": [
+        "GEO",
+        "测量",
+        "引用"
+      ],
+      "access": "website",
+      "evidence": "vendor",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "manual"
+    },
+    {
+      "id": "similarweb",
+      "name": "Similarweb · AI Search 数据",
+      "url": "https://aisearch.similarweb.com/blog/",
+      "description": "Similarweb 官方 AI Search 专栏，包含自有面板的 AI 引荐、引用及搜索广告数据，也有作者建议与工具推广。当前公开列表提供标题与发布日期但无摘要；按 GEO 相关性筛选，可能漏掉标题隐含相关的数据文章。面板估算不等同于全网实数、独立研究或因果结论；此前旧主站访问检查记录不代表新子站不可读。",
+      "language": "en",
+      "region": "全球",
+      "type": "工具与数据",
+      "topics": [
+        "AI 搜索",
+        "测量",
+        "流量",
+        "转化"
+      ],
+      "access": "website",
+      "evidence": "vendor",
+      "checkedAt": "2026-10-17",
+      "collectionStatus": "configured",
+      "sourceId": "web-similarweb-ai-search"
+    },
+    {
+      "id": "aleyda-solis",
+      "name": "Aleyda Solis",
+      "url": "https://www.aleydasolis.com/en/blog/",
+      "description": "国际 SEO 从业者的实操与整理；优先有原始链接和执行步骤的内容，观点需自行验证。 普通 HTTP 访问受限，已通过公开网页检索确认入口。",
+      "language": "en",
+      "region": "欧洲",
+      "type": "实践作者",
+      "topics": [
+        "多语言",
+        "SEO",
+        "内容策略"
+      ],
+      "access": "website",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "manual"
+    },
+    {
+      "id": "growth-memo",
+      "name": "Growth Memo · Kevin Indig",
+      "url": "https://www.growth-memo.com/",
+      "description": "搜索增长与 AI 搜索的作者分析；部分付费，自报数据与解释需要复核。",
+      "language": "en",
+      "region": "全球",
+      "type": "实践作者",
+      "topics": [
+        "GEO",
+        "测量",
+        "内容策略"
+      ],
+      "access": "rss",
+      "feedUrl": "https://www.growth-memo.com/feed",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured",
+      "sourceId": "rss-growth-memo"
+    },
+    {
+      "id": "marie-haynes",
+      "name": "Marie Haynes",
+      "url": "https://www.mariehaynes.com/blog/",
+      "description": "搜索质量、AI 搜索和内容实践分析；作者判断不是 Google 官方规则，案例需核验。",
+      "language": "en",
+      "region": "全球",
+      "type": "实践作者",
+      "topics": [
+        "内容策略",
+        "SEO",
+        "GEO"
+      ],
+      "access": "rss",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured",
+      "feedUrl": "https://www.mariehaynes.com/feed/",
+      "sourceId": "rss-marie-haynes"
+    },
+    {
+      "id": "glenn-gabe",
+      "name": "Glenn Gabe · GSQi",
+      "url": "https://www.gsqi.com/marketing-blog/",
+      "description": "Glenn Gabe 的原始站点诊断与搜索案例；抽样有跨引擎核对步骤、可见度图表及后续更新。作者提供 SEO 咨询，案例和第三方工具数据多为观察性证据，客户样本未必完整公开，不能据单例推断普遍因果。",
+      "language": "en",
+      "region": "全球",
+      "type": "实践作者",
+      "topics": [
+        "技术实施",
+        "测量",
+        "AI 搜索"
+      ],
+      "access": "rss",
+      "feedUrl": "https://www.gsqi.com/marketing-blog/feed/",
+      "sourceId": "rss-gsqi",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "brodie-clark",
+      "name": "Brodie Clark",
+      "url": "https://brodieclark.com/",
+      "description": "搜索结果功能、AI 搜索展示与技术观察；单次截图和地区测试不代表全球发布。",
+      "language": "en",
+      "region": "全球",
+      "type": "实践作者",
+      "topics": [
+        "行业动态",
+        "测量",
+        "GEO"
+      ],
+      "access": "rss",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured",
+      "feedUrl": "https://brodieclark.com/feed/",
+      "sourceId": "rss-brodie-clark"
+    },
+    {
+      "id": "ipullrank",
+      "name": "iPullRank",
+      "url": "https://ipullrank.com/blog",
+      "description": "搜索技术与生成式搜索的机构实践；作者观点和客户自报效果需核查原始证据。",
+      "language": "en",
+      "region": "全球",
+      "type": "实践作者",
+      "topics": [
+        "GEO",
+        "技术实施",
+        "内容策略"
+      ],
+      "access": "rss",
+      "evidence": "vendor",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured",
+      "feedUrl": "https://ipullrank.com/feed/",
+      "sourceId": "rss-ipullrank"
+    },
+    {
+      "id": "human-level",
+      "name": "Human Level",
+      "url": "https://www.humanlevel.com/blog",
+      "description": "西班牙语 SEO 技术与内容实践；服务商观点和案例需核验，保留当地市场条件。",
+      "language": "es",
+      "region": "欧洲",
+      "type": "实践作者",
+      "topics": [
+        "多语言",
+        "SEO",
+        "技术实施"
+      ],
+      "access": "website",
+      "evidence": "vendor",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured",
+      "sourceId": "web-human-level"
+    },
+    {
+      "id": "sistrix-es",
+      "name": "SISTRIX 西语博客",
+      "url": "https://www.sistrix.es/blog/",
+      "description": "西班牙语搜索可见度分析；与德语站属于同一机构，重复报道不能累计为独立证据。",
+      "language": "es",
+      "region": "欧洲",
+      "type": "工具与数据",
+      "topics": [
+        "多语言",
+        "测量",
+        "SEO"
+      ],
+      "access": "website",
+      "evidence": "vendor",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "manual"
+    },
+    {
+      "id": "agencia-mestre",
+      "name": "Agência Mestre",
+      "url": "https://www.agenciamestre.com/blog/",
+      "description": "巴西葡萄牙语搜索实践；服务商案例和增长数据为自报，须核对原始方法。",
+      "language": "pt",
+      "region": "拉美",
+      "type": "实践作者",
+      "topics": [
+        "多语言",
+        "SEO",
+        "内容策略"
+      ],
+      "access": "website",
+      "evidence": "vendor",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "manual"
+    },
+    {
+      "id": "conversion-br",
+      "name": "Conversion Brasil",
+      "url": "https://www.conversion.com.br/blog/",
+      "description": "巴西 SEO、AI 搜索与行业数据；服务商研究需要核验样本、定义和商业立场。",
+      "language": "pt",
+      "region": "拉美",
+      "type": "工具与数据",
+      "topics": [
+        "多语言",
+        "GEO",
+        "测量"
+      ],
+      "access": "website",
+      "evidence": "vendor",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "manual"
+    },
+    {
+      "id": "google-search-community",
+      "name": "Google Search Central Community",
+      "url": "https://support.google.com/webmasters/community?hl=en",
+      "description": "站长问答和具体问题线索；用户帖子与专家回复不自动等于官方政策，回查文档和实测。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "技术实施",
+        "SEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "manual"
+    },
+    {
+      "id": "reddit-techseo",
+      "name": "Reddit · TechSEO",
+      "url": "https://www.reddit.com/r/TechSEO/",
+      "description": "技术 SEO 与抓取问题讨论；匿名经验、投票和截图仅作线索，不当作已验证事实。 本轮正常 HTTP 与 RSS 请求均受限，未配置自动抓取。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "技术实施",
+        "测量",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "requires_api"
+    },
+    {
+      "id": "reddit-bigseo",
+      "name": "Reddit · BigSEO",
+      "url": "https://www.reddit.com/r/bigseo/",
+      "description": "SEO 从业者讨论和案例线索；推广、匿名结论与自报成绩需独立核验。 本轮正常 HTTP 与 RSS 请求均受限，未配置自动抓取。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "SEO",
+        "GEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "requires_api"
+    },
+    {
+      "id": "x-geo-search",
+      "name": "X · GEO 公开检索",
+      "url": "https://x.com/search?q=%22generative%20engine%20optimization%22&src=typed_query&f=live",
+      "description": "全球 GEO 讨论检索入口；持续搜索尚未接入，页面或官方接口可能要求登录与授权。已发现链接的公开原帖可由独立入口读取；帖子仅作线索。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "GEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "x-aeo-search",
+      "name": "X · AEO 公开检索",
+      "url": "https://x.com/search?q=%22answer%20engine%20optimization%22&src=typed_query&f=live",
+      "description": "AEO 讨论检索入口；避免缩写歧义，持续搜索尚未接入。已发现链接的公开原帖可由独立入口读取，推广与自报效果需核验。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "AEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "x-ai-search",
+      "name": "X · AI Search 公开检索",
+      "url": "https://x.com/search?q=%22AI%20search%22%20(citations%20OR%20SEO%20OR%20visibility)&src=typed_query&f=live",
+      "description": "AI 搜索、引用和可见度讨论入口；持续搜索尚未接入，部分访问可能需要登录或授权。已发现原帖的公开读取另列入口，不保证覆盖全部结果。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "引用",
+        "测量",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "x-searchliaison",
+      "name": "X · Google SearchLiaison",
+      "url": "https://x.com/searchliaison",
+      "description": "Google 搜索沟通账号入口；官方发言须保留原帖、时间和上下文。完整账号时间线尚未接入，已发现链接的公开原帖可由独立入口读取。",
+      "language": "en",
+      "region": "全球",
+      "type": "官方平台",
+      "topics": [
+        "平台规则",
+        "SEO"
+      ],
+      "access": "community",
+      "evidence": "official",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "x-johnmu",
+      "name": "X · John Mueller",
+      "url": "https://x.com/JohnMu",
+      "description": "Google 搜索人员的公开交流；个人回复与正式文档分开，具体结论回查官方原文。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "平台规则",
+        "技术实施"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "x-aleyda",
+      "name": "X · Aleyda Solis",
+      "url": "https://x.com/aleyda",
+      "description": "国际 SEO 从业者观点和资源线索；完整账号时间线尚未接入，已发现链接的公开原帖可由独立入口读取。观点与自报数据需核验。",
+      "language": "en",
+      "region": "欧洲",
+      "type": "社区",
+      "topics": [
+        "多语言",
+        "SEO",
+        "GEO"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "x-lily-ray",
+      "name": "X · Lily Ray",
+      "url": "https://x.com/lilyraynyc",
+      "description": "搜索质量与 AI 搜索的从业者观察；帖子和截图需核对原始样本与适用范围。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "SEO",
+        "GEO",
+        "内容策略"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "x-mike-king",
+      "name": "X · iPullRank",
+      "url": "https://x.com/iPullRank",
+      "description": "iPullRank 机构账号的搜索技术与 GEO 讨论；商业观点、自报案例及推测均须核验。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "GEO",
+        "技术实施"
+      ],
+      "access": "community",
+      "evidence": "vendor",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "x-kevin-indig",
+      "name": "X · Kevin Indig",
+      "url": "https://x.com/Kevin_Indig",
+      "description": "搜索增长研究和数据线索；原始文章与实验口径优先，社交摘录不能代替证据。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "测量",
+        "GEO"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "x-barry-schwartz",
+      "name": "X · Barry Schwartz",
+      "url": "https://x.com/rustybrick",
+      "description": "搜索新闻与平台发言线索；转述和传闻应回溯原帖与官方公告。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "行业动态",
+        "SEO"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "reddit-seo",
+      "name": "Reddit · SEO",
+      "url": "https://www.reddit.com/r/SEO/",
+      "description": "SEO 社群的 AI 搜索与运营讨论；公开访问可能受限，批量接入遵守 Reddit API 条件。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "SEO",
+        "GEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "reddit-geo-search",
+      "name": "Reddit · GEO 站内检索",
+      "url": "https://www.reddit.com/search/?q=%22generative%20engine%20optimization%22&sort=new",
+      "description": "跨社群检索 GEO 内容；用完整术语避免地理类 GEO 歧义，匿名自报与推广需要核验。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "GEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "youtube-search-central",
+      "name": "YouTube · Google Search Central",
+      "url": "https://www.youtube.com/@GoogleSearchCentral",
+      "description": "Google 搜索官方视频入口；具体主张必须引用单集时间戳，不能把整个频道视为逐集核验。",
+      "language": "en",
+      "region": "全球",
+      "type": "官方平台",
+      "topics": [
+        "平台规则",
+        "技术实施",
+        "视频"
+      ],
+      "access": "community",
+      "evidence": "official",
+      "collectionStatus": "manual",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "youtube-ahrefs",
+      "name": "YouTube · Ahrefs",
+      "url": "https://www.youtube.com/@AhrefsCom",
+      "description": "搜索实操与 AI 可见度视频；厂商演示和自报结果需核验，不自动转写或转载字幕。",
+      "language": "en",
+      "region": "全球",
+      "type": "工具与数据",
+      "topics": [
+        "SEO",
+        "GEO",
+        "视频"
+      ],
+      "access": "community",
+      "evidence": "vendor",
+      "collectionStatus": "manual",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "youtube-geo-search",
+      "name": "YouTube · GEO 英文检索",
+      "url": "https://www.youtube.com/results?search_query=generative+engine+optimization",
+      "description": "GEO 教程、访谈和实验视频检索；先确认作者和原始证据，付费课程广告不作为独立研究。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "GEO",
+        "视频",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "manual",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "youtube-geo-zh-search",
+      "name": "YouTube · GEO 中文检索",
+      "url": "https://www.youtube.com/results?search_query=GEO+%E7%94%9F%E6%88%90%E5%BC%8F%E5%BC%95%E6%93%8E%E4%BC%98%E5%8C%96",
+      "description": "中文 GEO 视频发现入口；核对平台、日期与样本，不采纳保证排名或收录的宣传。",
+      "language": "zh",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "GEO",
+        "中文平台",
+        "视频"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "manual",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "linkedin-geo-search",
+      "name": "LinkedIn · GEO 内容检索",
+      "url": "https://www.linkedin.com/search/results/content/?keywords=generative%20engine%20optimization",
+      "description": "专业从业者文章、案例与讨论；通常要求登录，未经授权不批量采集，商业自报需核验。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "GEO",
+        "测量",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "requires_login",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "hacker-news-geo",
+      "name": "Hacker News · GEO 检索",
+      "url": "https://hn.algolia.com/?query=generative%20engine%20optimization&sort=byDate&type=story",
+      "description": "通过 HN Search / Algolia 公开免密钥 JSON 接口按投稿时间读取最新 100 条检索结果；保留 HN 讨论链接与投稿日期，用户经验和链接只作研究线索。不是评论全集或历史全量。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "GEO",
+        "技术实施",
+        "社区讨论"
+      ],
+      "access": "api",
+      "evidence": "community",
+      "collectionStatus": "configured",
+      "checkedAt": "2026-10-16",
+      "sourceId": "rss-hacker-news-geo"
+    },
+    {
+      "id": "bluesky-geo",
+      "name": "Bluesky · GEO 检索",
+      "url": "https://bsky.app/search?q=%22generative%20engine%20optimization%22",
+      "description": "开放社交关键词检索入口；检索可用性取决于客户端和登录条件，自动搜索需另接 API。已单独接入的公开账号原生 RSS 无需登录或密钥，见具体账号条目。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "GEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "mastodon-seo",
+      "name": "Mastodon · SEO 标签",
+      "url": "https://mastodon.social/tags/seo",
+      "description": "联邦社交中的 SEO 讨论；该实例只覆盖部分联邦内容，不能称为全网社交覆盖。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "SEO",
+        "GEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "manual",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "github-geo-search",
+      "name": "GitHub · GEO 项目检索",
+      "url": "https://github.com/search?q=%22generative+engine+optimization%22&type=repositories",
+      "description": "公开代码与评估工具发现入口；星数不等于有效性，检查许可证、提交版本和可复现步骤。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "开源",
+        "GEO",
+        "可复现研究"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "manual",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "zhihu-geo",
+      "name": "知乎 · GEO 检索",
+      "url": "https://www.zhihu.com/search?type=content&q=GEO%20%E7%94%9F%E6%88%90%E5%BC%8F%E5%BC%95%E6%93%8E%E4%BC%98%E5%8C%96",
+      "description": "中文问答与长文发现入口；可能需要登录，用户观点和服务商案例需核查。",
+      "language": "zh",
+      "region": "中国",
+      "type": "社区",
+      "topics": [
+        "中文平台",
+        "GEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "requires_login",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "xiaohongshu-geo",
+      "name": "小红书 · GEO 检索",
+      "url": "https://www.xiaohongshu.com/search_result?keyword=GEO",
+      "description": "中文实操、商家需求与内容案例入口；通常需要登录，避免把营销笔记和自报截图当作事实。",
+      "language": "zh",
+      "region": "中国",
+      "type": "社区",
+      "topics": [
+        "中文平台",
+        "GEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "requires_login",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "weibo-geo",
+      "name": "微博 · GEO 检索",
+      "url": "https://s.weibo.com/weibo?q=GEO%20AI%E6%90%9C%E7%B4%A2",
+      "description": "中文社交讨论入口；可能需要登录，按完整语境过滤同名词、软文与转载。",
+      "language": "zh",
+      "region": "中国",
+      "type": "社区",
+      "topics": [
+        "中文平台",
+        "GEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "requires_login",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "bilibili-geo",
+      "name": "哔哩哔哩 · GEO 检索",
+      "url": "https://search.bilibili.com/all?keyword=GEO%20%E7%94%9F%E6%88%90%E5%BC%8F%E5%BC%95%E6%93%8E%E4%BC%98%E5%8C%96",
+      "description": "中文讲解与演示视频检索；保留单集链接和时间戳，案例数据与培训广告需核验。 本轮请求返回验证码页，未验证检索结果。",
+      "language": "zh",
+      "region": "中国",
+      "type": "社区",
+      "topics": [
+        "中文平台",
+        "GEO",
+        "视频"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "requires_login",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "douyin-geo",
+      "name": "抖音 · GEO 检索",
+      "url": "https://www.douyin.com/search/GEO",
+      "description": "短视频实操与商家讨论入口；可能要求登录，完整观看后核验结论，不承诺批量抓取。",
+      "language": "zh",
+      "region": "中国",
+      "type": "社区",
+      "topics": [
+        "中文平台",
+        "GEO",
+        "视频"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "requires_login",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "language": "zh",
+      "region": "中国",
+      "type": "社区",
+      "topics": [
+        "GEO",
+        "中文平台",
+        "公开索引"
+      ],
+      "access": "website",
+      "evidence": "community",
+      "collectionStatus": "configured",
+      "checkedAt": "2026-10-16",
+      "id": "wechat-geo-search",
+      "sourceId": "web-wechat-sogou-geo",
+      "name": "微信公众号 · 搜狗公开索引",
+      "url": "https://weixin.sogou.com/weixin?type=2&query=GEO%20%E7%94%9F%E6%88%90%E5%BC%8F%E5%BC%95%E6%93%8E%E4%BC%98%E5%8C%96",
+      "description": "动态搜索索引已接入：读取公众号署名、索引摘要和明确发布时间；保留搜狗结果链接，不等于公众号原文或账号全量采集。实测跳转原文遇验证码便停止；作者观点与营销自报数据需核验。"
+    },
+    {
+      "id": "juejin-geo",
+      "name": "掘金 · GEO 检索",
+      "url": "https://juejin.cn/search?query=GEO",
+      "description": "中文技术文章与开源实践入口；筛选生成式搜索语义，作者代码和性能自报须复测。",
+      "language": "zh",
+      "region": "中国",
+      "type": "社区",
+      "topics": [
+        "中文平台",
+        "技术实施",
+        "开源"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "manual",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "csdn-geo",
+      "name": "CSDN · GEO 检索",
+      "url": "https://so.csdn.net/so/search?q=GEO%20%E7%94%9F%E6%88%90%E5%BC%8F%E5%BC%95%E6%93%8E%E4%BC%98%E5%8C%96",
+      "description": "中文技术文章入口；重复转载、批量生成与营销文较多，优先原作者代码和可复现证据。",
+      "language": "zh",
+      "region": "中国",
+      "type": "社区",
+      "topics": [
+        "中文平台",
+        "GEO",
+        "技术实施"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "manual",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "v2ex-webmaster",
+      "name": "V2EX · 站长",
+      "url": "https://www.v2ex.com/go/webmaster",
+      "description": "独立站运营和搜索讨论入口；匿名经验仅作线索，核对站点条件、样本和日期。",
+      "language": "zh",
+      "region": "中国",
+      "type": "社区",
+      "topics": [
+        "中文平台",
+        "SEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "manual",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "baidu-tieba-seo",
+      "name": "百度贴吧 · SEO",
+      "url": "https://tieba.baidu.com/f?kw=seo",
+      "description": "中文站长社区入口；营销推广与未经证实的技巧需过滤，自动化接入需遵守平台条件。",
+      "language": "zh",
+      "region": "中国",
+      "type": "社区",
+      "topics": [
+        "中文平台",
+        "SEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "requires_login",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "note-geo",
+      "name": "note · GEO 检索",
+      "url": "https://note.com/search?q=GEO%20AI%E6%A4%9C%E7%B4%A2&context=note",
+      "description": "日本创作者平台的 AI 搜索讨论；付费文章与服务商观点需标注，先核对原始来源。",
+      "language": "ja",
+      "region": "日本",
+      "type": "社区",
+      "topics": [
+        "多语言",
+        "GEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "manual",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "qiita-geo",
+      "name": "Qiita · GEO 检索",
+      "url": "https://qiita.com/search?q=GEO",
+      "description": "日本技术社区检索入口；GEO 可能指地理技术，只有生成式检索相关内容进入候选。",
+      "language": "ja",
+      "region": "日本",
+      "type": "社区",
+      "topics": [
+        "多语言",
+        "技术实施",
+        "开源"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "manual",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "naver-blog-geo",
+      "name": "Naver Blog · GEO 检索",
+      "url": "https://search.naver.com/search.naver?where=blog&query=GEO%20AI%20%EA%B2%80%EC%83%89",
+      "description": "韩国博客与搜索实践发现入口；作者自报数据和本地服务营销需要核验。",
+      "language": "ko",
+      "region": "韩国",
+      "type": "社区",
+      "topics": [
+        "多语言",
+        "GEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "manual",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "reddit-geo-optimization",
+      "name": "Reddit · GEO_optimization",
+      "url": "https://www.reddit.com/r/GEO_optimization/",
+      "description": "已核对存在的 GEO 专题社区；自报实验、营销帖和讨论分开。社区列表的普通 HTTP 访问受限，已发现链接的公开原帖可由独立入口读取，覆盖不保证完整。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "GEO",
+        "测量"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "reddit-aeo",
+      "name": "Reddit · AEO",
+      "url": "https://www.reddit.com/r/aeo/",
+      "description": "已核对存在的答案引擎优化社区；帖子仅作线索，需保留题集、平台和原始数据。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "AEO",
+        "引用"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "reddit-llmtraffic",
+      "name": "Reddit · LLMTraffic",
+      "url": "https://www.reddit.com/r/LLMTraffic/",
+      "description": "已核对存在的 AI 引荐流量讨论社区；自报流量、引用与成交必须分别核验。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "测量",
+        "流量",
+        "转化"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "webmasters-stackexchange",
+      "name": "Webmasters Stack Exchange · SEO",
+      "url": "https://webmasters.stackexchange.com/questions/tagged/seo",
+      "description": "站长技术问答；票数与采纳不代表平台官方结论，优先验证仍适用的技术解决方案。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "技术实施",
+        "SEO"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "manual",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "threads-geo",
+      "name": "Threads · GEO 检索",
+      "url": "https://www.threads.com/search?q=generative%20engine%20optimization&serp_type=default",
+      "description": "Threads 讨论检索入口；部分内容需要登录，未接入自动采集，作者观点与自报效果需核验。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "GEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "requires_login",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "quora-geo",
+      "name": "Quora · GEO 检索",
+      "url": "https://www.quora.com/search?q=generative%20engine%20optimization",
+      "description": "GEO 问答检索入口；当前直接读取受限，人工登录访问后再核验作者与原始证据。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "GEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "community",
+      "collectionStatus": "requires_login",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "x-google-search-central",
+      "name": "X · Google Search Central",
+      "url": "https://x.com/googlesearchc",
+      "description": "Google 搜索官方开发者账号；用于文档、抓取和 Search Console 更新，需回溯官方正文。 完整账号时间线尚未接入；已发现链接的公开原帖可通过独立入口读取，覆盖不保证完整。",
+      "language": "en",
+      "region": "全球",
+      "type": "官方平台",
+      "topics": [
+        "GEO",
+        "SEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "official",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "x-fabrice-canel",
+      "name": "X · Fabrice Canel",
+      "url": "https://x.com/facan",
+      "description": "搜索、抓取与 IndexNow 的专业交流；具体功能口径以 Bing 官方文档为准。 完整账号时间线尚未接入；已发现链接的公开原帖可通过独立入口读取，覆盖不保证完整。",
+      "language": "en",
+      "region": "全球",
+      "type": "实践作者",
+      "topics": [
+        "GEO",
+        "SEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "editorial",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "x-brodie-clark",
+      "name": "X · Brodie Clark",
+      "url": "https://x.com/brodieseo",
+      "description": "搜索展示与 AI 搜索观察账号；与作者网站属同一来源，不重复计作独立证据。 完整账号时间线尚未接入；已发现链接的公开原帖可通过独立入口读取，覆盖不保证完整。",
+      "language": "en",
+      "region": "全球",
+      "type": "实践作者",
+      "topics": [
+        "GEO",
+        "SEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "editorial",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "x-marie-haynes",
+      "name": "X · Marie Haynes",
+      "url": "https://x.com/Marie_Haynes",
+      "description": "内容质量与 AI 搜索的作者讨论；与作者博客同源，个人解释不等于平台规则。 完整账号时间线尚未接入；已发现链接的公开原帖可通过独立入口读取，覆盖不保证完整。",
+      "language": "en",
+      "region": "全球",
+      "type": "实践作者",
+      "topics": [
+        "GEO",
+        "SEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "editorial",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "x-glenn-gabe",
+      "name": "X · Glenn Gabe",
+      "url": "https://x.com/glenngabe",
+      "description": "搜索更新与技术诊断的案例线索；与 GSQi 博客同源，自报影响需核对样本。 完整账号时间线尚未接入；已发现链接的公开原帖可通过独立入口读取，覆盖不保证完整。",
+      "language": "en",
+      "region": "全球",
+      "type": "实践作者",
+      "topics": [
+        "GEO",
+        "SEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "editorial",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "x-rand-fishkin",
+      "name": "X · Rand Fishkin",
+      "url": "https://x.com/randfish",
+      "description": "搜索行为、零点击与受众研究讨论；厂商或面板自报数据须核对覆盖和分母。 完整账号时间线尚未接入；已发现链接的公开原帖可通过独立入口读取，覆盖不保证完整。",
+      "language": "en",
+      "region": "全球",
+      "type": "实践作者",
+      "topics": [
+        "GEO",
+        "SEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "editorial",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "x-cyrus-shepard",
+      "name": "X · Cyrus Shepard",
+      "url": "https://x.com/CyrusShepard",
+      "description": "SEO 实验与站点实践讨论；仅筛选内容发现、搜索可见度和测量相关证据。 完整账号时间线尚未接入；已发现链接的公开原帖可通过独立入口读取，覆盖不保证完整。",
+      "language": "en",
+      "region": "全球",
+      "type": "实践作者",
+      "topics": [
+        "GEO",
+        "SEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "editorial",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "x-gianluca-fiorelli",
+      "name": "X · Gianluca Fiorelli",
+      "url": "https://x.com/gfiorelli1",
+      "description": "国际 SEO、语义与内容策略的从业者观点；多语言结论须保留市场条件。 完整账号时间线尚未接入；已发现链接的公开原帖可通过独立入口读取，覆盖不保证完整。",
+      "language": "en",
+      "region": "欧洲",
+      "type": "实践作者",
+      "topics": [
+        "GEO",
+        "SEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "editorial",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "x-martin-splitt",
+      "name": "X · Martin Splitt",
+      "url": "https://x.com/g33konaut",
+      "description": "网页渲染、抓取与搜索技术讨论；技术实现与 AI 推荐结果分别验证。 完整账号时间线尚未接入；已发现链接的公开原帖可通过独立入口读取，覆盖不保证完整。",
+      "language": "en",
+      "region": "全球",
+      "type": "实践作者",
+      "topics": [
+        "GEO",
+        "SEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "editorial",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "x-daniel-waisberg",
+      "name": "X · Daniel Waisberg",
+      "url": "https://x.com/danielwaisberg",
+      "description": "搜索数据分析与 Search Console 讨论；指标口径回查官方文档和发布日期。 完整账号时间线尚未接入；已发现链接的公开原帖可通过独立入口读取，覆盖不保证完整。",
+      "language": "en",
+      "region": "全球",
+      "type": "实践作者",
+      "topics": [
+        "GEO",
+        "SEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "editorial",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "x-suzuki",
+      "name": "X · 鈴木謙一",
+      "url": "https://x.com/suzukik",
+      "description": "日本搜索技术与 AI 搜索动态账号；与海外SEO情報ブログ同源，观点需回查原文。 完整账号时间线尚未接入；已发现链接的公开原帖可通过独立入口读取，覆盖不保证完整。",
+      "language": "ja",
+      "region": "日本",
+      "type": "实践作者",
+      "topics": [
+        "GEO",
+        "SEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "editorial",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "x-sistrix",
+      "name": "X · SISTRIX",
+      "url": "https://x.com/sistrix",
+      "description": "德语搜索数据工具机构账号；与 SISTRIX 博客同源，数据主张需要核验方法。 完整账号时间线尚未接入；已发现链接的公开原帖可通过独立入口读取，覆盖不保证完整。",
+      "language": "de",
+      "region": "欧洲",
+      "type": "工具与数据",
+      "topics": [
+        "GEO",
+        "SEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "vendor",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "x-abondance",
+      "name": "X · Abondance",
+      "url": "https://x.com/abondance_com",
+      "description": "法语搜索资讯账号；与 Abondance 站点同源，转述应追溯官方或原始资料。 完整账号时间线尚未接入；已发现链接的公开原帖可通过独立入口读取，覆盖不保证完整。",
+      "language": "fr",
+      "region": "欧洲",
+      "type": "专业媒体",
+      "topics": [
+        "GEO",
+        "SEO",
+        "社区讨论"
+      ],
+      "access": "community",
+      "evidence": "editorial",
+      "collectionStatus": "requires_api",
+      "checkedAt": "2026-10-16"
+    },
+    {
+      "id": "se-ranking",
+      "name": "SE Ranking",
+      "url": "https://seranking.com/blog/",
+      "description": "搜索与AI可见度工具厂商的研究；自报数据需核对题集、样本、周期和分母。",
+      "language": "en",
+      "region": "全球",
+      "type": "工具与数据",
+      "topics": [
+        "GEO",
+        "SEO",
+        "测量"
+      ],
+      "access": "rss",
+      "evidence": "vendor",
+      "checkedAt": "2026-10-16",
+      "feedUrl": "https://seranking.com/blog/feed/",
+      "sourceId": "rss-se-ranking",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "wordlift",
+      "name": "WordLift",
+      "url": "https://wordlift.io/blog/en/",
+      "description": "知识图谱、实体和生成式搜索的厂商实践；客户收益属自报，需要核验原始方法。",
+      "language": "en",
+      "region": "欧洲",
+      "type": "工具与数据",
+      "topics": [
+        "GEO",
+        "SEO",
+        "测量"
+      ],
+      "access": "rss",
+      "evidence": "vendor",
+      "checkedAt": "2026-10-16",
+      "feedUrl": "https://wordlift.io/blog/en/feed/",
+      "sourceId": "rss-wordlift",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "oncrawl",
+      "name": "Oncrawl",
+      "url": "https://www.oncrawl.com/",
+      "description": "技术抓取与AI搜索研究；优先可复现实验，厂商观点与数据覆盖需标注。",
+      "language": "en",
+      "region": "欧洲",
+      "type": "工具与数据",
+      "topics": [
+        "GEO",
+        "SEO",
+        "测量"
+      ],
+      "access": "rss",
+      "evidence": "vendor",
+      "checkedAt": "2026-10-16",
+      "feedUrl": "https://www.oncrawl.com/feed/",
+      "sourceId": "rss-oncrawl",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "rich-sanger",
+      "name": "Rich Sanger",
+      "url": "https://richsanger.com/",
+      "description": "AI搜索与本地推荐的作者实验；小样本观察与普遍排名规则分开。",
+      "language": "en",
+      "region": "全球",
+      "type": "实践作者",
+      "topics": [
+        "GEO",
+        "SEO",
+        "测量"
+      ],
+      "access": "rss",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-16",
+      "feedUrl": "https://richsanger.com/feed/",
+      "sourceId": "rss-rich-sanger",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "hacker-news-ai-search",
+      "name": "Hacker News · AI Search",
+      "url": "https://hn.algolia.com/?query=AI%20search&sort=byDate&type=story",
+      "description": "通过 HN Search / Algolia 公开免密钥 JSON 接口按投稿时间读取最新 100 条检索结果；保留 HN 讨论链接与投稿日期，用户经验和链接只作研究线索。不是评论全集或历史全量。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "GEO",
+        "SEO",
+        "测量"
+      ],
+      "access": "api",
+      "evidence": "community",
+      "checkedAt": "2026-10-16",
+      "sourceId": "rss-hn-ai-search",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "google-news-en",
+      "name": "Google News · GEO English",
+      "url": "https://news.google.com/search?q=%22generative+engine+optimization%22+OR+%22answer+engine+optimization%22&hl=en-US&gl=US&ceid=US:en",
+      "description": "公开新闻搜索RSS聚合GEO/AEO与AI搜索报道；可能包含宣传和转载，保留原发布者与原始日期，聚合入口不等于原文或独立证据。",
+      "language": "en",
+      "region": "全球",
+      "type": "新闻聚合",
+      "topics": [
+        "GEO",
+        "AEO",
+        "行业动态"
+      ],
+      "access": "rss",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-16",
+      "feedUrl": "https://news.google.com/rss/search?q=%22generative+engine+optimization%22+OR+%22answer+engine+optimization%22&hl=en-US&gl=US&ceid=US:en",
+      "sourceId": "rss-google-news-en",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "google-news-zh",
+      "name": "Google News · GEO 中文",
+      "url": "https://news.google.com/search?q=GEO+%E7%94%9F%E6%88%90%E5%BC%8F%E5%BC%95%E6%93%8E%E4%BC%98%E5%8C%96&hl=zh-CN&gl=CN&ceid=CN:zh-Hans",
+      "description": "公开新闻搜索RSS聚合GEO/AEO与AI搜索报道；可能包含宣传和转载，保留原发布者与原始日期，聚合入口不等于原文或独立证据。",
+      "language": "zh",
+      "region": "中国",
+      "type": "新闻聚合",
+      "topics": [
+        "GEO",
+        "AEO",
+        "行业动态"
+      ],
+      "access": "rss",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-16",
+      "feedUrl": "https://news.google.com/rss/search?q=GEO+%E7%94%9F%E6%88%90%E5%BC%8F%E5%BC%95%E6%93%8E%E4%BC%98%E5%8C%96&hl=zh-CN&gl=CN&ceid=CN:zh-Hans",
+      "sourceId": "rss-google-news-zh",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "google-news-ja",
+      "name": "Google News · GEO 日本語",
+      "url": "https://news.google.com/search?q=GEO+AI%E6%A4%9C%E7%B4%A2&hl=ja&gl=JP&ceid=JP:ja",
+      "description": "公开新闻搜索RSS聚合GEO/AEO与AI搜索报道；可能包含宣传和转载，保留原发布者与原始日期，聚合入口不等于原文或独立证据。",
+      "language": "ja",
+      "region": "日本",
+      "type": "新闻聚合",
+      "topics": [
+        "GEO",
+        "AEO",
+        "行业动态"
+      ],
+      "access": "rss",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-16",
+      "feedUrl": "https://news.google.com/rss/search?q=GEO+AI%E6%A4%9C%E7%B4%A2&hl=ja&gl=JP&ceid=JP:ja",
+      "sourceId": "rss-google-news-ja",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "google-news-fr",
+      "name": "Google News · GEO Français",
+      "url": "https://news.google.com/search?q=GEO+%22moteurs+g%C3%A9n%C3%A9ratifs%22&hl=fr&gl=FR&ceid=FR:fr",
+      "description": "公开新闻搜索RSS聚合GEO/AEO与AI搜索报道；可能包含宣传和转载，保留原发布者与原始日期，聚合入口不等于原文或独立证据。",
+      "language": "fr",
+      "region": "欧洲",
+      "type": "新闻聚合",
+      "topics": [
+        "GEO",
+        "AEO",
+        "行业动态"
+      ],
+      "access": "rss",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-16",
+      "feedUrl": "https://news.google.com/rss/search?q=GEO+%22moteurs+g%C3%A9n%C3%A9ratifs%22&hl=fr&gl=FR&ceid=FR:fr",
+      "sourceId": "rss-google-news-fr",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "google-news-pt",
+      "name": "Google News · GEO Português",
+      "url": "https://news.google.com/search?q=GEO+%22busca%22+IA&hl=pt-BR&gl=BR&ceid=BR:pt-419",
+      "description": "公开新闻搜索RSS聚合GEO/AEO与AI搜索报道；可能包含宣传和转载，保留原发布者与原始日期，聚合入口不等于原文或独立证据。",
+      "language": "pt",
+      "region": "拉美",
+      "type": "新闻聚合",
+      "topics": [
+        "GEO",
+        "AEO",
+        "行业动态"
+      ],
+      "access": "rss",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-16",
+      "feedUrl": "https://news.google.com/rss/search?q=GEO+%22busca%22+IA&hl=pt-BR&gl=BR&ceid=BR:pt-419",
+      "sourceId": "rss-google-news-pt",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "seozac",
+      "name": "SEO 每天一帖 · Zac",
+      "url": "https://www.seozac.com/",
+      "description": "中文SEO每天一帖；含AI引用与站点优化实践，文章较旧时保留原始日期，作者观点须实测。",
+      "language": "zh",
+      "region": "中国",
+      "type": "实践作者",
+      "topics": [
+        "GEO",
+        "SEO",
+        "测量"
+      ],
+      "access": "rss",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-16",
+      "feedUrl": "https://www.seozac.com/feed/",
+      "sourceId": "rss-seozac",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "seo-for-lunch",
+      "name": "SEO for Lunch",
+      "url": "https://www.seoforlunch.com/",
+      "description": "搜索行业公开周刊；用于发现作者原文，当前期没有GEO关键词也不代表永久无关。",
+      "language": "en",
+      "region": "全球",
+      "type": "实践作者",
+      "topics": [
+        "GEO",
+        "SEO",
+        "测量"
+      ],
+      "access": "rss",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-16",
+      "feedUrl": "https://www.seoforlunch.com/feed",
+      "sourceId": "rss-seo-for-lunch",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "google-news-de",
+      "name": "Google News · GEO Deutsch",
+      "url": "https://news.google.com/search?q=GEO+KI-Suche&hl=de&gl=DE&ceid=DE:de",
+      "description": "公开新闻搜索RSS聚合GEO/AEO与AI搜索报道；可能包含宣传和转载，保留原发布者与原始日期，聚合入口不等于原文或独立证据。",
+      "language": "de",
+      "region": "欧洲",
+      "type": "新闻聚合",
+      "topics": [
+        "GEO",
+        "AEO",
+        "行业动态"
+      ],
+      "access": "rss",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-16",
+      "feedUrl": "https://news.google.com/rss/search?q=GEO+KI-Suche&hl=de&gl=DE&ceid=DE:de",
+      "sourceId": "rss-google-news-de",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "google-news-es",
+      "name": "Google News · GEO Español",
+      "url": "https://news.google.com/search?q=GEO+%22b%C3%BAsqueda%22+IA&hl=es&gl=ES&ceid=ES:es",
+      "description": "公开新闻搜索RSS聚合GEO/AEO与AI搜索报道；可能包含宣传和转载，保留原发布者与原始日期，聚合入口不等于原文或独立证据。",
+      "language": "es",
+      "region": "欧洲",
+      "type": "新闻聚合",
+      "topics": [
+        "GEO",
+        "AEO",
+        "行业动态"
+      ],
+      "access": "rss",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-16",
+      "feedUrl": "https://news.google.com/rss/search?q=GEO+%22b%C3%BAsqueda%22+IA&hl=es&gl=ES&ceid=ES:es",
+      "sourceId": "rss-google-news-es",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "google-news-ko",
+      "name": "Google News · GEO 한국어",
+      "url": "https://news.google.com/search?q=GEO+AI+%EA%B2%80%EC%83%89&hl=ko&gl=KR&ceid=KR:ko",
+      "description": "公开新闻搜索RSS聚合GEO/AEO与AI搜索报道；可能包含宣传和转载，保留原发布者与原始日期，聚合入口不等于原文或独立证据。",
+      "language": "ko",
+      "region": "韩国",
+      "type": "新闻聚合",
+      "topics": [
+        "GEO",
+        "AEO",
+        "行业动态"
+      ],
+      "access": "rss",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-16",
+      "feedUrl": "https://news.google.com/rss/search?q=GEO+AI+%EA%B2%80%EC%83%89&hl=ko&gl=KR&ceid=KR:ko",
+      "sourceId": "rss-google-news-ko",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "bluesky-barry-schwartz",
+      "name": "Bluesky · Barry Schwartz",
+      "url": "https://bsky.app/profile/rustybrick.com",
+      "description": "搜索记者 Barry Schwartz 的公开原帖 RSS，涵盖 AI Overviews、AI Mode、ChatGPT 引用与流量测量；个人帖子和转发只作发现线索，截图或观点需追溯原始证据。无标题帖子显示正文节选。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "AI 搜索",
+        "测量",
+        "社区讨论"
+      ],
+      "access": "rss",
+      "feedUrl": "https://bsky.app/profile/rustybrick.com/rss",
+      "sourceId": "rss-bluesky-barry-schwartz",
+      "evidence": "community",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "bluesky-lily-ray",
+      "name": "Bluesky · Lily Ray",
+      "url": "https://bsky.app/profile/lilyray.nyc",
+      "description": "Lily Ray 的公开原帖 RSS，讨论 AI 搜索引用、内容质量与可见度实验；个人研究与自报样本需核对题集、时间窗和方法，不能推广为引擎官方规则。无标题帖子显示正文节选。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "AI 搜索",
+        "研究与实验",
+        "社区讨论"
+      ],
+      "access": "rss",
+      "feedUrl": "https://bsky.app/profile/lilyray.nyc/rss",
+      "sourceId": "rss-bluesky-lily-ray",
+      "evidence": "community",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "bluesky-glenn-gabe",
+      "name": "Bluesky · Glenn Gabe",
+      "url": "https://bsky.app/profile/glenngabe.bsky.social",
+      "description": "Glenn Gabe 的公开原帖 RSS，跟踪 AI 搜索链接、算法变化和引用流量归因；从业者观察与客户案例需核验，引用帖的图片或完整线程可能不在 RSS 中。无标题帖子显示正文节选。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "AI 搜索",
+        "测量",
+        "社区讨论"
+      ],
+      "access": "rss",
+      "feedUrl": "https://bsky.app/profile/glenngabe.bsky.social/rss",
+      "sourceId": "rss-bluesky-glenn-gabe",
+      "evidence": "community",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "mastodon-generativeengineoptimization",
+      "name": "Mastodon · GEO 公开标签",
+      "url": "https://mastodon.social/tags/generativeengineoptimization",
+      "description": "Mastodon.social 观察到的 generativeengineoptimization 标签公开 RSS，包含德语、英语等多语言联邦帖子；不是全联邦覆盖，含服务商宣传和重复转帖，观点及自报效果需核验。无标题帖子显示正文节选。",
+      "language": "de",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "GEO",
+        "社区讨论"
+      ],
+      "access": "rss",
+      "feedUrl": "https://mastodon.social/tags/generativeengineoptimization.rss",
+      "sourceId": "rss-mastodon-generativeengineoptimization",
+      "evidence": "community",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "mastodon-ai-search",
+      "name": "Mastodon · AI Search 公开标签",
+      "url": "https://mastodon.social/tags/aisearch",
+      "description": "Mastodon.social 的 AI Search 标签公开 RSS，以英文为主并含其他语言的社交讨论；仅限该实例可见公开帖子，包含转载与营销内容，需回原发布者核实。无标题帖子显示正文节选。",
+      "language": "en",
+      "region": "全球",
+      "type": "社区",
+      "topics": [
+        "AI 搜索",
+        "社区讨论"
+      ],
+      "access": "rss",
+      "feedUrl": "https://mastodon.social/tags/aisearch.rss",
+      "sourceId": "rss-mastodon-ai-search",
+      "evidence": "community",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "v2ex-geo",
+      "name": "V2EX · GEO 生成引擎优化",
+      "url": "https://www.v2ex.com/go/geo",
+      "description": "V2EX 专门 GEO 节点的公开帖子 RSS，直接包含标题、内容与创建时间；当前仅少量历史讨论，不等于整个 V2EX 的 GEO 帖子。匿名观点、工具推广和自报效果需核验。",
+      "language": "zh",
+      "region": "中国",
+      "type": "社区",
+      "topics": [
+        "GEO",
+        "中文平台",
+        "社区讨论"
+      ],
+      "access": "rss",
+      "feedUrl": "https://www.v2ex.com/feed/geo.xml",
+      "sourceId": "rss-v2ex-geo",
+      "evidence": "community",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "woshipm-geo",
+      "name": "人人都是产品经理 · GEO",
+      "url": "https://www.woshipm.com/tag/geo",
+      "description": "中文产品与运营作者社区的 GEO 标签公开 RSS，涵盖豆包、电商推荐、品牌可见度和行业讨论；采集的是本站公开文章，部分作者也经营公众号，不代表微信直采。作者观点、案例和引用数据需核验。",
+      "language": "zh",
+      "region": "中国",
+      "type": "社区",
+      "topics": [
+        "GEO",
+        "中文平台",
+        "社区讨论"
+      ],
+      "access": "rss",
+      "feedUrl": "https://www.woshipm.com/tag/geo/feed",
+      "sourceId": "rss-woshipm-geo",
+      "evidence": "community",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "duanwenjie",
+      "name": "段文杰 · 杰哥 SEO 博客",
+      "url": "https://duanwenjie.com/",
+      "description": "中文 SEO 从业者的公开博客与 RSS，包含 GEO 定义、与 SEO 的区别及 llms.txt 实践；属个人观点，技术建议应对照平台官方文档，不能把文件存在等同于已被引擎采用。",
+      "language": "zh",
+      "region": "中国",
+      "type": "实践作者",
+      "topics": [
+        "GEO",
+        "SEO",
+        "实践"
+      ],
+      "access": "rss",
+      "feedUrl": "https://duanwenjie.com/feed/",
+      "sourceId": "rss-duanwenjie",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured"
+    },
+    {
+      "language": "zh",
+      "region": "中国",
+      "collectionStatus": "configured",
+      "checkedAt": "2026-10-16",
+      "id": "csdn-venture-ai",
+      "name": "CSDN · V哥AI增长",
+      "url": "https://blog.csdn.net/Venture_ai",
+      "description": "作者原生公开 RSS，集中讨论 AI 搜索优化、GEO 工具与执行方案；个人观点、案例效果和商业主张需核验，不代表 CSDN 官方或平台排名规则。",
+      "type": "实践作者",
+      "topics": [
+        "GEO",
+        "AI搜索",
+        "实践"
+      ],
+      "access": "rss",
+      "feedUrl": "https://rss.csdn.net/Venture_ai/rss/map",
+      "sourceId": "rss-csdn-venture-ai",
+      "evidence": "community"
+    },
+    {
+      "language": "zh",
+      "region": "中国",
+      "collectionStatus": "configured",
+      "checkedAt": "2026-10-16",
+      "id": "chinaz-geo",
+      "name": "站长之家 · GEO",
+      "url": "https://www.chinaz.com/tags/GEO.shtml",
+      "description": "站长之家公开 GEO 资讯标签列表，提供中文行业动态与工具线索；包含商家稿、产品推广和自报案例，不能据此认定排名效果或独立厂商评测。",
+      "type": "专业媒体",
+      "topics": [
+        "GEO",
+        "中文平台",
+        "行业动态"
+      ],
+      "access": "website",
+      "sourceId": "web-chinaz-geo",
+      "evidence": "editorial"
+    },
+    {
+      "language": "zh",
+      "region": "中国",
+      "collectionStatus": "configured",
+      "checkedAt": "2026-10-16",
+      "id": "niaogebiji-geo",
+      "name": "鸟哥笔记 · GEO",
+      "url": "https://www.niaogebiji.com/tag/GEO",
+      "description": "公开 GEO 文章列表，包含运营作者投稿、案例与授权转载；部分作者也运营公众号，这里采集的是网站文章，不是微信平台直采。效果数据和营销建议需核验。",
+      "type": "社区",
+      "topics": [
+        "GEO",
+        "中文平台",
+        "实践"
+      ],
+      "access": "website",
+      "sourceId": "web-niaogebiji-geo",
+      "evidence": "community"
+    },
+    {
+      "language": "zh",
+      "region": "中国",
+      "collectionStatus": "configured",
+      "checkedAt": "2026-10-16",
+      "id": "yunyingpai-geo",
+      "name": "运营派 · GEO",
+      "url": "https://www.yunyingpai.com/tag/geo",
+      "description": "公开 GEO 专题文章，包含作者观点、行业批评与转载，须追溯作者和原出处。列表没有可靠发布日期；详情可从结构化 pubDate 核验，无法取得时明确日期未知，不使用抓取时间。",
+      "type": "专业媒体",
+      "topics": [
+        "GEO",
+        "中文平台",
+        "行业观察"
+      ],
+      "access": "website",
+      "sourceId": "web-yunyingpai-geo",
+      "evidence": "editorial"
+    },
+    {
+      "language": "en",
+      "region": "全球",
+      "collectionStatus": "configured",
+      "checkedAt": "2026-10-16",
+      "id": "x-public-posts",
+      "name": "X · 公开原帖（嵌入读取）",
+      "url": "https://x.com/",
+      "description": "公开作者博客或索引先发现帖子链接，再通过平台公开嵌入入口读取原帖；覆盖已发现帖子，不等于完整时间线、搜索或评论。无需登录或密钥，依赖公开入口可用性；个人观点和厂商自报数据需核验。",
+      "type": "社区",
+      "topics": [
+        "GEO",
+        "AI搜索",
+        "公开原帖"
+      ],
+      "access": "community",
+      "sourceId": "public-x-geo",
+      "evidence": "community"
+    },
+    {
+      "language": "en",
+      "region": "全球",
+      "collectionStatus": "configured",
+      "checkedAt": "2026-10-16",
+      "id": "reddit-public-posts",
+      "name": "Reddit · 公开原帖（嵌入读取）",
+      "url": "https://www.reddit.com/r/SEO/",
+      "description": "公开作者博客或索引先发现 Reddit 帖子链接，再读平台公开嵌入入口；覆盖已发现帖子，不等于完整社区、搜索或评论。无需登录或密钥，依赖公开入口可用性；社区经验和效果自述需核验。",
+      "type": "社区",
+      "topics": [
+        "GEO",
+        "SEO",
+        "公开原帖"
+      ],
+      "access": "community",
+      "sourceId": "public-reddit-geo",
+      "evidence": "community"
+    },
+    {
+      "language": "zh",
+      "region": "中国",
+      "type": "社区",
+      "topics": [
+        "GEO",
+        "中文平台",
+        "公开索引"
+      ],
+      "access": "rss",
+      "evidence": "community",
+      "collectionStatus": "configured",
+      "checkedAt": "2026-10-16",
+      "id": "google-news-zhihu-geo",
+      "sourceId": "rss-google-news-zhihu-geo",
+      "name": "知乎 · Google News GEO 索引",
+      "url": "https://news.google.com/search?q=site%3Azhihu.com%20%22%E7%94%9F%E6%88%90%E5%BC%8F%E5%BC%95%E6%93%8E%E4%BC%98%E5%8C%96%22%20-%E6%9C%8D%E5%8A%A1%E5%95%86%20-%E5%85%AC%E5%8F%B8%20-%E6%A6%9C%E5%8D%95%20-%E6%8E%A8%E8%8D%90&hl=zh-CN&gl=CN&ceid=CN%3Azh-Hans",
+      "feedUrl": "https://news.google.com/rss/search?q=site%3Azhihu.com%20%22%E7%94%9F%E6%88%90%E5%BC%8F%E5%BC%95%E6%93%8E%E4%BC%98%E5%8C%96%22%20-%E6%9C%8D%E5%8A%A1%E5%95%86%20-%E5%85%AC%E5%8F%B8%20-%E6%A6%9C%E5%8D%95%20-%E6%8E%A8%E8%8D%90&hl=zh-CN&gl=CN&ceid=CN%3Azh-Hans",
+      "description": "限定知乎域名的动态新闻索引，实测32条、14条符合GEO规则；标注为知乎专栏的聚合结果和索引提供日期，保留Google News跳转链接，不声称读取知乎原文。查询排除服务商、公司、榜单和推荐词仍可能出现营销内容，需核验。"
+    },
+    {
+      "language": "zh",
+      "region": "中国",
+      "type": "专业媒体",
+      "topics": [
+        "GEO",
+        "公众号转载",
+        "知乎转载",
+        "跨境搜索"
+      ],
+      "access": "website",
+      "evidence": "editorial",
+      "collectionStatus": "configured",
+      "checkedAt": "2026-10-16",
+      "id": "dashu-geo-reposts",
+      "sourceId": "web-10100-geo",
+      "name": "大数跨境 · GEO 公开转载与作者文章",
+      "url": "https://www.10100.com/search/article?q=GEO",
+      "description": "动态GEO搜索列表已接入；详情样本含明确公众号sourceName、mp.weixin原始URL，另有正文标注知乎原文地址。部分转载注明“大数AI优化”，只能视为改编/转载，不能冒充平台原帖；厂商效果自报需核验。日期来自转载页datePublished，未补齐时显示未知。"
+    },
+    {
+      "language": "zh",
+      "region": "中国",
+      "type": "社区",
+      "topics": [
+        "GEO",
+        "中文平台",
+        "公开索引"
+      ],
+      "access": "website",
+      "evidence": "community",
+      "collectionStatus": "configured",
+      "checkedAt": "2026-10-16",
+      "id": "wechat-geo-search-page2",
+      "sourceId": "web-wechat-sogou-geo-page2",
+      "name": "搜狗微信 · GEO 公开索引第 2 页",
+      "url": "https://weixin.sogou.com/weixin?type=2&query=GEO%20%E7%94%9F%E6%88%90%E5%BC%8F%E5%BC%95%E6%93%8E%E4%BC%98%E5%8C%96&page=2",
+      "description": "固定读取GEO检索第2页，扩展首屏之外的公开结果；实测10条、10个明确时间。仅保存索引署名和摘要、搜狗跳转链接，不代表原文直采。营销服务商和作者自报观点较多，效果数据需核验；遇验证页即报告失败。"
+    },
+    {
+      "language": "zh",
+      "region": "中国",
+      "type": "社区",
+      "topics": [
+        "GEO",
+        "中文平台",
+        "公开索引"
+      ],
+      "access": "website",
+      "evidence": "community",
+      "collectionStatus": "configured",
+      "checkedAt": "2026-10-16",
+      "id": "wechat-ai-search-index",
+      "sourceId": "web-wechat-sogou-ai-search",
+      "name": "搜狗微信 · AI 搜索优化公开索引",
+      "url": "https://weixin.sogou.com/weixin?type=2&query=AI%E6%90%9C%E7%B4%A2%E4%BC%98%E5%8C%96",
+      "description": "另一个动态关键词“AI搜索优化”的公开公众号结果；实测10条、10个明确时间。仅保存索引署名和摘要、搜狗跳转链接，不代表原文直采。营销服务商和作者自报观点较多，效果数据需核验；遇验证页即报告失败。"
+    },
+    {
+      "id": "google-search-product",
+      "name": "Google Search · 产品更新",
+      "url": "https://blog.google/products-and-platforms/products/search/",
+      "description": "Google Search 产品官方发布；补充 AI Mode、AI Overviews 的链接、来源展示与搜索功能变化。官方产品说明不等于独立效果评估，RSS 也有节日、购物等非 GEO 消息，由相关性规则筛选。",
+      "language": "en",
+      "region": "全球",
+      "type": "官方平台",
+      "topics": [
+        "平台规则",
+        "AI 搜索",
+        "引用"
+      ],
+      "access": "rss",
+      "feedUrl": "https://blog.google/products/search/rss/",
+      "sourceId": "rss-google-search-product",
+      "evidence": "official",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "bing-search",
+      "name": "Bing Search Blog",
+      "url": "https://blogs.bing.com/search/",
+      "description": "Bing 搜索官方博客；补充索引、grounding、AI 引用可见度与产品变化，并与站长文档交叉核对。产品效果属于平台自述，普通搜索、图像生成及活动消息可能形成噪声。",
+      "language": "en",
+      "region": "全球",
+      "type": "官方平台",
+      "topics": [
+        "平台规则",
+        "AI 搜索",
+        "检索"
+      ],
+      "access": "rss",
+      "feedUrl": "https://blogs.bing.com/search/feed/",
+      "sourceId": "rss-bing-search",
+      "evidence": "official",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "arxiv-geo",
+      "name": "arXiv · GEO 原始论文",
+      "url": "https://arxiv.org/search/?query=generative+engine+optimization&searchtype=all",
+      "description": "arXiv 官方公开 API 返回的 Atom，按明确 GEO 短语检索并按提交时间读取最近 30 篇。链接保留论文版本与发表时间；预印本、仿真与离线实验不是线上效果保证，需核对代码、数据、评估设置及利益披露。",
+      "language": "en",
+      "region": "全球",
+      "type": "学术研究",
+      "topics": [
+        "论文",
+        "GEO",
+        "测量"
+      ],
+      "access": "rss",
+      "feedUrl": "https://export.arxiv.org/api/query?search_query=all%3A%22generative%20engine%20optimization%22&start=0&max_results=30&sortBy=submittedDate&sortOrder=descending",
+      "sourceId": "rss-arxiv-geo",
+      "evidence": "research",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "tow-center",
+      "name": "Tow Center · 数字新闻研究",
+      "url": "https://www.cjr.org/tow_center",
+      "description": "Tow Center 在 CJR 发布的原创研究与分析；抽样研究公开八种 AI 搜索工具、20 家出版商、1600 次查询与人工标注方法。亦有一般新闻研究，需筛选；测试时间与引用识别任务限定了结论范围。",
+      "language": "en",
+      "region": "全球",
+      "type": "学术研究",
+      "topics": [
+        "引用",
+        "可复现研究",
+        "出版商"
+      ],
+      "access": "rss",
+      "feedUrl": "https://www.cjr.org/tow_center/feed",
+      "sourceId": "rss-tow-center",
+      "evidence": "research",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "sparktoro-research",
+      "name": "SparkToro · Research",
+      "url": "https://sparktoro.com/blog/category/research/",
+      "description": "SparkToro 研究分类订阅，优先于混合产品公告的总博客；包含搜索点击、AI 推荐稳定性与用户行为研究。作者销售受众研究产品，部分数据来自商业面板；需核对样本、地区、设备与统计口径，不把相关性当因果。",
+      "language": "en",
+      "region": "全球",
+      "type": "工具与数据",
+      "topics": [
+        "测量",
+        "AI 搜索",
+        "公开研究"
+      ],
+      "access": "rss",
+      "feedUrl": "https://sparktoro.com/blog/category/research/feed/",
+      "sourceId": "rss-sparktoro-research",
+      "evidence": "vendor",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "zhangwenbao-geo",
+      "name": "保哥笔记 · GEO/AEO",
+      "url": "https://zhangwenbao.com/geo-aeo/",
+      "description": "中文作者的 GEO/AEO 实验与观察候选；抽样有样本生成、规则、对照与错误修正过程，但尚未核验完整原始数据和可重复实现。作者提供商业服务，数据与效果自报需另验；暂不自动采集。",
+      "language": "zh",
+      "region": "中国",
+      "type": "实践作者",
+      "topics": [
+        "GEO",
+        "测量",
+        "案例"
+      ],
+      "access": "website",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "manual"
+    },
+    {
+      "id": "dejan-ai",
+      "name": "DEJAN · AI 搜索实测",
+      "url": "https://dejan.ai/blog/",
+      "description": "DEJAN AI 的原创检索与引用测量；抽样公开 196,692 条 OpenAI fanout 的月份、模型与提示模式统计，并说明 API 和 ChatGPT 界面不可直接等同、尚未做匹配对照。机构销售 SEO/AI 服务，样本及工具数据自报，RSS 亦含观点、营销与一般 AI 技术内容；未独立复现。",
+      "language": "en",
+      "region": "全球",
+      "type": "工具与数据",
+      "topics": [
+        "AI 搜索",
+        "测量",
+        "查询扇出"
+      ],
+      "access": "rss",
+      "feedUrl": "https://dejan.ai/feed/",
+      "sourceId": "rss-dejan",
+      "evidence": "vendor",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "zyppy-signal",
+      "name": "Zyppy Signal · Cyrus Shepard",
+      "url": "https://signal.zyppy.com/",
+      "description": "Cyrus Shepard 的原始专家调查、实践方法与研究综述；公开专家量表和综述评分方法。作者提供商业咨询，131 位专家的意见分数不等于 Google 真实排名权重，54 项研究的人工综述也不等于独立实验；订阅含工具建议、访谈与推广，逐篇核对证据。",
+      "language": "en",
+      "region": "全球",
+      "type": "实践作者",
+      "topics": [
+        "AI 搜索",
+        "引用",
+        "方法与调查"
+      ],
+      "access": "rss",
+      "feedUrl": "https://signal.zyppy.com/feed",
+      "sourceId": "rss-zyppy-signal",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-16",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "pew-ai-summaries",
+      "name": "Pew Research · AI 搜索摘要研究",
+      "url": "https://www.pewresearch.org/?s=AI+summaries",
+      "description": "Pew 官方站内 AI summaries 搜索 HTML，读取允许研究路径的首屏标题、原始短摘要和发布日期，排除 newsletter。旧 WordPress JSON 入口返回 403 后停用，不绕访问检查；新入口首屏按相关性展示，不能保证全量历史或每篇新研究都被召回。保留研究样本、美国市场及观察性研究边界。",
+      "language": "en",
+      "region": "全球",
+      "type": "学术研究",
+      "topics": [
+        "AI 搜索",
+        "测量",
+        "用户行为"
+      ],
+      "access": "website",
+      "sourceId": "json-pew-ai-summaries",
+      "evidence": "research",
+      "checkedAt": "2026-10-17",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "microsoft-clarity-blog",
+      "name": "Microsoft Clarity · AI 可见度与测量",
+      "url": "https://clarity.microsoft.com/blog/",
+      "description": "Microsoft Clarity 官方博客，直接追踪 AI Visibility 引用查询、AI 爬虫与引荐分析的指标和产品变化。订阅也含一般 UX 和产品内容，须经过 GEO 相关性筛选；平台自述的覆盖与数据口径需核对文档，不代表独立效果验证。",
+      "language": "en",
+      "region": "全球",
+      "type": "官方平台",
+      "topics": [
+        "AI 搜索",
+        "引用",
+        "测量"
+      ],
+      "access": "rss",
+      "feedUrl": "https://clarity.microsoft.com/blog/feed/",
+      "sourceId": "rss-microsoft-clarity",
+      "evidence": "official",
+      "checkedAt": "2026-10-17",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "brave-search-news",
+      "name": "Brave Search · 官方动态",
+      "url": "https://brave.com/category/brave-search-news/",
+      "description": "Brave 官方 Search 分类订阅，关注搜索 API、AI grounding、公开网页检索及引用数据的产品变化；不接入浏览器或加密货币总动态。包含厂商比较、销售与增长宣传，相关不等于优质，官方自报性能和价格不视作独立测评。",
+      "language": "en",
+      "region": "全球",
+      "type": "官方平台",
+      "topics": [
+        "AI 搜索",
+        "检索",
+        "平台规则"
+      ],
+      "access": "rss",
+      "feedUrl": "https://brave.com/category/brave-search-news/index.xml",
+      "sourceId": "rss-brave-search",
+      "evidence": "official",
+      "checkedAt": "2026-10-17",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "suganthan-research",
+      "name": "Suganthan · AI 搜索原始观察",
+      "url": "https://suganthan.com/",
+      "description": "Suganthan Mohanadasan 的个人研究与技术记录，包含 ChatGPT 来源选择、Gemini 引用、采样方法和对本人早期推断的公开修正。作者同时经营 Snippet Digital 代理业务与 Keyword Insights 工具；小样本观察和逆向推断不等于平台正式说明，亦未由本站独立复现。",
+      "language": "en",
+      "region": "全球",
+      "type": "实践作者",
+      "topics": [
+        "AI 搜索",
+        "引用",
+        "方法与调查"
+      ],
+      "access": "rss",
+      "feedUrl": "https://suganthan.com/rss.xml",
+      "sourceId": "rss-suganthan-research",
+      "evidence": "editorial",
+      "checkedAt": "2026-10-17",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "arxiv-ai-citations",
+      "name": "arXiv · AI 搜索引用与评估",
+      "url": "https://arxiv.org/search/?query=AI+search+citations&searchtype=all",
+      "description": "arXiv 官方 Atom API 定向检索 AI search / generative search 与 citation(s)，排除明确 GEO 短语，按首次提交时间读取最近 30 篇，补充引用可靠性、多语言审计和用户行为实验。与其他论文入口仍可能重叠；预印本及作者自报结果未必经过同行评审或复现，查询也可能漏收隐含相关论文。",
+      "language": "en",
+      "region": "全球",
+      "type": "学术研究",
+      "topics": [
+        "论文",
+        "AI 搜索",
+        "引用",
+        "测量"
+      ],
+      "access": "rss",
+      "feedUrl": "https://export.arxiv.org/api/query?search_query=(all%3A%22AI%20search%22%20OR%20all%3A%22generative%20search%22)%20AND%20(all%3Acitation%20OR%20all%3Acitations)%20ANDNOT%20all%3A%22generative%20engine%20optimization%22&start=0&max_results=30&sortBy=submittedDate&sortOrder=descending",
+      "sourceId": "rss-arxiv-ai-citations",
+      "evidence": "research",
+      "checkedAt": "2026-10-17",
+      "collectionStatus": "configured"
+    },
+    {
+      "id": "authoritas",
+      "name": "Authoritas · AI 搜索实测",
+      "url": "https://www.authoritas.com/blog",
+      "description": "Authoritas 的公开 AI 搜索实验、SERP 波动和用户提示词分析；从列表读取原始标题、短摘要及发布日期。商业测量工具厂商，也发布产品推广和外部研究解读；需区分其独立采集、合作研究及引用 OpenAI/NBER 的数据。当前列表含 2024–2025 年资料，旧文章不当成最新研究，样本结论不保证引用排名。",
+      "language": "en",
+      "region": "全球",
+      "type": "工具与数据",
+      "topics": [
+        "AI 搜索",
+        "引用",
+        "测量",
+        "方法与调查"
+      ],
+      "access": "website",
+      "evidence": "vendor",
+      "checkedAt": "2026-10-17",
+      "collectionStatus": "configured",
+      "sourceId": "web-authoritas-research"
+    },
+    {
+      "id": "sistrix-en",
+      "name": "SISTRIX · AI 搜索数据研究",
+      "url": "https://www.sistrix.com/blog/",
+      "description": "SISTRIX 英文公开订阅，含厂商自有 AI 引用测量、工具实操、产品更新与行业解读。原始数据观察保留市场、提示样本及相关非因果边界；产品与法规解读不冒充独立研究或官方公告。与德语、西语目录属于同一机构，不能累计为独立证据。",
+      "language": "en",
+      "region": "欧洲",
+      "type": "工具与数据",
+      "topics": [
+        "AI 搜索",
+        "引用",
+        "测量",
+        "多语言"
+      ],
+      "access": "rss",
+      "feedUrl": "https://www.sistrix.com/feed/",
+      "evidence": "vendor",
+      "checkedAt": "2026-10-17",
+      "collectionStatus": "configured",
+      "sourceId": "rss-sistrix-research"
+    }
+  ]
+}

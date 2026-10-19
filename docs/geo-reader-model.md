@@ -1,0 +1,50 @@
+# 原文阅读概要的本地模型
+
+阅读概要在后台读取完整公开正文，输出中文结论、关键发现、GEO 启示和重要限制，每项绑定证据段落。网页请求不启动推理。自动稿只有通过格式、数字和独立请求的语义复核后才公开，页面标注“AI 整理”；这不等同于人工审核。
+
+## 模型与安装
+
+当前使用 [Qwen3.5-4B 官方模型](https://huggingface.co/Qwen/Qwen3.5-4B)的 [Unsloth Q4_K_M 社区量化](https://huggingface.co/unsloth/Qwen3.5-4B-GGUF)。原模型为 Apache-2.0 协议；GGUF 不标为 Qwen 官方量化。
+
+- 固定量化版本：`e87f176479d0855a907a41277aca2f8ee7a09523`
+- 文件：`Qwen3.5-4B-Q4_K_M.gguf`
+- 大小：`2740937888` 字节
+- SHA-256：`00fe7986ff5f6b463e62455821146049db6f9313603938a70800d1fb69ef11a4`
+
+设置 `PUBLIC_READER_BRIEF_MODEL_PATH` 后运行：
+
+```sh
+node --env-file=.env modules/geo-directory/scripts/setup-reader-brief.ts
+```
+
+通用默认位置是 `.data/reader-brief/model.gguf`；本机使用 `D:/GEO-models/reader-brief/qwen35-4b-q4.gguf`。从旧 Qwen3 模型升级时选用新文件路径，安装程序不会覆盖身份不匹配的现有模型。下载支持续传，完成后核对大小、SHA-256，并写入私有 `.data/reader-brief/model-manifest.json`。推理前再次校验身份。
+
+运行时通过 `PUBLIC_READER_BRIEF_RUNTIME_PATH` 指定，默认复用翻译目录中的 llama-server。本机使用 [llama.cpp b11696 官方 Vulkan 发行版](https://github.com/ggml-org/llama.cpp/releases/tag/b11696)，zip SHA-256 为 `f62bbf1ce154911ce37a381b9b308893b064301ecb7512f30c7c2abf7f812e75`。本机可用 Intel Arc 集成 GPU，设置 `PUBLIC_READER_BRIEF_GPU_LAYERS=all`；其他机器默认 CPU，不擅自假定 GPU 可用。运行时需支持 `--reasoning-budget` 和模型模板。
+
+安装不打开开关。`PUBLIC_READER_BRIEFS_ENABLED=true` 启用生成；另需 `PUBLIC_READER_BRIEF_PUBLISH_ENABLED=true` 才能自动发布通过复核的概要。两者均为本地推理，不调用付费模型服务。
+
+## 完整性与质量
+
+服务只监听随机的 127.0.0.1 端口，每次使用随机访问口令。单任务槽，4 个 CPU 线程，16,384 token 上下文，batch 512、ubatch 128。父 worker 退出后，stdin 守护关闭原生模型进程。
+
+先通过 `/apply-template` 和 `/tokenize` 校验完整文章容量。正常生成关闭思考，预留 1,200 输出 token；只有具体错误需要修订时开启有限推理，预留 1,800 token，思考预算 512。各次请求另留 128 token 边界。装不下的原文返回 `too_long`，不截断后半篇。参见 [llama.cpp server 文档](https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md)。
+
+生成复用站点 GEO 术语表，约 300–450 字，突出结论、关键数据和实际启示。字段为 conclusion、findings、geoValue、caveats；每项有 text 和 evidenceIds。数字必须在所引段落中出现，支持万/亿等数量、英文月份，以及 one 到 twenty 的英文计数规范化；不允许把百分比换成百分点，或凭空添加“显著”。无原文支持的正向“显著提升/降低”等强调词可先做保守删减，避免仅为一个强调词重写整篇；否定句与明确的统计显著性不改，修整后仍经过完整校验。这些确定性检查不能证明语义正确。
+
+复核是新的模型请求，不携带先前助手回答作为背书。输入含完整正文以及每项实际引用的证据，逐项检查数字分母、条件、比较方向、因果、限制及主结论覆盖。GEO 启示是本站解读，检查其事实前提和是否夸大效果。缺项、截断、任何否定检查均不发布；语义错误最多修订一次，再完整复核。生成阶段格式/数字错误也最多修订一次。
+
+同一模型自检仍可能漏错，不能冒充人工审稿。原始正文、段落引用、复核记录仅存私有队列，公开只给短概要和原文链接。已核对的 reviewed 版本不被自动稿覆盖。
+
+## 本机实测与限制（2026-10-17）
+
+旧 Qwen3 的完整 Pew 输入，在 CPU 上曾于 300 秒请求上限内未完成草稿。后续固定同一输入和 128 输出 token 比较：CPU 推理 103.6 秒，Vulkan 33.1 秒。此为吞吐对照，不是完整概要端到端耗时，也不包括冷启动。
+
+升级 Qwen3.5 后，Bing Topics Portfolio 完整输入的一次生成加语义复核用时 141.3 秒，其中生成 74.9 秒、复核 66.4 秒。Pew 和其他复杂稿仍出现错引段落、范围扩张或复核拒绝，未自动公开。后续改进了术语提示、逐项证据映射，以及仅在修订时启用推理的策略；不能把这个单篇时长外推为全队列速度。
+
+已修复数字校验把 three/five 译为 3/5 误判为无依据的情况；冷启动复核已有草稿也会自动加载模型。修订失败时保留首次复核记录供排查。
+
+模型按队列热复用，任务间隔从 60 秒降至 5 秒；没有待办时释放模型。优先处理既有高质量分组内的官方/研究来源，失败稿退避后继续下一篇。持续运行和观察方法见 [队列文档](geo-reader-worker.md)。
+
+正文提取覆盖 HTML 文字和表格分隔，不包含图片中的数值 OCR；论文摘要不能标为全文。机器只有 32GB 共享内存，大型回归与推理同时运行会影响服务测试启动，因此性能验收和完整回归应分开。独立测试使用本地假服务，不加载模型或请求外部站点。
+
+截至 2026-10-17 后续补齐，公开的 23 篇完整概要均为另行核读版本，本地模型的真实自动发布仍为 0，未验收通过。根据实际失败和用户要求，本机已通过 PUBLIC_READER_BRIEFS_ENABLED=false 暂停概要模型队列，不再继续消耗资源反复修稿；模型、私有草稿和可选能力保留。公开采集与短摘要翻译继续运行，由每 30 分钟的 Codex 定时核读优先补齐高质量概要；具体运行条件见队列文档。

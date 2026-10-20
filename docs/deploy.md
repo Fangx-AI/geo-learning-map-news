@@ -5,12 +5,25 @@
 需要一台装了 Docker（带 Compose）的机器。云服务器建议至少 2 核、4 GB 内存，构建镜像时要用到。
 
 ```bash
-git clone https://github.com/KKKKhazix/AIHOT.git myhot
-cd myhot
-node scripts/init-env.ts --llm-key <你的模型 API Key>
+git clone https://github.com/Fangx-AI/geo-learning-map-news.git
+cd geo-learning-map-news
+node scripts/init-env.ts
 ```
 
-`init-env.ts` 会生成 `.env`，填好随机密钥和管理员密码，并把密码打印一次。机器上没有 Node 的话，把 `.env.example` 复制成 `.env`，自己填 `ADMIN_PASSWORD`（至少 12 位）、`SESSION_SECRET`、`IMG_PROXY_SIGN_SECRET`、`POSTGRES_PASSWORD`（各用 `openssl rand -hex 32` 生成）和 `LLM_API_KEY`。
+`init-env.ts` 会生成 `.env`，填好随机密钥和管理员密码，并把密码打印一次；需要 Node.js 24.11+。脚本中的模型密钥提示来自原框架，本站的基础公开采集不需要模型密钥。机器上没有 Node 的话，把 `.env.example` 复制成 `.env`，自己填 `ADMIN_PASSWORD`（至少 12 位）、`SESSION_SECRET`、`IMG_PROXY_SIGN_SECRET`、`POSTGRES_PASSWORD`（各用 `openssl rand -hex 32` 生成）。
+
+**启动前必须调整原框架默认开关**，使其与 GEO 公开采集模式一致：
+
+```dotenv
+COLLECT_ENABLED=false
+MODEL_CALLS_ENABLED=false
+PUBLIC_FEED_COLLECT_ENABLED=true
+PUBLIC_TRANSLATION_ENABLED=true
+PUBLIC_TRANSLATION_PROVIDER=bing
+PUBLIC_READER_BRIEFS_ENABLED=false
+```
+
+保持飞书和 IndexNow 等外部推送关闭。不要将 Windows 本地脚本生成的 `DATABASE_URL` 用作容器内地址；Compose 会为后端使用自己的数据库服务配置。
 
 启动前检查 `.env` 的 `SITE_URL`：本机试用保留 `http://localhost:3000`；部署到服务器时改成读者实际访问的地址。例如通过服务器 IP 访问时（把示例 IP 换成自己的）：
 
@@ -26,9 +39,17 @@ RSS、分享链接、站点地图和 Agent Markdown 中的绝对链接都使用�
 docker compose up -d --build
 ```
 
-启动后打开 `http://服务器地址:3000`，后台在 `/admin`，用管理员密码登录。第一次启动会导入示范信源，一两分钟后开始出现内容；第一次导入的一百多条资料大约半小时处理完（每条都要预筛、评分、结构化、写标题摘要，再归组）。
+启动后打开 `http://服务器地址:3000`，后台在 `/admin`，用管理员密码登录。首次启动只初始化结构和种子配置，不包含生产文章或完整中文解读，也没有固定的内容生成耗时保证。
 
 `docker compose` 会起五个容器：`db`（PostgreSQL 17）、`setup`（每次启动先跑数据库迁移和种子数据，然后退出）、`api`、`worker`（抓取、模型处理、定时任务）、`web`（网页）。`web` 只接收网站地址、API 地址等网页配置，通过 HTTP 读取 API；数据库、模型和管理员密钥，以及数据卷，只交给后端容器。
+
+其中 `worker` 是原框架流程，不等于 GEO 公开采集守护。按上述开关运行后，在另一个终端中启动公开采集进程：
+
+```bash
+docker compose run --rm --no-deps api node modules/geo-directory/scripts/watch-public.ts
+```
+
+该命令前台持续运行；生产环境需要自行配置进程托管。先在 `/all` 检查公开动态，再按 [概要导入](geo-reader.md) 补齐完整解读。整期日报另见 [同步说明](geo-editions.md)。
 
 ### 在中国大陆的服务器上
 

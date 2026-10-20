@@ -1,31 +1,54 @@
 # 参与贡献
 
-欢迎提交可复现的问题、文档修正，以及对其他行业也有用的改进。中文或英文都可以。
+[返回项目首页](README.md) · [开发交接](docs/handoff.md)
 
-## 去哪里交流
+欢迎改进 GEO 学习地图的阅读体验、中文翻译、来源质量、采集稳定性与文档。中文或英文均可。
 
-- [Issues](https://github.com/KKKKhazix/AIHOT/issues/new/choose)：可复现的 Bug 和有明确场景的功能建议。
-- [部署与使用问答](https://github.com/KKKKhazix/AIHOT/discussions/categories/q-a)：安装、配置、部署和使用问题；问题解决后可以标记答案。
-- [想法交流](https://github.com/KKKKhazix/AIHOT/discussions/categories/ideas)：先讨论方向和使用场景。
-- [作品展示](https://github.com/KKKKhazix/AIHOT/discussions/categories/show-and-tell)：分享你搭建的行业热点站和实践经验。
-- 安全漏洞请按 [安全报告说明](SECURITY.md) 私密提交。
+## 先给出一个具体问题
 
-## 贡献范围
+在 [本仓库 Issues](https://github.com/Fangx-AI/geo-learning-map-news/issues) 报告问题或讨论方案：
 
-优先欢迎部署体验、通用采集能力、处理流程、公开接口、可访问性、文档和可复现故障的改进。大幅调整架构或产品行为前，先在 Issue 或讨论区说明场景和方案，避免投入后才发现方向不合适。
+- **阅读体验：** 从哪个入口进入、希望完成什么、在哪里受阻，附桌面或手机截图。
+- **翻译或解读：** 提供原文链接、具体句子与依据，不把推测写成来源事实。
+- **采集或运行：** 提供提交版本、运行方式、复现步骤与脱敏错误。
+- **新增信源：** 提供原始机构、公开入口、内容示例和收录理由；目录标签不能代替内容核验。
 
-只适合你所在行业的信源和精选标准，在自己的仓库里改 `industry/`；站名、品牌和页面改 `site/`；只有你的站需要的功能做成模块放进 `modules/`（见 [架构](docs/architecture.md#模块)）。步骤参考 [定制文档](docs/customize.md)。出于合规和风险考虑，完整运营信源名单暂不分享；本仓库也不持续维护微博、小红书等平台的专用采集适配，可以按 [信源文档](docs/sources.md) 接入你自行维护的外部采集结果。
+安全漏洞按 [安全报告说明](SECURITY.md) 处理，不在公开 Issue 放可利用细节。
 
-## 提交改动
+## 本地开发
 
-1. Fork 本仓库，从最新的 `main` 创建自己的分支。若只是搭建一个独立站点，可以用 [Use this template](https://github.com/KKKKhazix/AIHOT/generate)；模板生成的项目没有共享提交历史，后续贡献代码或合并上游更新更适合用 Fork。
-2. 阅读 [AGENTS.md](AGENTS.md) 和改动对应的文档。保持一次 PR 解决一个清楚的问题，不夹带无关重构，也不夹带重装依赖带来的 `package-lock.json` 改动。
-3. 按 [部署文档](docs/deploy.md) 配置本地环境。使用独立测试库，开发时关闭采集、模型调用和外部推送；不使用生产数据库或真实付费服务做测试。
-4. 验证改动涉及的行为，在 PR 中写明运行结果；来自 Fork 的 CI 要维护者批准后才运行，不能代替本地检查。代码改动执行 `npm run typecheck`、`npm test`、网页构建与网页测试；后端测试库名必须以 `_test` 或 `_ci` 结尾（没有会自动创建并迁移），每个测试文件在它的副本上并行运行，所以测试数据库账号要有 `CREATEDB` 权限。运行中的站点可用 `node scripts/smoke.ts --base http://localhost:3000` 检查。纯文档或模板改动核对链接、语法和实际展示即可，不需要为了凑数量新增测试。
-   改数据库时，已经发布的迁移不改，修正放进新文件；新文件只放一条允许在线执行的语句，PR 会自动检查，本地可以先跑 `node scripts/check-migrations.ts --base main`。规则见 [迁移约定](docs/architecture.md#数据库迁移)。
-   备份恢复测试还需要 `tar` 和与服务端版本兼容的 `pg_dump`/`pg_restore`；测试会创建并清理独立的临时恢复库和文件目录，不访问真实对象存储。
-5. 向本仓库 `main` 提交 PR，关联相关 Issue，并勾选 “Allow edits by maintainers”：小问题维护者可以直接在你的分支上改好再合并，不用你再跑一趟。还在改就开草稿，改好再标为就绪。页面改动附截图；涉及配置或升级步骤时同步更新文档，已部署的站点升级时要做的事写进 [部署文档](docs/deploy.md) 的“更新”一节。
+1. Fork 本仓库，从最新 `main` 创建分支。
+2. 按 [首次启动](docs/getting-started.md) 配置自己的环境，阅读 [AGENTS.md](AGENTS.md) 和对应模块文档。
+3. 保持一次 PR 解决一个清楚的问题；不夹带无关重构或依赖锁文件变动。
+4. 向 [本仓库](https://github.com/Fangx-AI/geo-learning-map-news/pulls) 提交 PR，说明问题、改动与验证结果。页面改动附桌面和手机截图。
 
-`main` 通过 PR 合并。准备合并时，请把 PR 分支整理成一个提交，保留正确的作者署名；更新已经推送的分支用 `git push --force-with-lease`。分支要包含最新的 `main`，GitHub 的 `check` 和 `docker` 在这个提交上通过后，维护者用 rebase 方式合并，保留你的作者信息。
+GEO 的信源与编辑规则在 `industry/`，品牌与导航在 `site/`，采集和阅读功能主要在 `modules/geo-directory/`。框架通用能力才考虑同步给上游 AIHOT；不必把本站专属需求提交到上游。
 
-请勿提交 `.env`、密钥、管理员密码、Cookie、生产数据或未获授权的素材；日志和截图也要先移除敏感信息。代码沿用 [MIT 许可证](LICENSE)，品牌和第三方素材说明见 [NOTICE](NOTICE)。
+## 验证改动
+
+纯文档改动核对事实、命令、链接与 GitHub 展示，无需新增业务测试。
+
+代码改动运行相关检查；后端使用独立测试数据库，测试库名必须以 `_test` 或 `_ci` 结尾，账号需有 `CREATEDB` 权限：
+
+```bash
+npm run typecheck
+npm run build -w @aihot/web
+node --test apps/web/tests/*.test.ts
+```
+
+完整后端测试与 Windows 依赖配置见 [隔离测试](docs/geo-test-local.md)。网站运行后执行：
+
+```bash
+node scripts/smoke.ts --base http://localhost:3000
+```
+
+测试不连接真实付费模型或外部推送服务。数据库变更遵守 [迁移约定](docs/architecture.md#数据库迁移)，不修改已发布的迁移；涉及部署、配置或数据升级时同步更新文档。
+
+## 提交前
+
+- 不提交 `.env`、密钥、Cookie、生产数据库、私有全文或聊天记录。
+- 截图与日志去掉个人信息，素材具有使用权限。
+- 保留来源归因、原文链接、样本范围与不确定性；不伪造数据或采集覆盖率。
+- 保留 [MIT](LICENSE) 原始版权声明；第三方内容权利见 [NOTICE](NOTICE)。
+
+PR 描述写清实际通过和未通过的检查，等待仓库 CI 与维护者审阅；不要把旧版本的测试结果当成本次验证。

@@ -1,6 +1,6 @@
 # 本机启动与恢复
 
-完成 README 的 Node 依赖、`.env` 和本机 PostgreSQL 初始化后，在项目目录执行：
+完成 [首次启动](getting-started.md) 的 Node 依赖、`.env` 和本机 PostgreSQL 初始化后，在项目目录执行：
 
 ```powershell
 ./scripts/start-geo.ps1

@@ -48,12 +48,13 @@ export default function FeaturedPage() {
           先读结论与证据，再决定是否行动。
         </p>
         <div className="mt-4 flex flex-wrap gap-4 text-sm text-accent">
-          <Link to="/library" className="min-h-11 py-3">
+          <Link to="/library" className="min-h-11 py-3 lg:hidden">
             按工作问题找解读 →
           </Link>
-          <Link to="/following" className="min-h-11 py-3">
+          <Link to="/following" className="min-h-11 py-3 lg:hidden">
             我的关注与阅读记录 →
           </Link>
+          {digest.latestEdition && <Link to={`/daily/editions/${digest.latestEdition.id}`} className="min-h-11 py-3 font-medium">读整期日报 · {digest.latestEdition.day} →</Link>}
         </div>
       </header>
       {!fresh.length && !added.length && (
@@ -107,14 +108,6 @@ export default function FeaturedPage() {
         </div>
       </section>
       <footer className="mt-7 flex flex-wrap gap-5 border-t border-line pt-4 text-sm text-accent">
-        {digest.latestEdition && (
-          <Link
-            className="min-h-11 py-3"
-            to={`/daily/editions/${digest.latestEdition.id}`}
-          >
-            整期日报 · {digest.latestEdition.day} →
-          </Link>
-        )}
         <Link className="min-h-11 py-3" to="/daily/editions">
           往期报告 →
         </Link>

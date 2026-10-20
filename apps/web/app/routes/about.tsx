@@ -224,10 +224,10 @@ export default function AboutPage() {
         </div>
         <div className="flex flex-wrap gap-3 lg:pb-2">
           <IntentLink to="/" className={buttonClass("primary", "lg")}>
-            看今天的精选 <IconArrowRight size={15} />
+            读今日重点 <IconArrowRight size={15} />
           </IntentLink>
-          <IntentLink to="/daily" className={buttonClass("secondary", "lg")}>
-            读最新日报
+          <IntentLink to="/library" className={buttonClass("secondary", "lg")}>
+            按问题找解读
           </IntentLink>
         </div>
       </header>

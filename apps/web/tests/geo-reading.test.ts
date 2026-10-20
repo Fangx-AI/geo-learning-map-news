@@ -141,7 +141,7 @@ test("card reading stays on-site, shows the complete bilingual excerpt and retur
     await expect(article.locator("h1")).toHaveText(readerItem.translation!.title);
     await expect(article.locator("[data-reader-summary]")).toHaveText(readerItem.translation!.summary!);
     await expect(article.getByRole('heading', { name: '先读这些完整解读', exact: true })).toBeVisible();
-    await expect(article.locator('aside a').first()).toHaveAttribute('href', `/read/${readerWithBrief.id}?from=%2Fdaily%3Fview%3Dlibrary`);
+    await expect(article.locator('aside a').first()).toHaveAttribute('href', `/read/${readerWithBrief.id}?from=%2Flibrary`);
     assert.equal(await article.locator("[data-reader-summary]").evaluate(element => element.scrollHeight > element.clientHeight + 1), false, "the collected excerpt is not line-clamped");
     await article.getByRole("button", { name: "查看原文", exact: true }).click();
     await expect(article.locator("h1")).toHaveText("AI search citation experiment & limitations");

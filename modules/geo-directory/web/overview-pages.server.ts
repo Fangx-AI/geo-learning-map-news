@@ -21,9 +21,7 @@ async function getOverview(request: Request, upstream: Headers, options: { day?:
 export async function featuredLoader({ request }: Pick<PageArgs, "request">) {
   const upstream = new Headers();
   const digest = await loadOr404<GeoDailyDigest>("/api/geo/daily?view=library", { signal: request.signal, responseHeaders: upstream });
-  const ready = digest.research.filter(item => item.brief?.coverage === "full-article" && !item.brief.automated)
-    .sort((a, b) => Date.parse(b.brief!.updatedAt) - Date.parse(a.brief!.updatedAt) || a.id.localeCompare(b.id));
-  return cachedPage(60, { picks: ready.slice(0, 6), total: ready.length }, upstream);
+  return cachedPage(60, { digest }, upstream);
 }
 export async function hotLoader({ request }: Pick<PageArgs, "request">) {
   const upstream = new Headers();
@@ -35,9 +33,10 @@ export async function dailyLoader({ request, params }: PageArgs) {
   const upstream = new Headers();
   // React Router's client navigations request /daily.data, while SSR uses /daily.
   if (!day && /^\/daily(?:\.data)?$/.test(new URL(request.url).pathname)) {
-    const library = new URL(request.url).searchParams.get("view") === "library";
-    const digest = await loadOr404<GeoDailyDigest>(`/api/geo/daily${library ? "?view=library" : ""}`, { signal: request.signal, responseHeaders: upstream });
-    return cachedPage(60, { mode: "digest" as const, digest }, upstream);
+    const query = new URL(request.url).searchParams;
+    if (query.get("view") === "library") { query.delete("view"); throw redirect(`/library${query.size ? `?${query}` : ""}`); }
+    throw redirect("/");
+
   }
   const { days, selectedDay, dailyTotal, dailyItems, rules } = await getOverview(request, upstream, { day });
   return cachedPage(60, { mode: "archive" as const, days, selectedDay, dailyTotal, dailyItems, rules }, upstream);

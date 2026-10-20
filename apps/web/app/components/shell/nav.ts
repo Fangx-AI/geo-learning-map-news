@@ -21,7 +21,7 @@ const SECTIONS: Array<{ title: string; items: NavItem[] }> = [
   {
     title: "内容",
     items: [
-      { to: "/", label: "精选", icon: IconBolt, end: true },
+      { to: "/", label: "今日重点", icon: IconBolt, end: true },
       { to: "/all", label: subjectAfter("全部", "动态"), icon: IconList },
       { to: "/hot", label: "热点榜", icon: IconFlame },
       { to: "/daily", label: withSubject("日报"), icon: IconDoc },
@@ -57,6 +57,7 @@ export function sidebar(): Array<{ title: string; items: NavItem[] }> {
     if (section) section.items.push(...m.sidebar.items);
     else sections.push({ title: m.sidebar.section, items: [...m.sidebar.items] });
   }
+  for (const section of sections) section.items.sort((a,b) => { const order = NAV.order as readonly string[]; const ai=order.indexOf(a.to), bi=order.indexOf(b.to); return (ai<0?999:ai)-(bi<0?999:bi); });
   return [...sections, more];
 }
 
@@ -89,7 +90,7 @@ export interface Tab {
 }
 
 const ENGINE_TABS: Tab[] = [
-  { key: "featured", to: "/", label: "精选", icon: IconBolt },
+  { key: "featured", to: "/", label: "今日重点", icon: IconBolt },
   { key: "hot", to: "/hot", label: "热点", icon: IconFlame },
   { key: "daily", to: "/daily", label: "日报", icon: IconDoc },
   { key: "me", to: "/more", label: "我的", icon: IconUser, changelog: true },

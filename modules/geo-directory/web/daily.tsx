@@ -5,15 +5,14 @@ import { pageMeta } from "@aihot/web/lib/seo";
 import { ItemList, PublicHeader } from "./components.tsx";
 import type { dailyLoader as loader } from "./overview-pages.server.ts";
 import { dailyAddress } from "./meta.ts";
-import { DailyDigest } from "./daily-digest.tsx";
 
-export const handle = { tab: "daily", name: "日报" };
+export const handle = { home: "featured", name: "日报" };
 export const meta = ({ location }: { location: { pathname: string; search?: string } }) => pageMeta({ description: "近 24 小时 GEO 重点与今日补齐的研究，中文阅读结论、数据与实际价值，保留原文日期和出处。", ...dailyAddress(location) });
 export default function DailyPage() {
   const data = useLoaderData<typeof loader>();
   const [compact, setCompact] = useReadingPreference();
   const archive = useLocation().pathname === "/daily/archive";
-  if (data.mode === "digest") return <DailyDigest digest={data.digest} />;
+
   const groups = new Map<string, typeof data.dailyItems>();
   for (const item of data.dailyItems) groups.set(item.sourceName, [...(groups.get(item.sourceName) ?? []), item]);
   return <div className="pb-12"><PublicHeader title={archive ? "GEO 日报归档" : "GEO 日报"} eyebrow="DAILY SOURCE DIGEST" description="按北京时间归档，保留每条资料的出处与发布时间。" />

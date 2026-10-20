@@ -32,7 +32,7 @@ export async function loadGeoEdition(id: string) {
   const verified = [];
   for (const match of matches) {
     const item = await loadGeoPublicItem(String(match.id));
-    if (item?.brief?.coverage === "full-article" && !item.brief.automated) verified.push({ id: item.id, title: item.translation?.title ?? item.title });
+    if (item?.brief?.coverage === "full-article" && !item.brief.automated) verified.push({ id: item.id, title: item.translation?.title ?? item.title, conclusion: item.brief.conclusion, geoValue: item.brief.geoValue, publishedAt: item.publishedAt, sourceName: item.sourceName, url: item.url });
   }
   const chapters = outline.filter(h => /^[一二三四五六七八九十百]+[、．.]/u.test(h.title));
   return { id: String(r.id), day: String(r.day), title: String(r.title), html: $.html(), outline: chapters.length ? chapters : outline, verified: [...new Map(verified.map(v => [v.id, v])).values()] };

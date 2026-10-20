@@ -117,7 +117,8 @@ export const NAV = {
    * 不放进导航的引擎入口，目前只支持热点榜（"/hot"）和主题（"/topics"）。页面照样能打开；原来回到它的返回按钮和链接改回精选，
    * 写 "/hot" 时首页也不放当前热点。
    */
-  hidden: [] as Array<"/hot" | "/topics">,
+  order: ["/", "/library", "/following", "/starred", "/all"],
+  hidden: ["/hot", "/topics", "/daily"] as Array<"/hot" | "/topics" | "/daily">,
 };
 
 /** 条目卡片和详情页上的几处说法和显示。 */

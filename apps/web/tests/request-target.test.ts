@@ -39,7 +39,7 @@ test("origin-form slashes keep the router's homepage and unknown-route semantics
   for (const method of ["GET", "HEAD"] as const) {
     const home = await raw("/", method);
     assert.equal(home.status, 200, web.logs());
-    if (method === "GET") assert.match(home.body, /GEO 阅读精选/);
+    if (method === "GET") assert.match(home.body, /今天，GEO 值得关注什么/);
     else assert.equal(home.body, "");
     for (const path of ["//", "////", "//?category=platform-updates"]) {
       const res = await raw(path, method);
@@ -47,7 +47,7 @@ test("origin-form slashes keep the router's homepage and unknown-route semantics
       assert.equal(res.headers["content-type"], home.headers["content-type"]);
       assert.match(res.headers["cache-control"] ?? "", /^public, max-age=\d+, s-maxage=\d+, must-revalidate$/);
       if (method === "HEAD") assert.equal(res.body, "");
-      else assert.match(res.body, /GEO 阅读精选/);
+      else assert.match(res.body, /今天，GEO 值得关注什么/);
     }
     for (const path of ["/unknown-page", "//unknown-page", "//evil.invalid/unknown-page", "//unknown-page.data?token=private"]) {
       const res = await raw(path, method);

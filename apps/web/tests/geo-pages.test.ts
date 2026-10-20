@@ -76,9 +76,9 @@ test("GEO home only offers complete reviewed reading and preserves source dates 
   const page = await context.newPage();
   try {
     await page.goto(web.origin);
-    await expect(page.getByRole("heading", { name: "GEO 阅读精选", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "今天，GEO 值得关注什么", exact: true })).toBeVisible();
     const card = page.locator('[data-digest-item]').first();
-    await expect(page.locator('[data-digest-item]')).toHaveCount(6);
+    await expect(page.locator('[data-digest-item]')).toHaveCount(4);
     await expect(card).toContainText("中文研究 0");
     await expect(card).toContainText(digestBrief.conclusion);
     await expect(card.locator("img")).toHaveCount(0);
@@ -287,62 +287,34 @@ test("topics filter and open attributed results, while valid empty topics retain
   } finally { await context.close(); }
 });
 
-test("daily digest is readable in Chinese, keeps original dates and supports mobile expansion and language switching", async () => {
-  const context = await browser.newContext({ viewport: { width: 390, height: 844 } }); const page = await context.newPage();
-  try {
-    await page.goto(web.origin + "/daily");
-    await expect(page.getByRole("heading", { name: "GEO 日报", exact: true })).toBeVisible();
-    await expect(page.locator("#daily-recent [data-digest-item]")).toHaveCount(1);
-    await expect(page.getByRole('link', { name: undated.title, exact: true })).toBeHidden();
-    await page.getByText('更多动态 · 1 条暂仅来源摘要', { exact: true }).click();
-    await expectReaderLink(page.getByRole('link', { name: undated.title, exact: true }), 'd'.repeat(64), '/daily');
-    await expect(page.locator("#daily-research [data-digest-item]")).toHaveCount(6);
-    const card = page.locator("#daily-research [data-digest-item]").first();
-    await expect(card).toContainText("原文 2025/01/01");
-    await expect(card).toContainText("今日补齐概要");
-    await expect(card).toContainText(digestBrief.conclusion);
-    await expect(card).toContainText(digestBrief.geoValue[0].replace(/^本站启示：/, ""));
-    await expect(card).toContainText(digestBrief.caveats[0]);
-    await expectReaderLink(card.locator("h3 a"), "1".repeat(64), "/daily");
-    await expect(card.locator("[data-digest-finding]")).toBeHidden();
-    await card.locator('summary').click();
-    await expect(card.locator("[data-digest-finding]")).toBeVisible();
-    await expect(card.locator("[data-digest-finding]")).toContainText(digestBrief.findings[0]);
-    await card.getByRole("button", { name: "收藏", exact: true }).click();
-    await expect(card.getByRole("button", { name: "已收藏", exact: true })).toHaveAttribute("aria-pressed", "true");
-    await page.getByRole("button", { name: "继续阅读其余 2 篇" }).click();
-    await expect(page.locator("#daily-research [data-digest-item]")).toHaveCount(8);
-    await page.getByRole("group", { name: "阅读语言" }).getByRole("button", { name: "原文", exact: true }).click();
-    await expect(card.locator("h3")).toHaveText("Original study 0");
-    await expect(card.locator("[data-digest-conclusion]")).toHaveCount(0);
-    await expect(card.getByRole("link", { name: "原文 ↗" })).toHaveAttribute("href", "https://example.org/geo-original");
-    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
-    await page.getByRole("link", { name: "按日期查找来源动态 →" }).click();
-    await expect(page.getByRole("heading", { name: "GEO 日报归档", exact: true })).toBeVisible();
-  } finally { await context.close(); }
+test("daily redirects to the same today selection, and legacy library filters survive", async () => {
+ const context=await browser.newContext({viewport:{width:390,height:844}}); const page=await context.newPage();
+ try { await page.goto(web.origin+'/daily'); await expect(page).toHaveURL(web.origin+'/');
+ await expect(page.getByRole('heading',{name:'今天，GEO 值得关注什么',exact:true})).toBeVisible();
+ await expect(page.locator('[data-digest-item]')).toHaveCount(4);
+ await expect(page.locator('[data-digest-item]').first()).toContainText('原文 2025/01/01');
+ await expect(page.locator('[data-digest-item]').first()).toContainText(digestBrief.conclusion);
+ await page.getByRole('group',{name:'阅读语言'}).getByRole('button',{name:'原文',exact:true}).click();
+ await expect(page.locator('[data-digest-item] h3').first()).toHaveText('Original study 0');
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ await page.goto(web.origin+'/daily?view=library&q='+encodeURIComponent('中文研究 7'));
+ await expect(page).toHaveURL(/\/library\?q=/);
+ await expect(page.locator('[data-digest-item]')).toHaveCount(1);
+ } finally {await context.close();}
 });
-
-test("Chinese library is discoverable and preserves keyword and expansion in reader return links", async () => {
-  const context = await browser.newContext({ viewport: { width: 390, height: 844 } }); const page = await context.newPage();
-  try {
-    await page.goto(web.origin + "/daily");
-    await page.getByRole("navigation", { name: "阅读入口" }).getByRole("link", { name: "中文解读", exact: true }).click();
-    await expect(page.getByRole("heading", { name: "中文解读", exact: true })).toBeVisible();
-    await expect(page.locator("#daily-recent")).toHaveCount(0);
-    await page.getByLabel("搜索中文解读").fill("中文研究 7");
-    await page.getByRole("button", { name: "搜索", exact: true }).click();
-    await expect(page.locator("[data-digest-item]")).toHaveCount(1);
-    await expectReaderLink(page.locator("[data-digest-item] h3 a"), "8".repeat(64), "/daily?view=library&q=" + encodeURIComponent("中文研究 7").replace(/%20/g, "+"));
-    await page.getByLabel("搜索中文解读").fill("中文研究");
-    await page.getByRole("button", { name: "搜索", exact: true }).click();
-    await page.getByRole("button", { name: "继续阅读其余 2 篇" }).click();
-    await expect(page.locator("[data-digest-item]")).toHaveCount(8);
-    const current = new URL(page.url());
-    await expectReaderLink(page.locator("[data-digest-item] h3 a").last(), "8".repeat(64), current.pathname + current.search);
-    await page.reload();
-    await expect(page.locator("[data-digest-item]")).toHaveCount(8);
-    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
-  } finally { await context.close(); }
+test("library search, work filters and follow choices survive reload", async () => {
+ const context=await browser.newContext({viewport:{width:390,height:844}}); const page=await context.newPage();
+ try {await page.goto(web.origin+'/library');
+ await page.getByLabel('搜索中文解读').fill('中文研究 7'); await page.getByRole('button',{name:'查找',exact:true}).click();
+ await expect(page.locator('[data-digest-item]')).toHaveCount(1);
+ const url=new URL(page.url()); await expectReaderLink(page.locator('[data-digest-item] h3 a'),'8'.repeat(64),url.pathname+url.search);
+ await page.getByLabel('工作问题').selectOption('measure'); await page.getByRole('button',{name:'查找',exact:true}).click();
+ await expect(page.locator('[data-digest-item]')).toHaveCount(1); await page.reload(); await expect(page.getByLabel('工作问题')).toHaveValue('measure');
+ await page.goto(web.origin+'/following'); const follow=page.getByRole('button',{name:/衡量引用、流量与效果/}); await follow.click(); await expect(follow).toHaveAttribute('aria-pressed','true');
+ await expect(page.locator('[data-digest-item]')).toHaveCount(8); await page.reload(); await expect(follow).toHaveAttribute('aria-pressed','true');
+ await page.getByRole('button',{name:'清除关注和阅读记录',exact:true}).click();await expect(follow).toHaveAttribute('aria-pressed','false');
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ } finally {await context.close();}
 });
 
 test("daily archives select actual dates, show the cap honestly and hot clusters disclose their time window", async () => {
@@ -361,7 +333,8 @@ test("daily archives select actual dates, show the cap honestly and hot clusters
     await expect(page.locator(`[data-public-item="${original.id}"]`).getByText("公开摘要 & 引用研究", { exact: true })).toBeHidden();
     await page.getByRole("group", { name: "阅读方式" }).getByRole("button", { name: "摘要", exact: true }).click();
     await expect(page.locator(`[data-public-item="${original.id}"]`).getByText("公开摘要 & 引用研究", { exact: true })).toBeVisible();
-    await page.getByRole("navigation", { name: "主导航" }).getByRole("link", { name: "热点榜", exact: true }).click();
+    await page.goto(web.origin + "/more");
+    await page.getByRole("link", { name: "热点榜", exact: true }).click();
     await expect(page.getByText(/最近 7 天/).first()).toBeVisible();
     await page.getByText("榜单依据与统计范围", { exact: true }).click();
     await expect(page.getByText("按报道来源数聚合，并非社交热度", { exact: true })).toBeVisible();

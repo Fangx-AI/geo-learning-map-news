@@ -309,7 +309,7 @@ test("library search, work filters and follow choices survive reload", async () 
  await expect(page.locator('[data-digest-item]')).toHaveCount(1);
  const url=new URL(page.url()); await expectReaderLink(page.locator('[data-digest-item] h3 a'),'8'.repeat(64),url.pathname+url.search);
  await page.getByLabel('工作问题').selectOption('measure'); await page.getByRole('button',{name:'查找',exact:true}).click();
- await expect(page.locator('[data-digest-item]')).toHaveCount(1); await page.reload(); await expect(page.getByLabel('工作问题')).toHaveValue('measure');
+ await expect(page.locator('[data-digest-item]')).toHaveCount(1); await expect(page).toHaveURL(/task=measure/); await page.reload(); await expect(page.getByLabel('工作问题')).toHaveValue('measure');
  await page.goto(web.origin+'/following'); const follow=page.getByRole('button',{name:/衡量引用、流量与效果/}); await follow.click(); await expect(follow).toHaveAttribute('aria-pressed','true');
  await expect(page.locator('[data-digest-item]')).toHaveCount(12); await page.getByRole('link',{name:'继续看关注中的未读解读 →',exact:true}).click(); await expect(page.locator('[data-digest-item]')).toHaveCount(14); await page.reload(); await expect(page.locator('[data-digest-item]')).toHaveCount(14); await expect(follow).toHaveAttribute('aria-pressed','true');
  await page.getByRole('button',{name:'清除关注和阅读记录',exact:true}).click();await expect(follow).toHaveAttribute('aria-pressed','false');

@@ -6,7 +6,7 @@ import { SITE } from "@aihot/site";
 const at = process.argv.indexOf("--base");
 const base = (at > 0 ? process.argv[at + 1] : process.env.SITE_URL) ?? "http://localhost:3000";
 
-const PAGES = ["/", "/all", "/hot", "/daily", "/daily/archive", "/topics", "/starred", "/agent", "/about", "/changelog", "/feedback", "/terms", "/privacy", "/more", "/admin/login"];
+const PAGES = ["/", "/library", "/following", "/all", "/hot", "/daily/archive", "/daily/editions", "/topics", "/starred", "/agent", "/about", "/changelog", "/feedback", "/terms", "/privacy", "/more", "/admin/login"];
 const MACHINE: Array<[path: string, type: RegExp]> = [
   ["/api/health", /json/],
   ["/api/v1/items", /json/],
@@ -25,11 +25,13 @@ const MACHINE: Array<[path: string, type: RegExp]> = [
 ];
 
 let failed = 0;
-async function check(path: string, expect: (res: Response, body: string) => string | null) {
+async function check(path: string, expect: (res: Response, body: string) => string | null, redirectTo?: string) {
   try {
     const res = await fetch(base + path, { redirect: "manual", signal: AbortSignal.timeout(30_000) });
     const body = res.headers.get("content-type")?.startsWith("image/") ? "" : await res.text();
-    const problem = res.status !== 200 ? `HTTP ${res.status}` : expect(res, body);
+    const problem = redirectTo
+      ? res.status === 302 && res.headers.get("location") === redirectTo ? null : `expected 302 to ${redirectTo}; got ${res.status} ${res.headers.get("location")}`
+      : res.status !== 200 ? `HTTP ${res.status}` : expect(res, body);
     console.log(`${problem ? "✗" : "✓"} ${path}${problem ? `  ${problem}` : ""}`);
     if (problem) failed += 1;
   } catch (error) {
@@ -41,6 +43,8 @@ async function check(path: string, expect: (res: Response, body: string) => stri
 // Pages write the name as HTML text: a name such as "MyF&B" appears as "MyF&amp;B".
 const htmlName = SITE.name.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
 for (const path of PAGES) await check(path, (_res, body) => (body.includes(SITE.name) || body.includes(htmlName) ? null : `the page does not name ${SITE.name}`));
+await check("/daily", () => null, "/");
+await check("/daily?view=library&q=GEO", () => null, "/library?q=GEO");
 for (const [path, type] of MACHINE) await check(path, (res) => (type.test(res.headers.get("content-type") ?? "") ? null : `content-type ${res.headers.get("content-type")}`));
 // MCP: the handshake answers with the site's server name.
 const mcp = await fetch(`${base}/api/mcp`, {

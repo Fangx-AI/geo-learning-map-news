@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLoaderData } from "react-router";
+import { Link, useLoaderData, useSearchParams } from "react-router";
 import { pageMeta } from "@aihot/web/lib/seo";
 import { PhoneBar } from "@aihot/web/components/shell/PhoneBar";
 import { featuredLoader } from "./overview-pages.server.ts";
@@ -18,6 +18,8 @@ export const meta = () =>
 export default function Following() {
   const { digest } = useLoaderData<typeof loader>();
   const state = useReadingState();
+  const [params] = useSearchParams();
+  const count = Math.max(12, Math.min(2000, Number(params.get("limit")) || 12));
   const [error, setError] = useState("");
   const all = chooseReading(digest.research);
   const matches = all.filter((i) =>
@@ -67,14 +69,14 @@ export default function Following() {
         <p className="py-5 text-sm text-ink-3">暂时没有新的未读解读。</p>
       ) : (
         <div className="divide-y divide-line">
-          {unread.slice(0, 12).map((i) => (
+          {unread.slice(0, count).map((i) => (
             <ReadingCard key={i.id} item={i} />
           ))}
         </div>
       )}
-      {unread.length > 12 && (
-        <Link to="/library" className="text-sm text-accent">
-          到解读库查看其余内容 →
+      {unread.length > count && (
+        <Link to={`?limit=${count + 12}`} preventScrollReset className="block min-h-11 rounded-control border border-line p-3 text-center text-sm text-accent">
+          继续看关注中的未读解读 →
         </Link>
       )}
       <section className="mt-8 border-t border-line pt-5">

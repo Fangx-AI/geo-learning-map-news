@@ -25,9 +25,9 @@ const topics = [
   { slug: "crawling", name: "抓取与索引", group: "field", description: "robots 和网站索引", count: 0, items: [] },
 ];
 const digestBrief = { conclusion: "研究观察到不同查询类型的引用来源存在差异，不能直接解释为因果效果。", findings: ["在本次 100 条查询样本中，研究者逐条比较了引用来源。"], geoValue: ["本站启示：按查询类型建立引用基线，再评估内容调整。"], caveats: ["样本仅限本次实验，不代表所有语言与行业。"], coverage: "full-article", updatedAt: geoAt };
-const digest = { generatedAt: geoAt, since: "2026-10-03T08:00:00Z", day: "2026-10-04", candidatesTruncated: false, recentTotal: 2, researchTotal: 8,
+const digest = { generatedAt: geoAt, since: "2026-10-03T08:00:00Z", day: "2026-10-04", candidatesTruncated: false, recentTotal: 2, researchTotal: 14,
   recent: [{ ...original, briefAddedAt: null, translation: { title: "近 24 小时的引用变化", summary: "本次研究的来源摘要。", language: "zh", provider: "fixture" }, brief: digestBrief }, { ...undated, id: 'd'.repeat(64), briefAddedAt: null }],
-  research: Array.from({ length: 8 }, (_, n) => ({ ...geoItem({ id: String(n + 1).repeat(64), title: `Original study ${n}`, publishedAt: "2025-01-01T00:00:00Z", translation: { title: `中文研究 ${n}`, summary: "研究的来源摘要。", language: "zh", provider: "fixture" } }), brief: digestBrief, briefAddedAt: geoAt })),
+  research: Array.from({ length: 14 }, (_, n) => ({ ...geoItem({ id: (n + 1).toString(16).repeat(64), url: `https://example.org/study/${n}`, title: `Original study ${n}`, publishedAt: "2025-01-01T00:00:00Z", translation: { title: `中文研究 ${n}`, summary: "研究的来源摘要。", language: "zh", provider: "fixture" } }), brief: digestBrief, briefAddedAt: geoAt })),
 };
 const api = createServer((req, res) => {
   const url = new URL(req.url!, "http://fixture");
@@ -311,7 +311,7 @@ test("library search, work filters and follow choices survive reload", async () 
  await page.getByLabel('工作问题').selectOption('measure'); await page.getByRole('button',{name:'查找',exact:true}).click();
  await expect(page.locator('[data-digest-item]')).toHaveCount(1); await page.reload(); await expect(page.getByLabel('工作问题')).toHaveValue('measure');
  await page.goto(web.origin+'/following'); const follow=page.getByRole('button',{name:/衡量引用、流量与效果/}); await follow.click(); await expect(follow).toHaveAttribute('aria-pressed','true');
- await expect(page.locator('[data-digest-item]')).toHaveCount(8); await page.reload(); await expect(follow).toHaveAttribute('aria-pressed','true');
+ await expect(page.locator('[data-digest-item]')).toHaveCount(12); await page.getByRole('link',{name:'继续看关注中的未读解读 →',exact:true}).click(); await expect(page.locator('[data-digest-item]')).toHaveCount(14); await page.reload(); await expect(page.locator('[data-digest-item]')).toHaveCount(14); await expect(follow).toHaveAttribute('aria-pressed','true');
  await page.getByRole('button',{name:'清除关注和阅读记录',exact:true}).click();await expect(follow).toHaveAttribute('aria-pressed','false');
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
  } finally {await context.close();}

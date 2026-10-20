@@ -20,8 +20,10 @@ async function getOverview(request: Request, upstream: Headers, options: { day?:
 
 export async function featuredLoader({ request }: Pick<PageArgs, "request">) {
   const upstream = new Headers();
-  const { highlights, collections, stats, rules, lastCollectedAt, window } = await getOverview(request, upstream);
-  return cachedPage(60, { highlights, collections, stats, rules, lastCollectedAt, window }, upstream);
+  const digest = await loadOr404<GeoDailyDigest>("/api/geo/daily?view=library", { signal: request.signal, responseHeaders: upstream });
+  const ready = digest.research.filter(item => item.brief?.coverage === "full-article" && !item.brief.automated)
+    .sort((a, b) => Date.parse(b.brief!.updatedAt) - Date.parse(a.brief!.updatedAt) || a.id.localeCompare(b.id));
+  return cachedPage(60, { picks: ready.slice(0, 6), total: ready.length }, upstream);
 }
 export async function hotLoader({ request }: Pick<PageArgs, "request">) {
   const upstream = new Headers();

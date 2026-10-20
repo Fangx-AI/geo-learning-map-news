@@ -44,6 +44,7 @@ const api = createServer((req, res) => {
   if (url.pathname === "/api/site/track") { res.statusCode = 204; return res.end(); }
   if (url.pathname === "/api/geo/collection-status") return send(geoStatus);
   if (url.pathname === "/api/geo/overview") return send(geoOverview({ dailyItems: [solo], dailyTotal: 1 }));
+  if (url.pathname === "/api/geo/daily") return send({ research: [readerWithBrief], recent: [] });
   if (url.pathname.startsWith("/api/geo/public-items/")) {
     const id = url.pathname.split("/").at(-1);
     const item = id === readerAlias ? readerItem : [readerItem, readerWithoutSummary, readerWithBrief, readerAbstract].find(item => item.id === id);
@@ -95,7 +96,7 @@ test("reader briefs explain findings and implications while keeping the source e
     await expect(page.getByRole("heading", { name: "来源摘要", exact: true })).toBeVisible();
     await expect(page.locator("[data-reader-summary]")).toHaveText(readerItem.summary!);
     await expect(page.locator("[data-reader-brief]")).toHaveCount(0);
-    await page.getByRole("button", { name: "中文概要", exact: true }).click();
+    await page.getByRole("button", { name: "中文解读", exact: true }).click();
     await expect(page.locator("[data-reader-conclusion]")).toHaveText(readerWithBrief.brief.conclusion);
     await expect(page.getByRole("link", { name: "查看原文 ↗", exact: true })).toHaveAttribute("href", readerItem.url);
     assert.deepEqual(external, []);
@@ -139,6 +140,8 @@ test("card reading stays on-site, shows the complete bilingual excerpt and retur
     const article = page.locator(`[data-reader-item="${readerItem.id}"]`);
     await expect(article.locator("h1")).toHaveText(readerItem.translation!.title);
     await expect(article.locator("[data-reader-summary]")).toHaveText(readerItem.translation!.summary!);
+    await expect(article.getByRole('heading', { name: '先读这些完整解读', exact: true })).toBeVisible();
+    await expect(article.locator('aside a').first()).toHaveAttribute('href', `/read/${readerWithBrief.id}?from=%2Fdaily%3Fview%3Dlibrary`);
     assert.equal(await article.locator("[data-reader-summary]").evaluate(element => element.scrollHeight > element.clientHeight + 1), false, "the collected excerpt is not line-clamped");
     await article.getByRole("button", { name: "查看原文", exact: true }).click();
     await expect(article.locator("h1")).toHaveText("AI search citation experiment & limitations");

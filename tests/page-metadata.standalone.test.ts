@@ -31,7 +31,7 @@ const api = createServer((req, res) => {
   const send = (value: unknown) => res.end(JSON.stringify(value));
   if (path === "/api/site/meta") return send({ changelogVersion: "fixture" });
   if (path === "/api/geo/overview") return send(overview(url.searchParams.get("day") ?? undefined));
-  if (path === "/api/geo/daily") return send({ generatedAt: at, since: "2026-10-03T08:00:00Z", day: "2026-10-04", recent: [{ ...publicItem, briefAddedAt: null }], research: [], recentTotal: 1, researchTotal: 0, candidatesTruncated: false });
+  if (path === "/api/geo/daily") return send({ generatedAt: at, since: "2026-10-03T08:00:00Z", day: "2026-10-04", recent: [{ ...publicItem, briefAddedAt: null }], research: [{ ...publicItem, briefAddedAt: at, brief: { conclusion: "可核实的测试结论。", findings: ["测试证据。"], geoValue: ["测试启示。"], caveats: [], coverage: "full-article", updatedAt: at } }], recentTotal: 1, researchTotal: 1, candidatesTruncated: false });
   if (path === "/api/geo/public-items") return send({ items: [publicItem], total: 1, nextCursor: null, sources: [{ id: publicItem.sourceId, name: publicItem.sourceName }], languages: ["zh"], lastCollectedAt: at });
   if (path === "/api/geo/collection-status") return send({ sources: [], lastCollectedAt: at });
   if (path === `/api/site/items/${item.id}`) return send(detail);

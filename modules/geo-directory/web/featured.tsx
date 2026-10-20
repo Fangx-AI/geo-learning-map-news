@@ -1,17 +1,23 @@
 import { Link, useLoaderData } from "react-router";
 import { pageMeta } from "@aihot/web/lib/seo";
-import { ItemList, PublicHeader } from "./components.tsx";
+import { ContentLanguageToggle } from "@aihot/web/components/translation";
+import { PhoneBar } from "@aihot/web/components/shell/PhoneBar";
+import { DigestCard } from "./daily-digest.tsx";
 import type { featuredLoader as loader } from "./overview-pages.server.ts";
 
 export const handle = { tab: "featured", name: "精选" };
-export const meta = () => pageMeta({ title: "GEO 阅读精选", description: "从全球 GEO 公开内容中，按相关性与来源多样性整理的阅读精选。", path: "/" });
+export const meta = () => pageMeta({ title: "GEO 阅读精选", description: "读懂全球 GEO 研究、实测与平台变化：结论、关键数据和实际价值。", path: "/" });
 export default function FeaturedPage() {
   const data = useLoaderData<typeof loader>();
-  return <div className="pb-12"><PublicHeader title="GEO 阅读精选" eyebrow="READING PICKS" description="全球 GEO 研究、实测与平台动态。" />
-    <div className="my-5 grid grid-cols-3 gap-3">{[[data.stats.total, "累计动态"], [data.stats.sourceCount, "有内容的来源"], [data.stats.topicCount, "已命中主题"]].map(([number, label]) => <div key={label} className="rounded-card border border-line bg-surface p-4"><strong className="text-[24px] font-semibold text-ink">{number}</strong><p className="mt-1 text-[11px] text-ink-3">{label}</p></div>)}</div>
-    <p className="mb-4 text-[12px] text-accent">{data.window.label}</p><ItemList items={data.highlights} />
-    <div className="mt-6 text-center"><Link to="/all" className="text-[13px] font-semibold text-accent">浏览全部 {data.stats.total} 条动态 →</Link></div>
-    <h2 className="mb-4 mt-10 text-[20px] font-semibold text-ink">按学习方向浏览</h2><div className="grid gap-4 lg:grid-cols-2">{data.collections.map(collection => <details key={collection.key} className="overflow-hidden rounded-card border border-line bg-surface"><summary className="cursor-pointer px-5 py-4 text-[14px] font-semibold text-ink">{collection.name}<span className="ml-2 text-[12px] font-normal text-ink-4">{collection.count} 条匹配 · 展开近期条目</span></summary><ItemList items={collection.items} /></details>)}</div>
-    {data.stats.truncated && <p className="mt-4 text-[12px] text-ink-4">分类与精选基于最近 {data.stats.analyzedItems} 条内容，全部存档可在动态页搜索。</p>}
+  return <div className="mx-auto max-w-4xl pb-12"><PhoneBar title="阅读精选" />
+    <header className="mb-6 border-b border-line pb-5 pt-2">
+      <div className="flex flex-wrap items-center justify-between gap-3"><h1 data-page-title="" className="text-[28px] font-semibold tracking-tight text-ink lg:text-[34px]">GEO 阅读精选</h1><ContentLanguageToggle /></div>
+      <p className="mt-3 text-[15px] leading-7 text-ink-2">读懂全球 AI 搜索变化，找到值得行动的证据。</p>
+      <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-[14px]"><Link to="/daily" className="inline-flex min-h-11 items-center rounded-control bg-accent px-4 font-medium text-white">看今日日报 →</Link><Link to="/daily?view=library" className="inline-flex min-h-11 items-center text-accent hover:underline">搜索全部中文解读 →</Link></div>
+    </header>
+    <section aria-labelledby="home-reading"><div className="mb-4 flex flex-wrap items-baseline justify-between gap-2"><h2 id="home-reading" className="text-[20px] font-semibold text-ink">最近完成的解读</h2><p className="text-[12px] text-ink-3">已核读全文 · 保留原文日期</p></div>
+      {data.picks.length ? <div className="divide-y divide-line rounded-card border border-line bg-surface px-5 pt-5 lg:px-7">{data.picks.map((item, index) => <DigestCard key={item.id} item={item} index={index} />)}</div> : <div className="rounded-card border border-line p-6 text-[14px] leading-7 text-ink-2"><p>完整中文解读正在整理中。</p><Link to="/all" className="inline-flex min-h-11 items-center text-accent">先浏览来源动态 →</Link></div>}
+    </section>
+    <footer className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-[13px] text-accent"><Link to="/daily?view=library" className="inline-flex min-h-11 items-center">全部 {data.total} 篇中文解读 →</Link><Link to="/topics" className="inline-flex min-h-11 items-center">按主题探索 →</Link><Link to="/all" className="inline-flex min-h-11 items-center text-ink-3">全部来源动态 →</Link></footer>
   </div>;
 }

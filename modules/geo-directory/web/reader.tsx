@@ -14,6 +14,7 @@ import { safeReaderReturnTo } from "./reader-links.ts";
 import { useLiveTranslation } from "./translation-updates.ts";
 import { TranslationCorrectionButton } from "./translation-correction.tsx";
 import { languageNames } from "../data.ts";
+import type { GeoDailyDigest } from "../types.ts";
 
 export const handle: Screen = { home: "featured" };
 export function headers() { return { "Cache-Control": "no-store" }; }
@@ -27,7 +28,9 @@ interface ReaderItem extends CardItem { brief?: ReaderBrief }
 export async function loader({ request, params }: { request: Request; params: { id?: string } }) {
   if (!params.id || !/^[a-f0-9]{64}$/i.test(params.id)) throw data({ message: "not_found" }, { status: 404 });
   const result = await loadOr404<{ item: ReaderItem }>(`/api/geo/public-items/${encodeURIComponent(params.id)}`, { signal: request.signal });
-  return { ...result, requestedId: params.id.toLowerCase() };
+  const library = !result.item.brief ? await loadOr404<GeoDailyDigest>("/api/geo/daily?view=library", { signal: request.signal }).catch(() => null) : null;
+  const suggestions = (library?.research ?? []).filter(candidate => candidate.id !== result.item.id && candidate.brief?.coverage === "full-article" && !candidate.brief.automated).slice(0, 3);
+  return { ...result, suggestions, requestedId: params.id.toLowerCase() };
 }
 
 export function meta({ loaderData }: { loaderData?: { item: ReaderItem } }) {
@@ -55,7 +58,7 @@ function ReaderBack({ phone = false }: { phone?: boolean }) {
 }
 
 export default function GeoReaderPage() {
-  const { item, requestedId } = useLoaderData<typeof loader>();
+  const { item, requestedId, suggestions } = useLoaderData<typeof loader>();
   const translation = useLiveTranslation(item);
   const content = useTranslatedContent({ ...item, translation });
   const preference = useContentLanguage();
@@ -88,18 +91,19 @@ export default function GeoReaderPage() {
         <Link to={`/all?source=${encodeURIComponent(item.sourceId)}`} className="min-w-0 max-w-full break-words font-medium text-accent hover:underline">{item.sourceName}</Link>
         <time dateTime={item.publishedAt ?? undefined} title={item.publishedAt ? "原文发布日期（北京时间）" : "来源未提供发布日期"}>{item.contentKind === "aggregated" && item.publishedAt ? "索引标注 " : "原文 "}{dateLabel(item.publishedAt)}</time>
         <span title="原文语言">{languageNames[item.language] ?? item.language}</span>
+        {item.brief && <span>约 {Math.max(1, Math.ceil([item.brief.conclusion, ...item.brief.findings, ...item.brief.geoValue, ...item.brief.caveats].join("").length / 350))} 分钟读完</span>}
       </div>
       <div className="mt-2 flex flex-wrap items-center gap-3 border-b border-line pb-3">
-        {item.brief ? <button type="button" onClick={() => setBriefLanguage(showBrief ? "original" : "zh")} className="min-h-9 text-[12px] text-accent hover:underline">{showBrief ? "原文摘要" : "中文概要"}</button> : <ItemTranslationToggle content={content} />}
+        {item.brief ? <div role="group" aria-label="阅读内容" className="flex rounded-control bg-bg-sunk p-1">{([['zh', '中文解读'], ['original', '原文摘要']] as const).map(([value, label]) => <button key={value} type="button" aria-pressed={showBrief === (value === 'zh')} onClick={() => setBriefLanguage(value)} className={`min-h-10 rounded-control px-3 text-[13px] ${showBrief === (value === 'zh') ? 'bg-surface font-semibold text-accent shadow-sm' : 'text-ink-3'}`}>{label}</button>)}</div> : <ItemTranslationToggle content={content} />}
         {!showBrief && <TranslationCorrectionButton item={{ ...item, translation }} />}
-        <button type="button" aria-label={starred ? "取消收藏" : "收藏这条内容"} aria-pressed={starred} className="min-h-9 rounded-control border border-line px-3 text-[12px] text-accent hover:bg-accent-soft" onClick={toggleBookmark}>{starred ? "已收藏 ✓" : "收藏 ＋"}</button>
+        <button type="button" aria-label={starred ? "取消收藏" : "收藏这条内容"} aria-pressed={starred} className="min-h-11 rounded-control border border-line px-3 text-[12px] text-accent hover:bg-accent-soft" onClick={toggleBookmark}>{starred ? "已收藏 ✓" : "收藏 ＋"}</button>
         <a href={item.url} target="_blank" rel="noopener noreferrer" className="ml-auto min-h-9 py-2 text-[12px] text-accent hover:underline">查看原文 ↗</a>
       </div>
       {showBrief ? <BriefContent brief={item.brief!} /> : <section aria-labelledby="reader-summary-heading" className="pt-5">
         <h2 id="reader-summary-heading" className="mb-3 text-[12px] font-medium text-ink-4">来源摘要</h2>
         {(item.brief ? content.originalSummary : content.summary)?.trim() ? <p data-reader-summary="" lang={item.brief ? item.language : content.language} className="whitespace-pre-line break-words text-[16px] leading-[1.95] text-ink-2 lg:text-[17px]">{item.brief ? content.originalSummary : content.summary}</p> : <p className="text-[14px] leading-7 text-ink-3">来源暂未提供摘要。</p>}
       </section>}
-      {!item.brief && <aside className="mt-6 rounded-card border border-line bg-bg-sunk p-5 text-[14px] leading-7 text-ink-2"><p>这条目前只有来源提供的摘要，还没有完整的中文解读。</p><Link to="/daily?view=library" className="mt-2 inline-flex min-h-11 items-center font-medium text-accent hover:underline">先读已完成的中文解读 →</Link></aside>}
+      {!item.brief && <aside className="mt-6 rounded-card border border-line bg-bg-sunk p-5 text-[14px] leading-7 text-ink-2"><p>这条目前只有来源摘要，完整结论与数据尚未核读。</p><h2 className="mt-4 font-semibold text-ink">先读这些完整解读</h2>{suggestions.length > 0 && <ul className="mt-2 divide-y divide-line">{suggestions.map(candidate => <ReaderSuggestion key={candidate.id} item={candidate} />)}</ul>}<Link to="/daily?view=library" className="mt-2 inline-flex min-h-11 items-center font-medium text-accent hover:underline">浏览全部中文解读 →</Link></aside>}
       {showImage && <img src={imageUrl} alt="" referrerPolicy="no-referrer" decoding="async" ref={image => { if (image?.complete && !image.naturalWidth) setFailedImageUrl(imageUrl); }} onError={() => setFailedImageUrl(imageUrl)} className="mt-6 max-h-[360px] w-auto max-w-full rounded-card object-contain object-left" />}
       {showBrief && <footer className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4"><Link to="/daily?view=library" className="inline-flex min-h-11 items-center text-[13px] text-accent hover:underline">继续读中文解读 →</Link></footer>}
     </article>
@@ -107,24 +111,31 @@ export default function GeoReaderPage() {
 }
 
 function BriefContent({ brief }: { brief: ReaderBrief }) {
-  return <div data-reader-brief="" lang="zh" className="space-y-6 pt-6 text-[15px] leading-[1.95] text-ink-2 lg:text-[16px]">
+  return <div data-reader-brief="" lang="zh" className="space-y-6 pt-3 text-[15px] leading-[1.95] text-ink-2 lg:text-[16px]">
+    <nav aria-label="解读目录" className="flex flex-wrap gap-x-5 gap-y-1 text-[13px] text-accent">{[['brief-conclusion','结论'],['brief-findings','数据与发现'],['brief-value','GEO 启示'],...(brief.caveats.length || brief.coverage === 'abstract' ? [['brief-limits','适用范围']] : [])].map(([id,label]) => <a key={id} href={`#${id}`} className="inline-flex min-h-11 items-center hover:underline">{label}</a>)}</nav>
     <section aria-labelledby="brief-conclusion" className="rounded-card border border-line bg-surface p-5 lg:p-6">
-      <h2 id="brief-conclusion" className="mb-2 text-[13px] font-semibold text-ink-3">核心结论{brief.automated && <span className="ml-2 text-[11px] font-normal text-ink-4">AI 整理</span>}</h2>
+      <h2 id="brief-conclusion" className="mb-2 scroll-mt-24 text-[13px] font-semibold text-ink-3">核心结论{brief.automated && <span className="ml-2 text-[11px] font-normal text-ink-4">AI 整理</span>}</h2>
       <p data-reader-conclusion="" className="break-words text-[17px] font-medium text-ink lg:text-[18px]">{brief.conclusion}</p>
     </section>
     <section aria-labelledby="brief-findings">
-      <h2 id="brief-findings" className="mb-3 text-[18px] font-semibold text-ink">关键发现</h2>
+      <h2 id="brief-findings" className="mb-3 scroll-mt-24 text-[18px] font-semibold text-ink">关键发现</h2>
       <ul className="list-disc space-y-2 pl-5 marker:text-accent">{brief.findings.map((finding, i) => <li key={i} className="break-words pl-1">{finding}</li>)}</ul>
     </section>
     <section aria-labelledby="brief-value" className="rounded-card bg-accent-soft p-5 lg:p-6">
-      <h2 id="brief-value" className="mb-2 text-[18px] font-semibold text-ink">对 GEO 的启示<span className="ml-2 text-[12px] font-normal text-ink-3">本站解读</span></h2>
-      {brief.geoValue.map((value, i) => <p key={i} className="mt-2 break-words">{value.replace(/^本站解读[：:]\s*/u, "")}</p>)}
+      <h2 id="brief-value" className="mb-2 scroll-mt-24 text-[18px] font-semibold text-ink">对 GEO 的启示<span className="ml-2 text-[12px] font-normal text-ink-3">本站解读</span></h2>
+      {brief.geoValue.map((value, i) => <p key={i} className="mt-2 break-words">{value.replace(/^本站(?:解读|启示)[：:]\s*/u, "")}</p>)}
     </section>
     {(brief.caveats.length > 0 || brief.coverage === "abstract") && <section aria-label="阅读边界" className="border-t border-line pt-4 text-[12px] leading-7 text-ink-3">
+      <h2 id="brief-limits" className="mb-2 scroll-mt-24 text-[14px] font-semibold text-ink-2">适用范围</h2>
       {brief.coverage === "abstract" && <p>依据论文摘要整理，未覆盖论文全文。</p>}
       {brief.caveats.map((caveat, i) => <p key={i} className="break-words">{caveat}</p>)}
     </section>}
   </div>;
+}
+
+function ReaderSuggestion({ item }: { item: GeoDailyDigest['research'][number] }) {
+  const content = useTranslatedContent(item);
+  return <li className="py-3"><Link to={`/read/${item.id}?from=%2Fdaily%3Fview%3Dlibrary`} className="font-medium text-accent hover:underline">{content.title}</Link><p className="mt-1 text-[12px] text-ink-3">{item.sourceName} · 原文 {dateLabel(item.publishedAt)}</p></li>;
 }
 
 export function ErrorBoundary() {

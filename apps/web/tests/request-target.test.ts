@@ -3,17 +3,17 @@
 import assert from "node:assert/strict";
 import { createServer, request } from "node:http";
 import { after, before, test } from "node:test";
-import { geoOverview } from "./geo-fixtures.ts";
+import { geoDaily } from "./geo-fixtures.ts";
 import { startWebServer, type WebServer } from "./web-server.ts";
 
 let web: WebServer;
 const upstreamPaths: string[] = [];
-const overview = geoOverview();
+const overview = geoDaily();
 const api = createServer((req, res) => {
   upstreamPaths.push(req.url ?? "");
   res.setHeader("Content-Type", "application/json");
   if (req.url === "/api/site/meta") return res.end(JSON.stringify({ changelogVersion: null }));
-  if (new URL(req.url!, "http://api.local").pathname === "/api/geo/overview") return res.end(JSON.stringify(overview));
+  if (new URL(req.url!, "http://api.local").pathname === "/api/geo/daily") return res.end(JSON.stringify(overview));
   res.writeHead(404);
   res.end("{}");
 });
@@ -57,7 +57,7 @@ test("origin-form slashes keep the router's homepage and unknown-route semantics
     }
   }
   assert.equal(web.logs(), "");
-  assert.ok(upstreamPaths.some((path) => new URL(path, "http://api.local").pathname === "/api/geo/overview"));
-  assert.ok(upstreamPaths.every((path) => ["/api/site/meta", "/api/geo/overview"].includes(new URL(path, "http://api.local").pathname)),
-    `only the GEO overview and shell metadata are requested: ${upstreamPaths.join(", ")}`);
+  assert.ok(upstreamPaths.some((path) => new URL(path, "http://api.local").pathname === "/api/geo/daily"));
+  assert.ok(upstreamPaths.every((path) => ["/api/site/meta", "/api/geo/daily"].includes(new URL(path, "http://api.local").pathname)),
+    `only the GEO daily and shell metadata are requested: ${upstreamPaths.join(", ")}`);
 });

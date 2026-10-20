@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { after, before, test } from "node:test";
-import { geoOverview } from "./geo-fixtures.ts";
+import { geoOverview, geoDaily } from "./geo-fixtures.ts";
 import { UNSAFE_decodeViaTurboStream } from "react-router";
 import { startWebServer, type WebServer } from "./web-server.ts";
 
@@ -20,10 +20,10 @@ const api = createServer((req, res) => {
     const respond = () => res.end(JSON.stringify({ changelogVersion: "2026-09-28T12:00" }));
     return metaAfterDeadline ? setTimeout(respond, deadline * 1000 - Date.now() + 50) : respond();
   }
-  if (url.pathname === "/api/geo/overview") {
+  if (url.pathname === "/api/geo/overview" || url.pathname === "/api/geo/daily") {
     res.setHeader("X-Accel-Expires", `@${deadline}`);
     res.setHeader("Cache-Control", "public, max-age=30, s-maxage=30");
-    return res.end(JSON.stringify(geoOverview({ selectedDay: url.searchParams.get("day") ?? "2026-10-04" })));
+    return res.end(JSON.stringify(url.pathname === "/api/geo/daily" ? geoDaily() : geoOverview({ selectedDay: url.searchParams.get("day") ?? "2026-10-04" })));
   }
   if (url.pathname === "/api/site/hot") return res.end(JSON.stringify({ entries: [] }));
   if (url.pathname === "/api/site/echo-client") return res.end(JSON.stringify({ forwarded: req.headers["x-forwarded-for"], real: req.headers["x-real-ip"] }));

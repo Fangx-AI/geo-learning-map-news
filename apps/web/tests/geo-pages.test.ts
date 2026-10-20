@@ -25,8 +25,8 @@ const topics = [
   { slug: "crawling", name: "抓取与索引", group: "field", description: "robots 和网站索引", count: 0, items: [] },
 ];
 const digestBrief = { conclusion: "研究观察到不同查询类型的引用来源存在差异，不能直接解释为因果效果。", findings: ["在本次 100 条查询样本中，研究者逐条比较了引用来源。"], geoValue: ["本站启示：按查询类型建立引用基线，再评估内容调整。"], caveats: ["样本仅限本次实验，不代表所有语言与行业。"], coverage: "full-article", updatedAt: geoAt };
-const digest = { generatedAt: geoAt, since: "2026-10-03T08:00:00Z", day: "2026-10-04", candidatesTruncated: false, recentTotal: 1, researchTotal: 8,
-  recent: [{ ...original, briefAddedAt: null, translation: { title: "近 24 小时的引用变化", summary: "本次研究的来源摘要。", language: "zh", provider: "fixture" }, brief: digestBrief }],
+const digest = { generatedAt: geoAt, since: "2026-10-03T08:00:00Z", day: "2026-10-04", candidatesTruncated: false, recentTotal: 2, researchTotal: 8,
+  recent: [{ ...original, briefAddedAt: null, translation: { title: "近 24 小时的引用变化", summary: "本次研究的来源摘要。", language: "zh", provider: "fixture" }, brief: digestBrief }, { ...undated, id: 'd'.repeat(64), briefAddedAt: null }],
   research: Array.from({ length: 8 }, (_, n) => ({ ...geoItem({ id: String(n + 1).repeat(64), title: `Original study ${n}`, publishedAt: "2025-01-01T00:00:00Z", translation: { title: `中文研究 ${n}`, summary: "研究的来源摘要。", language: "zh", provider: "fixture" } }), brief: digestBrief, briefAddedAt: geoAt })),
 };
 const api = createServer((req, res) => {
@@ -71,20 +71,21 @@ before(async () => {
 });
 after(async () => { await browser?.close(); await web?.stop(); });
 
-test("GEO home renders safe source text and Beijing publication dates without JavaScript", async () => {
+test("GEO home only offers complete reviewed reading and preserves source dates without JavaScript", async () => {
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
   try {
     await page.goto(web.origin);
     await expect(page.getByRole("heading", { name: "GEO 阅读精选", exact: true })).toBeVisible();
-    const card = page.locator(`[data-public-item="${original.id}"]`);
-    await expect(card).toContainText("GEO & AI <img src=x onerror=alert(1)>");
-    await expect(card).toContainText("公开摘要 & 引用研究");
+    const card = page.locator('[data-digest-item]').first();
+    await expect(page.locator('[data-digest-item]')).toHaveCount(6);
+    await expect(card).toContainText("中文研究 0");
+    await expect(card).toContainText(digestBrief.conclusion);
     await expect(card.locator("img")).toHaveCount(0);
-    await expect(card.locator("time")).toHaveText("2026/10/04");
-    await expect(card.locator("time")).toHaveAttribute("datetime", original.publishedAt!);
-    await expect(page.getByText("最近 7 天", { exact: true })).toBeVisible();
-    await expectReaderLink(card.locator("h2 a"), original.id, "/");
+    await expect(card.locator("time")).toHaveText("2025/01/01");
+    await expect(card.locator("time")).toHaveAttribute("datetime", "2025-01-01T00:00:00Z");
+    await expect(page.locator('[data-public-item]')).toHaveCount(0);
+    await expectReaderLink(card.locator("h3 a"), '1'.repeat(64), "/");
     await expect(card.getByRole("link", { name: original.sourceName, exact: true })).toHaveAttribute("href", "/all?source=official-fixture");
   } finally { await context.close(); }
 });
@@ -292,6 +293,9 @@ test("daily digest is readable in Chinese, keeps original dates and supports mob
     await page.goto(web.origin + "/daily");
     await expect(page.getByRole("heading", { name: "GEO 日报", exact: true })).toBeVisible();
     await expect(page.locator("#daily-recent [data-digest-item]")).toHaveCount(1);
+    await expect(page.getByRole('link', { name: undated.title, exact: true })).toBeHidden();
+    await page.getByText('更多动态 · 1 条暂仅来源摘要', { exact: true }).click();
+    await expectReaderLink(page.getByRole('link', { name: undated.title, exact: true }), 'd'.repeat(64), '/daily');
     await expect(page.locator("#daily-research [data-digest-item]")).toHaveCount(6);
     const card = page.locator("#daily-research [data-digest-item]").first();
     await expect(card).toContainText("原文 2025/01/01");
@@ -300,6 +304,8 @@ test("daily digest is readable in Chinese, keeps original dates and supports mob
     await expect(card).toContainText(digestBrief.geoValue[0].replace(/^本站启示：/, ""));
     await expect(card).toContainText(digestBrief.caveats[0]);
     await expectReaderLink(card.locator("h3 a"), "1".repeat(64), "/daily");
+    await expect(card.locator("[data-digest-finding]")).toBeHidden();
+    await card.locator('summary').click();
     await expect(card.locator("[data-digest-finding]")).toBeVisible();
     await expect(card.locator("[data-digest-finding]")).toContainText(digestBrief.findings[0]);
     await card.getByRole("button", { name: "收藏", exact: true }).click();
@@ -311,7 +317,7 @@ test("daily digest is readable in Chinese, keeps original dates and supports mob
     await expect(card.locator("[data-digest-conclusion]")).toHaveCount(0);
     await expect(card.getByRole("link", { name: "原文 ↗" })).toHaveAttribute("href", "https://example.org/geo-original");
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
-    await page.getByRole("link", { name: "往期归档 →" }).click();
+    await page.getByRole("link", { name: "按日期查找来源动态 →" }).click();
     await expect(page.getByRole("heading", { name: "GEO 日报归档", exact: true })).toBeVisible();
   } finally { await context.close(); }
 });
@@ -355,7 +361,7 @@ test("daily archives select actual dates, show the cap honestly and hot clusters
     await expect(page.locator(`[data-public-item="${original.id}"]`).getByText("公开摘要 & 引用研究", { exact: true })).toBeHidden();
     await page.getByRole("group", { name: "阅读方式" }).getByRole("button", { name: "摘要", exact: true }).click();
     await expect(page.locator(`[data-public-item="${original.id}"]`).getByText("公开摘要 & 引用研究", { exact: true })).toBeVisible();
-    await page.getByRole("navigation", { name: "GEO 内容" }).getByRole("link", { name: "热点榜", exact: true }).click();
+    await page.getByRole("navigation", { name: "主导航" }).getByRole("link", { name: "热点榜", exact: true }).click();
     await expect(page.getByText(/最近 7 天/).first()).toBeVisible();
     await page.getByText("榜单依据与统计范围", { exact: true }).click();
     await expect(page.getByText("按报道来源数聚合，并非社交热度", { exact: true })).toBeVisible();

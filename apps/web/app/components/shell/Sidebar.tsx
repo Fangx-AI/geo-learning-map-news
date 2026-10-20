@@ -6,6 +6,7 @@ import { useChangelogSeen } from "../../lib/local-state";
 import { sidebar, sidebarIsActive, type NavItem } from "./nav";
 import { ThemeSwitch } from "./ThemeSwitch";
 import { IconGithub } from "../icons";
+import { IntentLink } from "../ui/IntentLink";
 
 /** True while the changelog has an entry newer than the one this reader last opened. */
 export function useChangelogDot(latestVersion: string | null): boolean {
@@ -21,9 +22,8 @@ function SideLink({ item, dot }: { item: NavItem; dot: boolean }) {
   const isActive = sidebarIsActive(item, pathname);
   const Icon = item.icon;
   return (
-    <Link
+    <IntentLink
       to={item.to}
-      prefetch="intent"
       aria-current={isActive ? "page" : undefined}
       className={`flex h-10 items-center gap-2.5 rounded-control px-2.5 text-[14px] transition-colors duration-150 ${
         isActive ? "bg-accent/10 font-semibold text-ink dark:bg-accent-soft" : "font-medium text-ink-3 hover:bg-bg-sunk hover:text-ink"
@@ -34,7 +34,7 @@ function SideLink({ item, dot }: { item: NavItem; dot: boolean }) {
       </span>
       <span className="min-w-0 truncate">{item.label}</span>
       {dot && item.changelog && <span className="ml-auto size-1.5 shrink-0 rounded-full bg-hot" aria-label="有新的更新" />}
-    </Link>
+    </IntentLink>
   );
 }
 

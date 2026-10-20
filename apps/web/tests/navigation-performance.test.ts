@@ -40,7 +40,10 @@ const api=createServer((req,res)=>{
   hits.push(req.url!);
   if(p===failing){res.statusCode=503;return res.end(JSON.stringify({code:'unavailable'}));}
   if(p==='/api/health')return res.end('{}');
-  if(p==='/api/geo/daily')return res.end(JSON.stringify(geoDaily()));
+  if(p==='/api/geo/daily'){
+    res.setHeader('X-Accel-Expires','@'+(Math.floor(Date.now()/1000)+ttl));
+    return res.end(JSON.stringify(geoDaily()));
+  }
   if(p==='/api/geo/overview'){
     res.setHeader('X-Accel-Expires','@'+(Math.floor(Date.now()/1000)+ttl));
     return res.end(JSON.stringify(geoOverview({selectedDay:url.searchParams.get('day')||'2026-10-04'})));
@@ -78,7 +81,7 @@ test('GEO overview and daily query variants return offline without another read'
   const page=await context.newPage();
   try{
     await page.goto(origin+'/');
-    await page.getByRole('navigation',{name:'GEO 内容'}).getByRole('link',{name:'主题',exact:true}).click();
+    await page.getByRole('link',{name:'按主题探索 →',exact:true}).click();
     await expect(page.getByRole('heading',{name:'GEO 学习主题',exact:true})).toBeVisible();
     await context.setOffline(true);await page.goBack();
     await expect(page.getByRole('heading',{name:'GEO 阅读精选',exact:true})).toBeVisible({timeout:1500});
@@ -129,7 +132,7 @@ test('public cursor pages and daily/topics return offline with their own content
     await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:'主题',exact:true}).click();
     await expect(page.getByRole('heading',{name:'GEO 学习主题',exact:true})).toBeVisible();
     await context.setOffline(true);
-    await page.getByRole('navigation',{name:'GEO 内容'}).getByRole('link',{name:'日报',exact:true}).click();
+    await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:'GEO 日报',exact:true}).click();
     await expect(page.getByRole('heading',{name:'GEO 日报',exact:true})).toBeVisible({timeout:1500});
   }finally{await context.close();}
 });
@@ -139,7 +142,7 @@ test('focusing visited navigation does not evict a still-valid page result',asyn
   const requests:string[]=[];
   await context.route('**/*.data*',route=>route.continue());
   page.on('request',request=>{if(request.url().includes('.data'))requests.push(request.url());});
-  const nav=()=>page.getByRole('navigation',{name:'GEO 内容'});
+  const nav=()=>page.getByRole('navigation',{name:'主导航'});
   try{
     await page.goto(origin+'/');
     await nav().getByRole('link',{name:'热点榜',exact:true}).click();
@@ -162,9 +165,9 @@ test('a revisit never renews its original deadline; expiry shows failure and rel
   try{
     await page.clock.install();ttl=2;
     await page.goto(origin+'/');
-    await page.getByRole('navigation',{name:'GEO 内容'}).getByRole('link',{name:'热点榜',exact:true}).click();
+    await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:'热点榜',exact:true}).click();
     await expect(page.getByRole('heading',{name:'GEO 热点榜',exact:true})).toBeVisible();
-    failing='/api/geo/overview';
+    failing='/api/geo/daily';
     await page.clock.runFor(2500);
     await page.goBack();await expect(page.getByRole('heading',{name:'暂时无法加载',exact:true})).toBeVisible();
     failing='';ttl=60;
@@ -176,11 +179,11 @@ test('SSR freshness spent upstream is not renewed by GEO HTML hydration',async()
   const context=await chrome.newContext();const page=await context.newPage();
   try{
     ttl=0;await page.goto(origin+'/');
-    await page.getByRole('navigation',{name:'GEO 内容'}).getByRole('link',{name:'热点榜',exact:true}).click();
+    await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:'热点榜',exact:true}).click();
     await expect(page.getByRole('heading',{name:'GEO 热点榜',exact:true})).toBeVisible();
     const start=hits.length;ttl=60;
     await page.goBack();await expect(page.getByRole('heading',{name:'GEO 阅读精选',exact:true})).toBeVisible();
-    assert.equal(hits.slice(start).filter(x=>x.startsWith('/api/geo/overview')).length,1);
+    assert.equal(hits.slice(start).filter(x=>x.startsWith('/api/geo/daily')).length,1);
   }finally{ttl=60;await context.close();}
 });
 

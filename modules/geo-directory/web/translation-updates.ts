@@ -148,7 +148,6 @@ export function subscribeTranslationStatus(listener: () => void): () => void {
 export const translationStatusSnapshot = () => status;
 const noUpdates = () => () => {};
 const noTranslation = () => undefined;
-const noStatus = () => null;
 
 export function useLiveTranslation(item: OriginalItem, legacyDecoded = false): ChineseTranslation | null | undefined {
   const enabled = useContentLanguage() === "zh";
@@ -162,8 +161,4 @@ export function useLiveTranslation(item: OriginalItem, legacyDecoded = false): C
   if (translation !== undefined) latest.current.value = translation;
   return latest.current.value === undefined ? item.translation : latest.current.value;
 }
-export function useTranslationStatus(): TranslationStatus | null {
-  const enabled = useContentLanguage() === "zh";
-  const value = useSyncExternalStore(enabled ? subscribeTranslationStatus : noUpdates, translationStatusSnapshot, noStatus);
-  return enabled ? value : null;
-}
+

@@ -2,14 +2,14 @@ import { ContentLanguageToggle } from "@aihot/web/components/translation";
 import { Form, Link, useLoaderData, useSearchParams } from "react-router";
 import { pageMeta } from "@aihot/web/lib/seo";
 import { PhoneBar } from "@aihot/web/components/shell/PhoneBar";
-import { featuredLoader } from "./overview-pages.server.ts";
+import { libraryLoader } from "./overview-pages.server.ts";
 import { chooseReading, itemTasks, READING_TASKS } from "./reading-guide.ts";
 import { ReadingCard } from "./reading-card.tsx";
 export { headers } from "./overview-pages.server.ts";
-export const loader = featuredLoader;
-export const handle = { tab: "library", name: "解读库" };
+export const loader = libraryLoader;
+export const handle = { tab: "library", name: "深度解读" };
 export const meta = () =>
-  pageMeta({ title: "GEO 中文解读库", path: "/library" });
+  pageMeta({ title: "GEO 深度解读", path: "/library" });
 export default function Library() {
   const { digest } = useLoaderData<typeof loader>();
   const [params] = useSearchParams();
@@ -37,15 +37,15 @@ export default function Library() {
   const count = Math.max(12, Math.min(2000, Number(params.get("limit")) || 12));
   return (
     <div className="mx-auto max-w-4xl pb-12">
-      <PhoneBar title="解读库" />
+      <PhoneBar title="深度解读" />
       <div className="mb-3 flex justify-end">
         <ContentLanguageToggle />
       </div>
       <h1 data-page-title="" className="text-[30px] font-semibold text-ink">
-        按你的工作问题找答案
+        深度解读
       </h1>
       <p className="mt-3 text-sm leading-7 text-ink-3">
-        完整中文解读，保留来源证据与适用范围。
+        重要研究和实测的中文解读：结论、关键数据、对 GEO 的启示。
       </p>
       <Form method="get" action="/library" className="mt-5 space-y-3">
         <label className="block text-sm text-ink-2">

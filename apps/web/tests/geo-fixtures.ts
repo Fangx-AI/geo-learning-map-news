@@ -34,7 +34,7 @@ export function geoOverview(overrides: Partial<GeoOverviewResponse> = {}): GeoOv
   };
 }
 export function geoFeed(overrides: Record<string, unknown> = {}) {
-  return { items: [geoItem()], total: 1, nextCursor: null, sources: [{ id: "official-fixture", name: "官方资料" }], languages: ["en", "zh"], lastCollectedAt: geoAt, ...overrides };
+  return { items: [geoItem()], total: 1, hiddenTotal: 0, nextCursor: null, sources: [{ id: "official-fixture", name: "官方资料" }], languages: ["en", "zh"], lastCollectedAt: geoAt, ...overrides };
 }
 export function geoDaily(): GeoDailyDigest {
   return { generatedAt: geoAt, since: "2026-10-03T08:00:00Z", day: "2026-10-04", recent: [{ ...geoItem(), briefAddedAt: null }], research: [], recentTotal: 1, researchTotal: 0, candidatesTruncated: false };

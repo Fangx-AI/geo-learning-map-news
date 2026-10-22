@@ -224,7 +224,7 @@ export default function AboutPage() {
         </div>
         <div className="flex flex-wrap gap-3 lg:pb-2">
           <IntentLink to="/" className={buttonClass("primary", "lg")}>
-            读今日重点 <IconArrowRight size={15} />
+            读今日资讯 <IconArrowRight size={15} />
           </IntentLink>
           <IntentLink to="/library" className={buttonClass("secondary", "lg")}>
             按问题找解读

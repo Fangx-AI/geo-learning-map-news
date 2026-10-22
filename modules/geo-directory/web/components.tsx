@@ -7,9 +7,10 @@ import { languageNames } from "../data.ts";
 import { highlightedParts, hasSearchMatch, searchExcerpt, type SearchTerms } from "./search-text.ts";
 import type { ReactNode } from "react";
 import { useLiveTranslation } from "./translation-updates.ts";
-import { TranslationProgress } from "./translation-progress.tsx";
 import { TranslationCorrectionButton } from "./translation-correction.tsx";
 import { geoReaderHref } from "./reader-links.ts";
+import { itemChannels } from "./channels.ts";
+import { IconBookmark } from "@aihot/web/components/icons";
 
 export interface CardItem {
   id: string; title: string; url: string; summary: string | null;
@@ -21,7 +22,7 @@ export interface CardItem {
   imageUrl?: string | null; imageOrigin?: string | null;
   translation?: ChineseTranslation | null;
   readingReady?: boolean;
-  readingPriority?: { tier: "priority" | "standard" | "deprioritized"; label: string; reasons: string[]; limitations: string[]; policyVersion: number };
+  readingPriority?: { tier: "priority" | "standard" | "deprioritized"; label: string; badge?: string | null; folded?: boolean; reasons: string[]; limitations: string[]; policyVersion: number };
   nearDuplicates?: { key: string; count: number; items: CardItem[]; remainingCount?: number };
 }
 export function cardImageUrl(value: string | null | undefined): string | null {
@@ -36,24 +37,36 @@ export function HighlightedText({ text, query = "" }: { text: string; query?: Se
 function publicUrl(value: string | null | undefined): string | null {
   try { const url = new URL(value ?? ""); return /^https?:$/.test(url.protocol) && !url.username && !url.password ? url.href : null; } catch { return null; }
 }
+const badgeTone: Record<string, string> = { 官方: "bg-ok-soft text-ok-ink", 一手数据: "bg-amber-soft text-amber-ink", 研究: "bg-amber-soft text-amber-ink", 论文: "bg-accent-soft text-accent-ink", 平台变化: "bg-bg-sunk text-ink-2" };
+export function ValueBadge({ badge }: { badge?: string | null }) {
+  return badge ? <span data-value-badge="" className={`rounded-mark px-1.5 py-0.5 text-[11px] font-semibold ${badgeTone[badge] ?? "bg-bg-sunk text-ink-2"}`}>{badge}</span> : null;
+}
+const clock = (value: Date) => new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(value);
+const beijingDay = (value: number) => new Date(value + 8 * 3600_000).toISOString().slice(0, 10);
+/** 今天 22:42 / 昨天 21:00 / 10月19日, in Beijing time. */
+export function newsTime(value: string | null, now = Date.now()): string {
+  if (!value) return "日期待确认";
+  const at = Date.parse(value), day = beijingDay(at);
+  if (day === beijingDay(now)) return `今天 ${clock(new Date(at))}`;
+  if (day === beijingDay(now - 86_400_000)) return `昨天 ${clock(new Date(at))}`;
+  const [year, month, date] = day.split("-").map(Number);
+  return `${year === new Date(now + 8 * 3600_000).getUTCFullYear() ? "" : `${year}年`}${month}月${date}日`;
+}
 export function ItemCard({ item, compact = false, query = "", grouped = true }: { item: CardItem; compact?: boolean; query?: SearchTerms; grouped?: boolean }) {
   const starred = useIsStarred(item.id);
   const [params] = useSearchParams();
   const location = useLocation();
   const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
   const imageUrl = cardImageUrl(item.imageUrl);
-  const showImage = imageUrl && failedImageUrl !== imageUrl;
+  const showImage = !compact && imageUrl && failedImageUrl !== imageUrl;
   const translation = useLiveTranslation(item);
   const content = useTranslatedContent({ ...item, translation });
-  const { title, summary } = content;
+  const social = item.contentKind === "social", aggregated = item.contentKind === "aggregated";
+  // Social posts have no headline; the collector titles them with an excerpt.
+  const title = social ? content.summary ?? content.title.replace(/^帖文节选｜/, "") : content.title;
+  const summary = social ? null : content.summary;
   const normalize = (text: string) => text.toLocaleLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
   const distinctSummary = summary && normalize(summary) !== normalize(title) ? summary : null;
-  const host = new URL(item.url).hostname;
-  const social = item.contentKind ? item.contentKind === "social" : /(^|\.)(x|twitter|reddit)\.com$/.test(host) || /(^|\.)(bsky\.app|mastodon\.social)$/.test(host);
-  const aggregated = item.contentKind ? item.contentKind === "aggregated" : host === "news.google.com";
-  const coverage = aggregated ? "聚合线索" : social ? "社交原帖" : "原站内容";
-  const dateMissing = !item.publishedAt;
-  const publisherUrl = publicUrl(item.publisherUrl);
   const matchesSummaryOnly = distinctSummary && !hasSearchMatch(title, query) && hasSearchMatch(distinctSummary, query);
   const alternativeTitle = content.translated ? content.originalTitle : content.translatedTitle;
   const alternativeSummary = content.translated ? content.originalSummary : content.translatedSummary;
@@ -61,24 +74,47 @@ export function ItemCard({ item, compact = false, query = "", grouped = true }: 
     ? hasSearchMatch(alternativeTitle ?? "", query) ? alternativeTitle : hasSearchMatch(alternativeSummary ?? "", query) ? alternativeSummary : null : null;
   const siblings = grouped ? item.nearDuplicates : undefined;
   const groupQuery = new URLSearchParams();
-  for (const key of ["q", "source", "language", "platform", "kind", "period"]) if (params.get(key)) groupQuery.set(key, params.get(key)!);
-  groupQuery.set("sort", params.get("sort") ?? (params.has("cursor") ? "latest" : "recommended"));
+  for (const key of ["q", "source", "language", "platform", "kind", "period", "quality"]) if (params.get(key)) groupQuery.set(key, params.get(key)!);
+  groupQuery.set("sort", params.get("sort") ?? "latest");
   groupQuery.set("group", "none");
   if (siblings) groupQuery.set("groupKey", siblings.key);
-  const summaryContent = distinctSummary && <p lang={content.language} className="mt-2 text-[13px] leading-7 text-ink-3"><HighlightedText text={distinctSummary} query={query} /></p>;
+  const channels = itemChannels(item.title, item.translation?.title);
+  const original = publicUrl(item.url), publisherUrl = publicUrl(item.publisherUrl);
+  const readerHref = geoReaderHref(item.id, location.pathname + location.search);
+  const showLanguage = !content.translated && !/^zh/.test(item.language) && item.language !== "und";
   return <li data-public-item={item.id} data-card-key={item.id} className={compact ? "px-4 py-3 lg:px-5" : "px-5 py-4 lg:px-6"}>
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-ink-3"><Link to={`/all?source=${encodeURIComponent(item.sourceId)}`} className="max-w-[65%] truncate font-medium text-accent hover:underline" title={`查看 ${item.sourceName} 的已收录内容`}><HighlightedText text={item.sourceName} query={query} /></Link><span className="rounded bg-bg-sunk px-1.5 py-0.5">{item.readingReady === undefined ? coverage : item.readingReady ? "中文解读" : "来源摘要"}</span><span title="原文语言">{languageNames[item.language] ?? item.language}</span><time dateTime={item.publishedAt ?? undefined} title={dateMissing ? "来源未提供发布日期" : aggregated ? "索引标注时间（北京时间）" : "原文发布日期（北京时间）"}>{aggregated && !dateMissing ? "索引标注 " : ""}{dateLabel(item.publishedAt)}</time><ItemTranslationToggle content={content} /><TranslationCorrectionButton item={{ ...item, translation }} /><button type="button" aria-label={starred ? "取消收藏" : "收藏这条内容"} aria-pressed={starred} className="ml-auto min-h-9 rounded border border-line px-2.5 text-accent hover:bg-accent-soft" onClick={() => toggleStar({ id: item.id, title: item.title, summary: item.summary, language: item.language, ...(content.translation ? { translation: content.translation } : {}), sourceName: item.sourceName, publishedAt: item.publishedAt, url: item.url, score: null, aiSelected: false })}>{starred ? "已收藏 ✓" : "收藏 ＋"}</button></div>
-    <h2 lang={content.language} className={`mt-1.5 font-semibold leading-relaxed text-ink ${compact ? "text-[15px]" : "text-[17px]"}`}><Link to={geoReaderHref(item.id, location.pathname + location.search)} state={{ geoReaderFrom: location.pathname + location.search }} className="flex items-start gap-3 hover:text-accent hover:underline"><span className="min-w-0 flex-1"><HighlightedText text={title} query={query} /></span>{showImage && <img src={imageUrl} width={120} height={80} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" ref={image => { if (image?.complete && !image.naturalWidth) setFailedImageUrl(imageUrl); }} onError={() => setFailedImageUrl(imageUrl)} className="aspect-[3/2] w-[84px] shrink-0 rounded-control object-cover lg:w-28" />}</Link></h2>
-    {item.publisherName && <p className="mt-1 text-[11px] text-ink-3">{aggregated ? "索引标注发布者：" : "发布者："}{publisherUrl ? <a href={publisherUrl} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">{item.publisherName}<span className="sr-only">（发布者网站）</span> ↗</a> : item.publisherName}</p>}
-    {compact && matchesSummaryOnly && <p data-search-excerpt="" className="mt-2 text-[12px] leading-6 text-ink-3">摘要匹配：<HighlightedText text={searchExcerpt(distinctSummary!, query)} query={query} /></p>}
-    {hiddenLanguageMatch && <p data-search-excerpt="" className="mt-2 text-[12px] leading-6 text-ink-3">{content.translated ? "原文匹配：" : "译文匹配："}<HighlightedText text={searchExcerpt(hiddenLanguageMatch, query)} query={query} /></p>}
-    {compact && summaryContent ? <details className="group/summary mt-1"><summary className="min-h-9 w-fit cursor-pointer py-2 text-[12px] text-ink-3"><span className="group-open/summary:hidden">展开摘要</span><span className="hidden group-open/summary:inline">收起摘要</span></summary>{summaryContent}</details> : summaryContent}
-    {siblings && siblings.count > 1 && <details data-similar-titles={siblings.key} className="mt-3 overflow-hidden rounded-control border border-line bg-bg-sunk"><summary className="cursor-pointer px-3 py-2 text-[12px] font-medium text-accent">相似标题 · 共 {siblings.count} 条<span className="ml-2 font-normal text-ink-3">展开查看其他出处</span></summary><p className="px-3 pb-2 text-[11px] leading-6 text-ink-4">按标题、语言与日期自动归组；尚未核实为同一篇内容。每个链接均保留，可分别阅读和收藏。</p><ul className="divide-y divide-line border-t border-line bg-surface">{siblings.items.map(sibling => <ItemCard key={sibling.id} item={sibling} compact query={query} grouped={false} />)}</ul>{(siblings.remainingCount ?? 0) > 0 && <Link to={`/all?${groupQuery}`} className="block border-t border-line px-3 py-3 text-[12px] text-accent hover:underline">还有 {siblings.remainingCount} 条，查看这一组全部条目 →</Link>}</details>}
+    <div className="flex items-start gap-4">
+      <div className="min-w-0 flex-1">
+        {(item.readingPriority?.badge || channels.length > 0 || item.readingReady || social) && <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
+          <ValueBadge badge={item.readingPriority?.badge} />
+          {social && <span className="rounded-mark bg-bg-sunk px-1.5 py-0.5 text-[11px] text-ink-3">帖子</span>}
+          {item.readingReady && <span className="rounded-mark bg-ok-soft px-1.5 py-0.5 text-[11px] font-semibold text-ok-ink">有中文解读</span>}
+          {channels.map(channel => <Link key={channel.slug} to={`/topics/${channel.slug}`} className="relative z-10 rounded-mark px-1 py-0.5 text-[11px] font-semibold text-accent hover:underline">{channel.name}</Link>)}
+        </div>}
+        <h2 lang={content.language} className={social ? "line-clamp-3 text-[15px] leading-relaxed text-ink" : `font-semibold leading-relaxed text-ink ${compact ? "text-[15px]" : "text-[17px]"}`}><Link to={readerHref} state={{ geoReaderFrom: location.pathname + location.search }} className="hover:text-accent hover:underline"><HighlightedText text={title} query={query} /></Link></h2>
+        {matchesSummaryOnly && <p data-search-excerpt="" className="mt-2 text-[12px] leading-6 text-ink-3">摘要匹配：<HighlightedText text={searchExcerpt(distinctSummary!, query)} query={query} /></p>}
+        {hiddenLanguageMatch && <p data-search-excerpt="" className="mt-2 text-[12px] leading-6 text-ink-3">{content.translated ? "原文匹配：" : "译文匹配："}<HighlightedText text={searchExcerpt(hiddenLanguageMatch, query)} query={query} /></p>}
+        {!compact && !matchesSummaryOnly && distinctSummary && <p lang={content.language} className="mt-1.5 line-clamp-2 text-[14px] leading-6 text-ink-2"><HighlightedText text={distinctSummary} query={query} /></p>}
+      </div>
+      {showImage && <Link to={readerHref} state={{ geoReaderFrom: location.pathname + location.search }} tabIndex={-1} aria-hidden="true" className="mt-1 shrink-0"><img src={imageUrl} width={120} height={80} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" ref={image => { if (image?.complete && !image.naturalWidth) setFailedImageUrl(imageUrl); }} onError={() => setFailedImageUrl(imageUrl)} className="aspect-[3/2] w-[84px] rounded-control object-cover lg:w-28" /></Link>}
+    </div>
+    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-ink-3">
+      <Link to={`/all?source=${encodeURIComponent(item.sourceId)}`} className="max-w-[40%] truncate hover:text-accent hover:underline sm:max-w-[60%]" title={`只看 ${item.sourceName}`}><HighlightedText text={item.sourceName} query={query} /></Link>
+      <time dateTime={item.publishedAt ?? undefined} title={!item.publishedAt ? "来源未提供发布日期" : aggregated ? "索引标注时间（北京时间）" : "原文发布时间（北京时间）"} suppressHydrationWarning>{(aggregated && item.publishedAt ? "索引标注 " : "") + newsTime(item.publishedAt)}</time>
+      {showLanguage && <span className="hidden sm:inline">{languageNames[item.language] ?? item.language}</span>}
+      {original && <a href={original} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">原文 ↗</a>}
+      <ItemTranslationToggle content={content} />
+      <TranslationCorrectionButton item={{ ...item, translation }} />
+      <button type="button" aria-label={starred ? "取消收藏" : "收藏这条内容"} aria-pressed={starred} className={`ml-auto inline-flex min-h-9 min-w-9 items-center justify-center ${starred ? "text-accent" : "text-ink-4 hover:text-accent"}`} onClick={() => toggleStar({ id: item.id, title: item.title, summary: item.summary, language: item.language, ...(content.translation ? { translation: content.translation } : {}), sourceName: item.sourceName, publishedAt: item.publishedAt, url: item.url, score: null, aiSelected: false })}><IconBookmark size={16} filled={starred} /></button>
+    </div>
+    {item.publisherName && <p className="mt-1 text-[12px] text-ink-3">{aggregated ? "索引标注发布者：" : "发布者："}{publisherUrl ? <a href={publisherUrl} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">{item.publisherName}<span className="sr-only">（发布者网站）</span> ↗</a> : item.publisherName}</p>}
+    {siblings && siblings.count > 1 && <details data-similar-titles={siblings.key} className="mt-2 overflow-hidden rounded-control border border-line bg-bg-sunk"><summary className="cursor-pointer px-3 py-2 text-[12px] text-accent">另有 {siblings.count - 1} 条相似报道</summary><p className="px-3 pb-2 text-[11px] leading-6 text-ink-4">按标题、语言与日期自动归组，尚未核实为同一篇内容。</p><ul className="divide-y divide-line border-t border-line bg-surface">{siblings.items.map(sibling => <ItemCard key={sibling.id} item={sibling} compact query={query} grouped={false} />)}</ul>{(siblings.remainingCount ?? 0) > 0 && <Link to={`/all?${groupQuery}`} className="block border-t border-line px-3 py-3 text-[12px] text-accent hover:underline">还有 {siblings.remainingCount} 条，查看这一组全部条目 →</Link>}</details>}
   </li>;
 }
 export function ItemList({ items, compact = false, query = "" }: { items: CardItem[]; compact?: boolean; query?: SearchTerms }) {
-  return items.length ? <ul className="divide-y divide-line overflow-hidden rounded-card border border-line bg-surface">{items.map(item => <ItemCard key={item.id} item={item} compact={compact} query={query} />)}</ul> : <div className="rounded-card border border-dashed border-line p-10 text-center text-[13px] text-ink-3">当前条件下暂无收录。<Link to="/all" className="ml-3 text-accent">查看全部动态 →</Link></div>;
+  return items.length ? <ul className="divide-y divide-line overflow-hidden rounded-card border border-line bg-surface">{items.map(item => <ItemCard key={item.id} item={item} compact={compact} query={query} />)}</ul> : <div className="rounded-card border border-dashed border-line p-10 text-center text-[13px] text-ink-3">当前条件下暂无收录。<Link to="/all" className="ml-3 text-accent">查看全部资讯 →</Link></div>;
 }
-export function PublicHeader({ title, eyebrow, description, children }: { title: string; eyebrow: string; description: string; children?: ReactNode }) {
-  return <><PhoneBar title={title} /><header className="border-b border-line pb-4 pt-1"><p className="hidden text-[11px] font-bold tracking-[0.18em] text-accent lg:block">GEO LEARNING MAP / {eyebrow}</p><div className="mt-1 flex flex-wrap items-center justify-between gap-3 lg:mt-3"><h1 data-page-title="" className="text-[27px] font-semibold tracking-tight text-ink lg:text-[30px]">{title}</h1><ContentLanguageToggle /></div><p className="mt-2 max-w-3xl text-[13px] leading-6 text-ink-3">{description}</p><TranslationProgress />{children}<nav aria-label="GEO 内容" className="mt-2 flex gap-4 overflow-x-auto lg:hidden whitespace-nowrap text-[12px] text-accent [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&>a]:min-h-9 [&>a]:py-2"><Link to="/">精选</Link><Link to="/all">全部动态</Link><Link to="/hot">热点榜</Link><Link to="/daily">日报</Link><Link to="/topics">主题</Link><Link to="/starred">收藏</Link><Link to="/atlas">信源目录</Link></nav></header></>;
+export function PublicHeader({ title, description, children }: { title: string; description?: string; children?: ReactNode }) {
+  return <><PhoneBar title={title} /><header className="border-b border-line pb-4 pt-1"><div className="flex flex-wrap items-center justify-between gap-3"><h1 data-page-title="" className="text-[27px] font-semibold tracking-tight text-ink lg:text-[30px]">{title}</h1><ContentLanguageToggle /></div>{description && <p className="mt-2 max-w-3xl text-[14px] leading-6 text-ink-3">{description}</p>}{children}</header></>;
 }
+

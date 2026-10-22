@@ -72,18 +72,17 @@ test("selected topic metadata survives zero matches; detail lists are capped whi
   assert.ok(populated.topics.every(topic => topic.items.length <= 6));
 });
 
-test("highlights choose the best similar-title representative and preserve priority before domain diversity", () => {
+test("highlights choose the best similar-title representative and never fill the front page with promotion", () => {
   const title = "AI search original experiment on citation attribution";
   const original = item(1, { title, summary: "We tested 100 queries and publish the dataset.", url: "https://research.example/original" });
   const index = item(2, { title, summary: "Index of an experiment", url: "https://news.google.com/rss/articles/abc", publishedAt: new Date(now - 1800_000).toISOString() });
   const moreOriginals = Array.from({ length: 3 }, (_, n) => item(3 + n, { title: `AI search experiment number ${n} with detailed original data`, summary: "We tested 200 prompts with a control group." }));
   const marketing = Array.from({ length: 20 }, (_, n) => item(10 + n, { title: `Best GEO service providers number ${n}`, summary: "Contact us for guaranteed citations", url: `https://agency${n}.example/list`, publishedAt: new Date(now - 60_000).toISOString() }));
   const overview = buildGeoOverview(input([index, original, ...moreOriginals, ...marketing]), now);
-  assert.equal(overview.highlights.length, 20);
+  assert.equal(overview.highlights.length, 4);
   assert.ok(overview.highlights.some(item => item.id === original.id));
   assert.ok(!overview.highlights.some(item => item.id === index.id));
-  assert.ok(overview.highlights.slice(0, 4).every(item => item.readingPriority?.tier === "priority"));
-  assert.equal(overview.highlights[4].readingPriority?.tier, "deprioritized");
+  assert.ok(overview.highlights.every(item => item.readingPriority?.tier === "priority"));
 });
 
 test("round2 highlights prefer the same-tier direct group link without a global social penalty", () => {

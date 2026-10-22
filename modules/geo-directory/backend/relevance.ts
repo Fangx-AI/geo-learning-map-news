@@ -1,3 +1,5 @@
+import { PUBLIC_READING_POLICY } from "@aihot/industry/public-reading";
+
 // Wide recall for public GEO material. These are inclusion signals, not an assessment of truth/quality.
 const DIRECT: Array<[string, RegExp]> = [
   ["GEO", /generative\s+(?:engine|search)\s+optimi[sz]ation|生成式?(?:引擎|搜索|搜尋)(?:优化|優化)|\bGEO\b.{0,30}\b(?:SEO|AEO)\b|\bSEO\b.{0,30}\bGEO\b/i],
@@ -5,6 +7,7 @@ const DIRECT: Array<[string, RegExp]> = [
   ["AI search", /\bAI[- ]?(?:search|overviews?|mode)\b|\bgenerative\s+search\b|\b(?:ChatGPT|Gemini|Copilot)\s+search\b|\bSearchGPT\b|(?:AI|人工智能)(?:搜索|搜尋|検索)|生成AI検索|生成式(?:搜索|搜尋)/i],
   ["AI visibility", /\b(?:AI|LLM)\s+(?:visibility|discoverability|citations?)\b|(?:AI|大模型)(?:可见性|可見性|可見度|引用)|llms\.txt|OAI-SearchBot|PerplexityBot|Google-Extended/i],
   ["AI summaries in Google results", /(?=[\s\S]*\bAI summar(?:y|ies)\b)(?=[\s\S]*\bGoogle\b)(?=[\s\S]*\b(?:results?|clicks?|clicked|clicking)\b)/i],
+  ["AI 与搜索平台变化", new RegExp(PUBLIC_READING_POLICY.patterns.platformSignal, "i")],
   ["日本語 GEO", /生成(?:AI|エンジン)(?:検索|最適化)|AI検索最適化/],
   ["한국어 GEO", /(?:AI|생성형)\s*검색|생성형\s*엔진\s*최적화/],
   ["Español / Português GEO", /(?:motores|mecanismos)\s+(?:de\s+(?:búsqueda|busca)\s+)?generativos|(?:optimización|otimização)\s+generativa|búsqueda\s+con\s+IA|busca\s+com\s+IA/i],

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLoaderData, useSearchParams } from "react-router";
 import { pageMeta } from "@aihot/web/lib/seo";
 import { PhoneBar } from "@aihot/web/components/shell/PhoneBar";
-import { featuredLoader } from "./overview-pages.server.ts";
+import { libraryLoader } from "./overview-pages.server.ts";
 import { chooseReading, itemTasks, READING_TASKS } from "./reading-guide.ts";
 import {
   useReadingState,
@@ -11,8 +11,8 @@ import {
 } from "./reading-state.ts";
 import { ReadingCard } from "./reading-card.tsx";
 export { headers } from "./overview-pages.server.ts";
-export const loader = featuredLoader;
-export const handle = { tab: "following", name: "我的关注" };
+export const loader = libraryLoader;
+export const handle = { tab: "me", name: "我的关注" };
 export const meta = () =>
   pageMeta({ title: "我的 GEO 关注", path: "/following", noindex: true });
 export default function Following() {

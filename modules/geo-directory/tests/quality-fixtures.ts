@@ -4,6 +4,10 @@ import { qualityFixturesRound2 } from "./quality-fixtures-round2.ts";
 // Include short excerpts resembling the collected edge cases, not judgments of their truth.
 export const qualityFixtures: Array<ReadingInput & { expected: number; name: string }> = [
   ...qualityFixturesRound2,
+  { name: "official ChatGPT ads expansion", title: "ChatGPT Ads expands to 26 new countries as over 100,000 advertisers have used the platform", summary: null, url: "https://openai.com/index/chatgpt-ads-expansion/", expected: 0 },
+  { name: "AI discovery partnership", title: "Cloudflare and OpenAI: Making AI discovery better for everyone", summary: null, url: "https://blog.cloudflare.com/ai-discovery/", expected: 1 },
+  { name: "local business profile change", title: "Google Business Home - New Google Business Profiles Home", summary: "Google is launching a new home for Business Profiles.", url: "https://www.seroundtable.com/google-business-home-42360.html", expected: 0 },
+  { name: "ads-only news stays unrelated", title: "Google Pauses Ads For Russian Advertisers", summary: "A new message in the Google Ads help documentation.", url: "https://www.seroundtable.com/google-ads-russia-42357.html", expected: 2 },
   { name: "explicit generative search experiment", title: "Claim-Gated Source-Risk Auditing for Generative Search", summary: "A generative search answer can cite a supported passage yet omit a source relationship that changes its interpretation. Common-guard baselines and predicate ablations isolate endpoint logic from missing-evidence handling.", url: "https://arxiv.org/abs/2609.29145v2", expected: 0 },
   { name: "generative research is not generative search", title: "Generative research into new molecules", summary: "Our dataset and ablation study compare experiments.", url: "https://research.example/molecules", expected: 2 },
   { name: "generative search promotion stays demoted", title: "Generative search services", summary: "Guaranteed citations. Book a demo for our benchmark platform.", url: "https://agency.example/sales", expected: 2 },
@@ -37,4 +41,6 @@ export const qualityFixtures: Array<ReadingInput & { expected: number; name: str
   { name: "French platform update in summary", title: "Google AI Overviews : des liens plus visibles", summary: "Google a annoncé de nouveaux liens dans AI Mode.", url: "https://publisher.example/fr-news", expected: 0 },
   { name: "Japanese weekly compilation", title: "AI Overviews 1,065人の比較実験【SEO Weekly Update】", summary: "2026 年 10 月第 2 週の注目 SEO ニュース", url: "https://publisher.example/jp-weekly", expected: 2 },
   { name: "commentary forwarding another article", title: "Google AI search updates", summary: "An excellent article from another author, make it this one from Lily.", url: "https://bsky.app/profile/research.example/post/def", contentKind: "social", expected: 1 },
+  { name: "Bing official topics update", title: "New AI Visibility Insights in Bing Webmaster Tools: Intents, Topics, Citation Share, Compare", summary: "Bing Webmaster Tools adds AI visibility reporting for intents and topics.", url: "https://blogs.bing.com/webmaster/october-2026/new-ai-visibility-insights", expected: 1 },
+  { name: "ChatGPT adoption report", title: "How ChatGPT adoption has expanded", summary: "A look at who uses ChatGPT across countries.", url: "https://openai.com/index/how-chatgpt-adoption-has-expanded", expected: 2 },
 ];

@@ -41,33 +41,34 @@ before(async () => {
 });
 after(async () => { await browser?.close(); await web?.stop(); });
 
-test("recommended and latest ordering retain filters and reset cursors", async () => {
+test("latest and recommended ordering retain filters and reset cursors", async () => {
   const context = await browser.newContext(); const page = await context.newPage();
   try {
     const query = new URLSearchParams({ q: "GEO", language: "en", platform: "web", kind: "direct", period: "7d", group: "title" });
     const start = hits.length;
     await page.goto(web.origin + "/all?" + query);
-    assert.ok(hits.slice(start).some(url => url.pathname === "/api/geo/public-items" && url.searchParams.get("sort") === "recommended"));
-    await expect(page.getByRole("group", { name: "内容排序", exact: true }).getByRole("button", { name: "推荐", exact: true })).toHaveAttribute("aria-pressed", "true");
-    await expect(page.locator("[data-public-item]").first()).toHaveAttribute("data-public-item", "valuable");
-    await page.getByRole("link", { name: "下一页 →", exact: true }).click();
-    await expect.poll(() => new URL(page.url()).searchParams.get("cursor")).toBe("recommended-next");
-    assert.equal(new URL(page.url()).searchParams.get("sort"), "recommended");
-    await page.getByRole("button", { name: "最新", exact: true }).click();
-    await expect.poll(() => new URL(page.url()).searchParams.get("sort")).toBe("latest");
-    const latest = new URL(page.url()).searchParams;
-    assert.equal(latest.get("cursor"), null);
-    for (const [key, value] of query) assert.equal(latest.get(key), value);
+    assert.ok(hits.slice(start).some(url => url.pathname === "/api/geo/public-items" && url.searchParams.get("sort") === "latest"));
+    const order = page.getByRole("group", { name: "内容排序", exact: true });
+    await expect(order.getByRole("button", { name: "最新", exact: true })).toHaveAttribute("aria-pressed", "true");
     await expect(page.locator("[data-public-item]").first()).toHaveAttribute("data-public-item", "commercial");
     await page.getByRole("link", { name: "下一页 →", exact: true }).click();
     await expect.poll(() => new URL(page.url()).searchParams.get("cursor")).toBe("latest-next");
+    assert.equal(new URL(page.url()).searchParams.get("sort"), "latest");
+    await order.getByRole("button", { name: "推荐", exact: true }).click();
+    await expect.poll(() => new URL(page.url()).searchParams.get("sort")).toBe("recommended");
+    const recommended = new URL(page.url()).searchParams;
+    assert.equal(recommended.get("cursor"), null);
+    for (const [key, value] of query) assert.equal(recommended.get(key), value);
+    await expect(page.locator("[data-public-item]").first()).toHaveAttribute("data-public-item", "valuable");
+    await page.getByRole("link", { name: "下一页 →", exact: true }).click();
+    await expect.poll(() => new URL(page.url()).searchParams.get("cursor")).toBe("recommended-next");
     await page.getByLabel("原文语言", { exact: true }).selectOption("zh");
     await expect.poll(() => new URL(page.url()).searchParams.get("cursor")).toBeNull();
-    assert.equal(new URL(page.url()).searchParams.get("sort"), "latest");
-    await page.getByLabel("搜索公开动态", { exact: true }).fill("citation");
+    assert.equal(new URL(page.url()).searchParams.get("sort"), "recommended");
+    await page.getByLabel("搜索资讯", { exact: true }).fill("citation");
     await page.getByRole("button", { name: "搜索", exact: true }).click();
     await expect.poll(() => new URL(page.url()).searchParams.get("q")).toBe("citation");
-    assert.equal(new URL(page.url()).searchParams.get("sort"), "latest");
+    assert.equal(new URL(page.url()).searchParams.get("sort"), "recommended");
     assert.equal(new URL(page.url()).searchParams.get("language"), "zh");
   } finally { await context.close(); }
 });

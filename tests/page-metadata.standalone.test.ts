@@ -117,7 +117,7 @@ test("GEO daily metadata identifies the selected day without claiming an edited 
     assert.equal(structured($).some(entry => entry["@type"] === "NewsArticle"), false);
   }
   const latest = await page("/daily?utm_source=fixture");
-  assert.match(latest("title").text(), /GEO 今日重点/);
+  assert.match(latest("title").text(), /GEO 学习地图：全球 GEO 与 AI 搜索资讯/);
   assert.doesNotMatch(latest("title").text(), /2026-10-04/);
   assert.equal(latest("link[rel=canonical]").attr("href"), `${web.origin}/`);
 });

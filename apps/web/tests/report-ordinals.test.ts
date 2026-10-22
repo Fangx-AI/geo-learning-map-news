@@ -143,7 +143,7 @@ test("GEO daily selection passes the query date and gives a dated route priority
 
 test("the GEO daily archive counts dates and links to the matching daily digests", async () => {
   const { html, text } = await dailyPage("/daily/archive");
-  assert.match(html, /<h1[^>]*>GEO 日报归档<\/h1>/);
+  assert.match(html, /<h1[^>]*>按日期看资讯<\/h1>/);
   assert.match(text, /最近有收录的日期（2 天）/);
   assert.match(html, /<details open=""/);
   for (const day of [latestDay, previousDay]) assert.ok(html.includes(`href="/daily/${day}"`));

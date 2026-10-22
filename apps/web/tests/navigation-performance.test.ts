@@ -81,10 +81,10 @@ test('GEO overview and daily query variants return offline without another read'
   const page=await context.newPage();
   try{
     await page.goto(origin+'/');
-    await page.getByRole('link',{name:'按工作问题找解读 →',exact:true}).click();
-    await expect(page.getByRole('heading',{name:'按你的工作问题找答案',exact:true})).toBeVisible();
+    await page.getByRole('link',{name:'按日期看',exact:true}).click();
+    await expect(page.getByRole('heading',{name:'按日期看资讯',level:1,exact:true})).toBeVisible();
     await context.setOffline(true);await page.goBack();
-    await expect(page.getByRole('heading',{name:'今天，GEO 值得关注什么',exact:true})).toBeVisible({timeout:1500});
+    await expect(page.getByRole('heading',{name:'今日 GEO 资讯',exact:true})).toBeVisible({timeout:1500});
     await context.setOffline(false);await page.goto(origin+'/daily?day=2026-10-03');
     await page.getByLabel('选择日期').fill('2026-10-04');
     await page.getByRole('button',{name:'查看日报',exact:true}).click();
@@ -99,7 +99,7 @@ test('intent prefetch reuses GEO data; scrolling touches and failures leave the 
   const context=await chrome.newContext();const page=await context.newPage();
   try{
     await page.goto(origin+'/about');
-    const link=page.getByRole('link',{name:'读今日重点',exact:true});
+    const link=page.getByRole('link',{name:'读今日资讯',exact:true});
     const start=hits.length;
     await link.dispatchEvent('touchstart');await link.dispatchEvent('touchmove');
     await page.locator('h1').click();
@@ -107,13 +107,13 @@ test('intent prefetch reuses GEO data; scrolling touches and failures leave the 
     const response=page.waitForResponse(r=>r.url().includes('.data'));
     await link.hover();await response;
     assert.equal(hits.slice(start).filter(x=>x.startsWith('/api/geo/daily')).length,1);
-    await link.click();await expect(page.getByRole('heading',{name:'今天，GEO 值得关注什么',exact:true})).toBeVisible();
+    await link.click();await expect(page.getByRole('heading',{name:'今日 GEO 资讯',exact:true})).toBeVisible();
     assert.equal(hits.slice(start).filter(x=>x.startsWith('/api/geo/daily')).length,1,'navigation reuses intent-prefetched data');
     const fresh=await chrome.newContext();const freshPage=await fresh.newPage();
     try{
       await freshPage.goto(origin+'/about');failing='/api/geo/daily';
       const failed=freshPage.waitForResponse(r=>r.url().includes('.data')&&r.status()===503);
-      await freshPage.getByRole('link',{name:'读今日重点',exact:true}).hover();await failed;
+      await freshPage.getByRole('link',{name:'读今日资讯',exact:true}).hover();await failed;
       await expect(freshPage).toHaveURL(origin+'/about');
       await expect(freshPage.locator('h1')).toBeVisible();
     }finally{await fresh.close();}
@@ -129,11 +129,11 @@ test('public cursor pages and daily/topics return offline with their own content
     await context.setOffline(true);await page.goBack();
     await expect(page.getByRole('link',{name:'全部第 1 页',exact:false})).toBeVisible({timeout:1500});
     await context.setOffline(false);await page.goto(origin+'/daily');
-    await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:'解读库',exact:true}).click();
-    await expect(page.getByRole('heading',{name:'按你的工作问题找答案',exact:true})).toBeVisible();
+    await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:'深度解读',exact:true}).click();
+    await expect(page.getByRole('heading',{name:'深度解读',level:1,exact:true})).toBeVisible();
     await context.setOffline(true);
-    await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:'今日重点',exact:true}).click();
-    await expect(page.getByRole('heading',{name:'今天，GEO 值得关注什么',exact:true})).toBeVisible({timeout:1500});
+    await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:'首页',exact:true}).click();
+    await expect(page.getByRole('heading',{name:'今日 GEO 资讯',exact:true})).toBeVisible({timeout:1500});
   }finally{await context.close();}
 });
 
@@ -145,17 +145,17 @@ test('focusing visited navigation does not evict a still-valid page result',asyn
   const nav=()=>page.getByRole('navigation',{name:'主导航'});
   try{
     await page.goto(origin+'/');
-    await nav().getByRole('link',{name:'解读库',exact:true}).click();
-    await expect(page.getByRole('heading',{name:'按你的工作问题找答案',exact:true})).toBeVisible();
-    await nav().getByRole('link',{name:'解读库',exact:true}).focus();
+    await nav().getByRole('link',{name:'深度解读',exact:true}).click();
+    await expect(page.getByRole('heading',{name:'深度解读',level:1,exact:true})).toBeVisible();
+    await nav().getByRole('link',{name:'深度解读',exact:true}).focus();
     await page.waitForTimeout(150);
-    await nav().getByRole('link',{name:'今日重点',exact:true}).click();
-    await expect(page.getByRole('heading',{name:'今天，GEO 值得关注什么',exact:true})).toBeVisible();
-    await nav().getByRole('link',{name:'今日重点',exact:true}).focus();
+    await nav().getByRole('link',{name:'首页',exact:true}).click();
+    await expect(page.getByRole('heading',{name:'今日 GEO 资讯',exact:true})).toBeVisible();
+    await nav().getByRole('link',{name:'首页',exact:true}).focus();
     await page.waitForTimeout(150);
     const before=requests.length;
-    await nav().getByRole('link',{name:'解读库',exact:true}).click();
-    await expect(page.getByRole('heading',{name:'按你的工作问题找答案',exact:true})).toBeVisible();
+    await nav().getByRole('link',{name:'深度解读',exact:true}).click();
+    await expect(page.getByRole('heading',{name:'深度解读',level:1,exact:true})).toBeVisible();
     assert.deepEqual(requests.slice(before),[],'navigation keeps a still-valid visited page');
   }finally{await context.close();}
 });
@@ -165,13 +165,13 @@ test('a revisit never renews its original deadline; expiry shows failure and rel
   try{
     await page.clock.install();ttl=2;
     await page.goto(origin+'/');
-    await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:'解读库',exact:true}).click();
-    await expect(page.getByRole('heading',{name:'按你的工作问题找答案',exact:true})).toBeVisible();
+    await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:'深度解读',exact:true}).click();
+    await expect(page.getByRole('heading',{name:'深度解读',level:1,exact:true})).toBeVisible();
     failing='/api/geo/daily';
     await page.clock.runFor(2500);
     await page.goBack();await expect(page.getByRole('heading',{name:'暂时无法加载',exact:true})).toBeVisible();
     failing='';ttl=60;
-    await page.reload();await expect(page.getByRole('heading',{name:'今天，GEO 值得关注什么',exact:true})).toBeVisible();
+    await page.reload();await expect(page.getByRole('heading',{name:'今日 GEO 资讯',exact:true})).toBeVisible();
   }finally{ttl=60;failing='';await context.close();}
 });
 
@@ -179,10 +179,10 @@ test('SSR freshness spent upstream is not renewed by GEO HTML hydration',async()
   const context=await chrome.newContext();const page=await context.newPage();
   try{
     ttl=0;await page.goto(origin+'/');
-    await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:'全部 GEO 动态',exact:true}).click();
-    await expect(page.getByRole('heading',{name:'全部 GEO 动态',exact:true})).toBeVisible();
+    await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:'最新资讯',exact:true}).click();
+    await expect(page.getByRole('heading',{name:'最新资讯',level:1,exact:true})).toBeVisible();
     const start=hits.length;ttl=60;
-    await page.goBack();await expect(page.getByRole('heading',{name:'今天，GEO 值得关注什么',exact:true})).toBeVisible();
+    await page.goBack();await expect(page.getByRole('heading',{name:'今日 GEO 资讯',exact:true})).toBeVisible();
     assert.equal(hits.slice(start).filter(x=>x.startsWith('/api/geo/daily')).length,1);
   }finally{ttl=60;await context.close();}
 });

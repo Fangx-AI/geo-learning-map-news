@@ -6,7 +6,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { REPO_ROOT } from "../config.ts";
 import { proxiedImage } from "../media/imgproxy.ts";
-import { geoReadingRankSql, geoGroupLinkPreferenceSql, readingPriority, READING_POLICY_VERSION, type ReadingPriority } from "./geo-quality.ts";
+import { geoReadingRankSql, geoNoiseSql, geoGroupLinkPreferenceSql, readingPriority, READING_POLICY_VERSION, type ReadingPriority } from "./geo-quality.ts";
 import { readerBriefSchema, readerBriefInputHash, type PublishedReaderBrief } from "../../../../modules/geo-directory/backend/reader-brief.ts";
 
 export interface GeoPublicItem {
@@ -24,7 +24,8 @@ export interface GeoPublicItem {
 }
 export interface GeoPublicTranslation { title: string; summary: string | null; language: "zh"; provider: string }
 export type GeoPublicSort = "recommended" | "latest";
-export interface GeoPublicQuery { q?: string; language?: string; source?: string; platform?: string; kind?: string; period?: string; group?: "title" | "none"; groupKey?: string; sort?: GeoPublicSort; limit?: number; cursor?: string }
+/** quality=useful leaves out the deprioritized reading tier (vendor promotion, rankings, aggregated reposts). */
+export interface GeoPublicQuery { q?: string; language?: string; source?: string; platform?: string; kind?: string; period?: string; group?: "title" | "none"; groupKey?: string; sort?: GeoPublicSort; quality?: "all" | "useful"; limit?: number; cursor?: string }
 export interface GeoPublicCursor { at: string; id: string; v?: 2; sort?: GeoPublicSort; policy?: number; rank?: number; scope?: string }
 
 /** Whitespace separates required terms; quotes retain a phrase. Terms remain literal SQL text. */
@@ -160,7 +161,7 @@ export async function loadGeoDailyCandidates(now: number, library = false) {
 }
 
 function cursorScope(query: GeoPublicQuery): string {
-  return createHash("sha256").update(JSON.stringify({ q: parseGeoSearch(query.q).map(term => term.toLowerCase()).sort(), language: query.language || null, source: query.source || null, platform: query.platform || null, kind: query.kind || null, period: query.period || null, group: query.group ?? "none", groupKey: query.groupKey || null })).digest("hex");
+  return createHash("sha256").update(JSON.stringify({ q: parseGeoSearch(query.q).map(term => term.toLowerCase()).sort(), language: query.language || null, source: query.source || null, platform: query.platform || null, kind: query.kind || null, period: query.period || null, quality: query.quality ?? "all", group: query.group ?? "none", groupKey: query.groupKey || null })).digest("hex");
 }
 export function readGeoCursor(value?: string, query?: GeoPublicQuery): GeoPublicCursor | null {
   if (!value) return null;
@@ -179,7 +180,7 @@ export function readGeoCursor(value?: string, query?: GeoPublicQuery): GeoPublic
   } catch { throw new Error("invalid GEO feed cursor"); }
 }
 
-export async function loadGeoPublicItems(query: GeoPublicQuery = {}): Promise<{ items: GeoPublicItem[]; total: number; totalGroups: number; groupMode: "title" | "none"; sort: GeoPublicSort; searchTerms: string[]; nextCursor: string | null; sources: Array<{ id: string; name: string; count: number; latestPublishedAt: string | null }>; languages: string[]; lastCollectedAt: string | null }> {
+export async function loadGeoPublicItems(query: GeoPublicQuery = {}): Promise<{ items: GeoPublicItem[]; total: number; totalGroups: number; hiddenTotal: number; groupMode: "title" | "none"; sort: GeoPublicSort; searchTerms: string[]; nextCursor: string | null; sources: Array<{ id: string; name: string; count: number; latestPublishedAt: string | null }>; languages: string[]; lastCollectedAt: string | null }> {
   const cursor = readGeoCursor(query.cursor, query);
   const sort = query.sort ?? cursor?.sort ?? "latest";
   const limit = Math.max(1, Math.min(50, Math.floor(query.limit ?? 30)));
@@ -205,20 +206,22 @@ export async function loadGeoPublicItems(query: GeoPublicQuery = {}): Promise<{ 
   // Only the group's representative prefers a direct link within its reading tier.
   // Global order and cursor comparisons continue to use the representative's date and ID.
   const groupOrder = sort === "recommended" ? sql`i.reading_rank ASC, ${geoGroupLinkPreferenceSql} ASC, coalesce(i.published_at, i.collected_at) DESC, i.id DESC` : order;
+  const useful = query.quality === "useful";
   const readingRank = sort === "recommended" ? geoReadingRankSql : sql`1`;
+  const folded = useful ? geoNoiseSql : sql`false`;
   const later = sql`(coalesce(i.published_at, i.collected_at), i.id) < (${cursor?.at ?? null}::text::timestamptz, ${cursor?.id ?? null}::text)`;
   const afterCursor = sort === "recommended" ? sql`(i.reading_rank > ${cursor?.rank ?? null}::int OR (i.reading_rank = ${cursor?.rank ?? null}::int AND ${later}))` : later;
   const [rows, [count], sources, languages, [latest]] = await Promise.all([
     sql<PublicRow[]>`
-      WITH eligible AS (${eligible}), scored AS (SELECT i.*, ${readingRank} AS reading_rank FROM eligible i), ranked AS (
+      WITH eligible AS (${eligible}), scored AS (SELECT i.*, ${readingRank} AS reading_rank, ${folded} AS folded FROM eligible i), ranked AS (
         SELECT i.*, count(*) OVER (PARTITION BY effective_group)::int AS group_count,
-          row_number() OVER (PARTITION BY effective_group ORDER BY ${groupOrder}) AS group_rank FROM scored i
+          row_number() OVER (PARTITION BY effective_group ORDER BY ${groupOrder}) AS group_rank FROM scored i WHERE NOT i.folded
       )
       SELECT i.*, to_char(coalesce(i.published_at, i.collected_at) AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS cursor_at FROM ranked i
       WHERE (${groupMode === "none"} OR group_rank = 1)
         AND (${cursor?.at ?? null}::text IS NULL OR ${afterCursor})
       ORDER BY ${order} LIMIT ${limit + 1}`,
-    sql<{ total: number; groups: number }[]>`WITH eligible AS (${eligible}) SELECT count(*)::int AS total, count(DISTINCT effective_group)::int AS groups FROM eligible`,
+    sql<{ total: number; groups: number; hidden: number }[]>`WITH eligible AS (${eligible}), scored AS (SELECT i.*, ${folded} AS folded FROM eligible i) SELECT count(*) FILTER (WHERE NOT folded)::int AS total, count(DISTINCT effective_group) FILTER (WHERE NOT folded)::int AS groups, count(*) FILTER (WHERE folded)::int AS hidden FROM scored`,
     sql<{ id: string; name: string; count: number; latest: Date | null }[]>`SELECT s.source_id AS id, s.source_name AS name, count(DISTINCT coalesce(nullif(i.canonical_id,''),i.id))::int AS count, max(i.published_at) AS latest FROM geo_public_source_status s JOIN geo_public_items i ON i.source_id = s.source_id WHERE s.enabled GROUP BY s.source_id, s.source_name ORDER BY s.source_name, s.source_id`,
     sql<{ language: string }[]>`SELECT DISTINCT i.language FROM geo_public_items i JOIN geo_public_source_status s ON s.source_id = i.source_id WHERE s.enabled ORDER BY i.language`,
     sql<{ at: Date | null }[]>`SELECT max(last_success_at) AS at FROM geo_public_source_status WHERE enabled`,
@@ -227,9 +230,9 @@ export async function loadGeoPublicItems(query: GeoPublicQuery = {}): Promise<{ 
   const last = visible.at(-1);
   const grouped = groupMode === "title" ? visible.filter(row => row.group_count > 1) : [];
   const members = grouped.length ? await sql<PublicRow[]>`
-    WITH eligible AS (${eligible}), scored AS (SELECT i.*, ${readingRank} AS reading_rank FROM eligible i), members AS (
+    WITH eligible AS (${eligible}), scored AS (SELECT i.*, ${readingRank} AS reading_rank, ${folded} AS folded FROM eligible i), members AS (
       SELECT i.*, row_number() OVER (PARTITION BY effective_group ORDER BY ${groupOrder}) AS member_rank
-      FROM scored i WHERE effective_group = ANY(${grouped.map(row => row.effective_group)}::text[]) AND NOT (id = ANY(${grouped.map(row => row.id)}::text[]))
+      FROM scored i WHERE NOT i.folded AND effective_group = ANY(${grouped.map(row => row.effective_group)}::text[]) AND NOT (id = ANY(${grouped.map(row => row.id)}::text[]))
     ) SELECT * FROM members WHERE member_rank <= 19 ORDER BY effective_group, member_rank` : [];
   const extras = new Map<string, GeoPublicItem[]>();
   const ready = await loadGeoReadingAvailability([...visible, ...members]);
@@ -244,7 +247,7 @@ export async function loadGeoPublicItems(query: GeoPublicQuery = {}): Promise<{ 
       }
       return item;
     }),
-    total: count?.total ?? 0,
+    total: count?.total ?? 0, hiddenTotal: count?.hidden ?? 0,
     totalGroups: groupMode === "title" ? count?.groups ?? 0 : count?.total ?? 0, groupMode, sort, searchTerms,
     nextCursor: rows.length > limit && last ? Buffer.from(JSON.stringify({ v: 2, sort, policy: READING_POLICY_VERSION, ...(sort === "recommended" ? { rank: last.reading_rank } : {}), at: last.cursor_at, id: last.id, scope: cursorScope(query) })).toString("base64url") : null,
     sources: sources.map(row => ({ id: row.id, name: row.name, count: row.count, latestPublishedAt: row.latest?.toISOString() ?? null })), languages: languages.map(row => row.language), lastCollectedAt: latest?.at?.toISOString() ?? null,

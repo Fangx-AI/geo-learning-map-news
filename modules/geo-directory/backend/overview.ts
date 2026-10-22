@@ -79,21 +79,23 @@ export function buildGeoOverview(input: GeoOverviewInput, now = Date.now(), sele
   }).sort((a, b) => rankById.get(a.id)! - rankById.get(b.id)! || byDate(a, b));
   const selected = new Set<string>(), perDomain = new Map<string, number>();
   const highlights: GeoOverviewItem[] = [];
-  for (const rank of [0, 1, 2]) {
+  // The deprioritized tier (weakly related, promotion, rankings, reposts) never fills the front page.
+  for (const rank of [0, 1]) {
     const tier = ranked.filter(item => rankById.get(item.id) === rank);
     for (const item of tier) { if (highlights.length === 20) break; const host = domain(item); if ((perDomain.get(host) ?? 0) >= 2) continue; highlights.push(item); selected.add(item.id); perDomain.set(host, (perDomain.get(host) ?? 0) + 1); }
     for (const item of tier) { if (highlights.length === 20) break; if (!selected.has(item.id)) { highlights.push(item); selected.add(item.id); } }
   }
   const collections = CATEGORIES.map(category => { const group = items.filter(item => item.categoryKeys.includes(category.key)); return { key: category.key, name: category.label, count: group.length, items: group.slice(0, 8) }; });
-  const topicGroups = topics.map(topic => { const group = items.filter(item => item.topicSlugs.includes(topic.slug)); return { slug: topic.slug, name: topic.name, group: topic.group, description: topic.definition, count: group.length, items: group.slice(0, 6) }; }).filter(topic => topic.count > 0).sort((a, b) => b.count - a.count || a.slug.localeCompare(b.slug));
+  const useful = items.filter(item => !item.readingPriority?.folded);
+  const topicGroups = topics.map(topic => { const group = useful.filter(item => item.topicSlugs.includes(topic.slug)); return { slug: topic.slug, name: topic.name, group: topic.group, description: topic.definition, count: group.length, items: group.slice(0, 6) }; }).filter(topic => topic.count > 0).sort((a, b) => b.count - a.count || a.slug.localeCompare(b.slug));
   const hotClusters = topics.map(topic => {
-    const group = windowItems.filter(item => item.topicSlugs.includes(topic.slug)).sort(byDate);
+    const group = windowItems.filter(item => !item.readingPriority?.folded && item.topicSlugs.includes(topic.slug)).sort(byDate);
     const sourceDomains = [...new Set(group.map(domain))].sort();
     return { id: `topic-${topic.slug}`, title: topic.name, topicSlug: topic.slug, itemCount: group.length, sourceCount: sourceDomains.length, sourceDomains, items: group.slice(0, 6) };
   }).filter(cluster => cluster.itemCount >= 2).sort((a, b) => b.sourceCount - a.sourceCount || b.itemCount - a.itemCount || a.id.localeCompare(b.id)).slice(0, 15);
   const dailyItems = items.filter(item => archiveDay(item) === input.selectedDay).slice(0, 200);
   const selectedDefinition = topics.find(topic => topic.slug === selectedTopicSlug);
-  const selectedMatches = selectedDefinition ? items.filter(item => item.topicSlugs.includes(selectedDefinition.slug)) : [];
+  const selectedMatches = selectedDefinition ? useful.filter(item => item.topicSlugs.includes(selectedDefinition.slug)) : [];
   const selectedTopic = selectedDefinition ? { slug: selectedDefinition.slug, name: selectedDefinition.name, group: selectedDefinition.group, description: selectedDefinition.definition, count: selectedMatches.length, items: selectedMatches.slice(0, 200) } : null;
   return {
     generatedAt: new Date(now).toISOString(), lastCollectedAt: input.lastCollectedAt,

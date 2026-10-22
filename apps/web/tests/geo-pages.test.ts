@@ -71,22 +71,23 @@ before(async () => {
 });
 after(async () => { await browser?.close(); await web?.stop(); });
 
-test("GEO home only offers complete reviewed reading and preserves source dates without JavaScript", async () => {
+test("GEO home leads with attributed headlines and full readings, preserving source dates without JavaScript", async () => {
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
   try {
     await page.goto(web.origin);
-    await expect(page.getByRole("heading", { name: "今天，GEO 值得关注什么", exact: true })).toBeVisible();
-    const card = page.locator('[data-digest-item]').first();
-    await expect(page.locator('[data-digest-item]')).toHaveCount(4);
-    await expect(card).toContainText("中文研究 0");
-    await expect(card).toContainText(digestBrief.conclusion);
-    await expect(card.locator("img")).toHaveCount(0);
-    await expect(card.locator("time")).toHaveText("2025/01/01");
-    await expect(card.locator("time")).toHaveAttribute("datetime", "2025-01-01T00:00:00Z");
-    await expect(page.locator('[data-public-item]')).toHaveCount(0);
-    await expectReaderLink(card.locator("h3 a"), '1'.repeat(64), "/");
-    await expect(card.getByRole("link", { name: original.sourceName, exact: true })).toHaveAttribute("href", "/all?source=official-fixture");
+    await expect(page.getByRole("heading", { name: "今日 GEO 资讯", exact: true })).toBeVisible();
+    const lead = page.locator(`[data-top-story="${original.id}"]`);
+    await expect(lead).toContainText("GEO & AI <img src=x onerror=alert(1)>");
+    await expect(lead).toContainText(original.sourceName);
+    await expect(lead.locator("time")).toHaveAttribute("datetime", original.publishedAt!);
+    await expect(lead.locator("img")).toHaveCount(0);
+    await expectReaderLink(lead.locator("h3 a"), original.id, "/");
+    await expect(page.locator(`[data-public-item="${original.id}"]`)).toHaveCount(0);
+    await expect(page.locator("[data-reading-link]")).toHaveCount(4);
+    await expect(page.locator("[data-reading-link]").first()).toContainText("中文研究 0");
+    await expectReaderLink(page.locator("[data-reading-link] a").first(), "1".repeat(64), "/");
+    await expect(page.getByRole("link", { name: "查看更多资讯 →", exact: true })).toHaveAttribute("href", "/all");
   } finally { await context.close(); }
 });
 
@@ -96,6 +97,7 @@ test("mobile combined filters preserve every condition through pagination, first
   try {
     const start = hits.length;
     await page.goto(web.origin + "/all");
+    await page.getByText("更多筛选：来源、语言、发布平台、排序", { exact: true }).click();
     await page.getByLabel("选择资讯来源").click();
     await page.getByLabel("搜索来源").fill("官方");
     await expect(page.getByRole("list", { name: "可选资讯来源" }).getByRole("button", { name: /社区资料/ })).toHaveCount(0);
@@ -103,13 +105,12 @@ test("mobile combined filters preserve every condition through pagination, first
     await expect(page).toHaveURL(/source=official-fixture/);
     await page.getByLabel("原文语言").selectOption("zh");
     await expect(page).toHaveURL(/language=zh/);
-    await page.getByLabel("资讯平台").selectOption("web");
+    await page.getByLabel("发布平台").selectOption("web");
     await expect(page).toHaveURL(/platform=web/);
-    await page.getByRole("group", { name: "内容获取方式" }).getByRole("button", { name: "原站内容", exact: true }).click();
-    await expect(page).toHaveURL(/kind=direct/);
-    await page.getByLabel("发布时间").selectOption("7d");
+    await expect(page.getByRole("group", { name: "内容类型" }).getByRole("button", { name: "文章", exact: true })).toHaveAttribute("aria-pressed", "true");
+    await page.getByRole("group", { name: "发布时间" }).getByRole("button", { name: "最近 7 天", exact: true }).click();
     await expect(page).toHaveURL(/period=7d/);
-    await page.getByLabel("搜索公开动态").fill("citation & GEO");
+    await page.getByLabel("搜索资讯").fill("citation & GEO");
     await page.getByRole("button", { name: "搜索", exact: true }).click();
     await expect.poll(() => new URL(page.url()).searchParams.get("q")).toBe("citation & GEO");
     await page.getByRole("link", { name: "下一页 →", exact: true }).click();
@@ -119,20 +120,20 @@ test("mobile combined filters preserve every condition through pagination, first
     assert.equal(next.searchParams.get("q"), "citation & GEO");
     assert.equal(next.searchParams.get("language"), "zh");
     assert.equal(next.searchParams.get("source"), "official-fixture");
-    assert.equal(next.searchParams.get("platform"), "web"); assert.equal(next.searchParams.get("kind"), "direct"); assert.equal(next.searchParams.get("period"), "7d");
+    assert.equal(next.searchParams.get("platform"), "web"); assert.equal(next.searchParams.get("kind"), null); assert.equal(next.searchParams.get("period"), "7d");
     assert.equal(next.searchParams.get("cursor"), "page-1");
     await page.getByRole("link", { name: "回到第一页", exact: true }).click();
     await expect(page.locator('[data-public-item="zh-first"]')).toBeVisible();
     assert.equal(new URL(page.url()).searchParams.get("q"), "citation & GEO");
     await page.getByRole("link", { name: "下一页 →", exact: true }).click();
-    await page.getByLabel("发布时间").selectOption("24h");
+    await page.getByRole("group", { name: "发布时间" }).getByRole("button", { name: "最近 24 小时", exact: true }).click();
     await expect.poll(() => new URL(page.url()).searchParams.get("cursor")).toBeNull();
     await expect(page.locator('[data-public-item="zh-first"]')).toBeVisible();
     await page.getByRole("link", { name: "移除筛选：中文", exact: true }).click();
     await expect.poll(() => new URL(page.url()).searchParams.get("language")).toBeNull();
     const removed = new URL(page.url());
     assert.equal(removed.searchParams.get("language"), null);
-    for (const [key, value] of Object.entries({ source: "official-fixture", q: "citation & GEO", platform: "web", kind: "direct", period: "24h" })) assert.equal(removed.searchParams.get(key), value);
+    for (const [key, value] of Object.entries({ source: "official-fixture", q: "citation & GEO", platform: "web", period: "24h" })) assert.equal(removed.searchParams.get(key), value);
     const reads = hits.slice(start).filter(path => path.startsWith("/api/geo/public-items"));
     assert.ok(reads.some(path => { const q = new URL(path, "http://fixture").searchParams; return q.get("q") === "citation & GEO" && q.get("source") === "official-fixture" && q.get("language") === "zh" && q.get("platform") === "web" && q.get("kind") === "direct" && q.get("period") === "7d" && q.get("cursor") === "page-1" && q.get("limit") === "30"; }));
     assert.ok(!hits.slice(start).some(path => /^\/api\/site\/(timeline|pool)/.test(path)));
@@ -144,52 +145,44 @@ test("empty results can clear only the query while preserving source, platform, 
   const context = await browser.newContext(); const page = await context.newPage();
   try {
     await page.goto(web.origin + "/all?q=no-matching-research&source=official-fixture&language=zh&platform=web&kind=direct&period=7d");
-    await expect(page.getByRole("heading", { name: "没有找到匹配的动态", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "没有找到匹配的资讯", exact: true })).toBeVisible();
     await expect(page.locator("[data-public-item]")).toHaveCount(0);
     await page.getByRole("link", { name: "只清除关键词", exact: true }).click();
     await expect(page.locator('[data-public-item="zh-first"]')).toBeVisible();
     const params = new URL(page.url()).searchParams;
     assert.equal(params.get("q"), null); assert.equal(params.get("cursor"), null);
     for (const [key, value] of Object.entries({ source: "official-fixture", language: "zh", platform: "web", kind: "direct", period: "7d" })) assert.equal(params.get(key), value);
-    await expect(page.getByRole("status")).toContainText("匹配 2 条");
+    await expect(page.getByRole("status")).toContainText("找到 2 条");
     await page.getByRole("link", { name: "清除全部", exact: true }).click();
     await expect(page).toHaveURL(web.origin + "/all");
-    await expect(page.getByRole("status")).toContainText("已收录 7 条");
+    await expect(page.getByRole("status")).toContainText("共 5 条");
   } finally { await context.close(); }
 });
 
-test("compact reading expands summaries, summary mode shows them, and platform filters distinguish posts from indexes", async () => {
+test("cards show the source summary, and content-type chips separate articles, media coverage and posts", async () => {
   const context = await browser.newContext(); const page = await context.newPage();
   try {
     await page.goto(web.origin + "/all");
     const card = page.locator(`[data-public-item="${original.id}"]`);
-    await expect(page.getByRole("group", { name: "阅读方式" }).getByRole("button", { name: "简洁", exact: true })).toHaveAttribute("aria-pressed", "true");
-    await expect(card.getByText("公开摘要 & 引用研究", { exact: true })).toBeHidden();
-    await card.getByText("展开摘要", { exact: true }).click();
     await expect(card.getByText("公开摘要 & 引用研究", { exact: true })).toBeVisible();
-    await page.getByRole("group", { name: "阅读方式" }).getByRole("button", { name: "摘要", exact: true }).click();
-    await expect(card.locator("details")).toHaveCount(0);
     await expectReaderLink(card.locator("h2 a"), original.id, "/all");
     await expect(card.getByRole("link", { name: "官方资料", exact: true })).toHaveAttribute("href", "/all?source=official-fixture");
-    await page.getByRole("group", { name: "阅读方式" }).getByRole("button", { name: "简洁", exact: true }).click();
-    await expect(card.getByText("公开摘要 & 引用研究", { exact: true })).toBeHidden();
-    await expect(page.getByText("自动更新中", { exact: true })).toBeVisible();
-    await page.getByText("自动更新中", { exact: true }).click();
-    await expect(page.getByText(/每 15 分钟检查一轮/)).toBeVisible();
-    await page.getByRole("group", { name: "内容获取方式" }).getByRole("button", { name: "聚合线索", exact: true }).click();
+    await expect(card.getByRole("link", { name: "原文 ↗", exact: true })).toHaveAttribute("href", original.url);
+    const kinds = page.getByRole("group", { name: "内容类型" });
+    await kinds.getByRole("button", { name: "媒体报道", exact: true }).click();
     await expect(page.locator('[data-public-item="index-result"]')).toBeVisible();
-    await page.getByLabel("资讯平台").selectOption("zhihu");
+    await page.getByText("更多筛选：来源、语言、发布平台、排序", { exact: true }).click();
+    await page.getByLabel("发布平台").selectOption("zhihu");
     await expect(page).toHaveURL(/platform=zhihu/);
     const index = page.locator('[data-public-item="index-result"]');
-    await expect(index.getByText("聚合线索", { exact: true })).toBeVisible();
     await expectReaderLink(index.locator("h2 a"), aggregate.id, "/all" + new URL(page.url()).search);
     await expect(index.locator("time")).toContainText("索引标注");
-    await page.getByLabel("资讯平台").selectOption("");
+    await page.getByLabel("发布平台").selectOption("");
     await expect.poll(() => new URL(page.url()).searchParams.get("platform")).toBeNull();
-    await page.getByRole("group", { name: "内容获取方式" }).getByRole("button", { name: "社交原帖", exact: true }).click();
+    await kinds.getByRole("button", { name: "社交帖子", exact: true }).click();
     const post = page.locator('[data-public-item="social-post"]');
     await expect(post).toBeVisible();
-    await expect(post.getByText("社交原帖", { exact: true })).toBeVisible();
+    await expect(post.getByText("帖子", { exact: true })).toBeVisible();
     await expectReaderLink(post.locator("h2 a"), social.id, "/all" + new URL(page.url()).search);
   } finally { await context.close(); }
 });
@@ -201,9 +194,9 @@ test("unknown dates remain explicit and are excluded by a publication-time filte
     const card = page.locator('[data-public-item="undated"]');
     await expect(card.locator("time")).toHaveText("日期待确认");
     assert.equal(await card.locator("time").getAttribute("datetime"), null);
-    await page.getByLabel("发布时间").selectOption("7d");
-    await expect(page.getByRole("heading", { name: "没有找到匹配的动态", exact: true })).toBeVisible();
-    await expect(page.getByText(/日期待确认的资料不计入/)).toBeVisible();
+    await page.getByRole("group", { name: "发布时间" }).getByRole("button", { name: "最近 7 天", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "没有找到匹配的资讯", exact: true })).toBeVisible();
+    await expect(page.getByText(/日期待确认的资讯不计入时间筛选/)).toBeVisible();
     await page.getByRole("link", { name: "移除筛选：最近 7 天", exact: true }).click();
     await expect(card).toBeVisible();
     assert.equal(new URL(page.url()).searchParams.get("source"), "community-fixture");
@@ -233,7 +226,7 @@ test("stopped and stale collectors with no next run show their state without an 
   try {
     for (const [state, label] of [["stopped", "采集已停止"], ["stale", "采集状态待检查"]]) {
       collection.collector.state = state; collection.collector.nextRunAt = null;
-      await page.goto(web.origin + `/all?q=collector-${state}`);
+      await page.goto(web.origin + `/atlas?q=collector-${state}`);
       await expect(page.getByText(label, { exact: true })).toBeVisible();
       await page.getByText(label, { exact: true }).click();
       await expect(page.getByText(/每 15 分钟检查一轮/)).toBeVisible();
@@ -290,12 +283,11 @@ test("topics filter and open attributed results, while valid empty topics retain
 test("daily redirects to the same today selection, and legacy library filters survive", async () => {
  const context=await browser.newContext({viewport:{width:390,height:844}}); const page=await context.newPage();
  try { await page.goto(web.origin+'/daily'); await expect(page).toHaveURL(web.origin+'/');
- await expect(page.getByRole('heading',{name:'今天，GEO 值得关注什么',exact:true})).toBeVisible();
- await expect(page.locator('[data-digest-item]')).toHaveCount(4);
- await expect(page.locator('[data-digest-item]').first()).toContainText('原文 2025/01/01');
- await expect(page.locator('[data-digest-item]').first()).toContainText(digestBrief.conclusion);
+ await expect(page.getByRole('heading',{name:'今日 GEO 资讯',exact:true})).toBeVisible();
+ await expect(page.locator('[data-reading-link]')).toHaveCount(4);
+ await expect(page.locator('[data-reading-link]').first()).toContainText('中文研究 0');
  await page.getByRole('group',{name:'阅读语言'}).getByRole('button',{name:'原文',exact:true}).click();
- await expect(page.locator('[data-digest-item] h3').first()).toHaveText('Original study 0');
+ await expect(page.locator('[data-reading-link]').first()).toContainText('Original study 0');
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
  await page.goto(web.origin+'/daily?view=library&q='+encodeURIComponent('中文研究 7'));
  await expect(page).toHaveURL(/\/library\?q=/);
@@ -321,12 +313,12 @@ test("daily archives select actual dates, show the cap honestly and hot clusters
   const context = await browser.newContext(); const page = await context.newPage();
   try {
     await page.goto(web.origin + "/daily/archive");
-    await expect(page.getByRole("heading", { name: "GEO 日报归档", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "按日期看资讯", exact: true })).toBeVisible();
     await expect(page.getByText("当前展示前 2 条，该日共 205 条。", { exact: true })).toBeVisible();
     await page.locator('a[href="/daily/2026-10-03"]').click();
     await expect(page.getByRole("heading", { name: "2026-10-03 · 1 条资料", exact: true })).toBeVisible();
     await expect(page.getByRole("link", { name: /前一日公开资料/ })).toBeVisible();
-    await expect(page.locator('[data-public-item="previous-day"] time')).toHaveText("2026/10/03");
+    await expect(page.locator('[data-public-item="previous-day"] time')).toHaveText(/10月3日$/);
     await page.getByLabel("选择日期").fill("2026-10-04");
     await page.getByRole("button", { name: "查看日报", exact: true }).click();
     await expect(page.getByRole("heading", { name: "2026-10-04 · 205 条资料", exact: true })).toBeVisible();
@@ -335,9 +327,8 @@ test("daily archives select actual dates, show the cap honestly and hot clusters
     await expect(page.locator(`[data-public-item="${original.id}"]`).getByText("公开摘要 & 引用研究", { exact: true })).toBeVisible();
     await page.goto(web.origin + "/more");
     await page.getByRole("link", { name: "热点榜", exact: true }).click();
-    await expect(page.getByText(/最近 7 天/).first()).toBeVisible();
-    await page.getByText("榜单依据与统计范围", { exact: true }).click();
-    await expect(page.getByText("按报道来源数聚合，并非社交热度", { exact: true })).toBeVisible();
+    await expect(page.getByText("统计范围：最近 7 天 · 2 条内容", { exact: true })).toBeVisible();
+    await expect(page.getByText("最近被最多来源同时报道的平台和话题。", { exact: true })).toBeVisible();
     await expect(page.locator('a[href="/topics/openai"]')).toBeVisible();
     await expect(page.locator(`[data-public-item="${original.id}"]`)).toBeHidden();
     await page.getByText("查看报道与帖子（展示 2 条）", { exact: true }).click();

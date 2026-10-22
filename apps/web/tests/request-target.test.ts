@@ -3,7 +3,7 @@
 import assert from "node:assert/strict";
 import { createServer, request } from "node:http";
 import { after, before, test } from "node:test";
-import { geoDaily } from "./geo-fixtures.ts";
+import { geoDaily, geoFeed, geoOverview } from "./geo-fixtures.ts";
 import { startWebServer, type WebServer } from "./web-server.ts";
 
 let web: WebServer;
@@ -13,7 +13,10 @@ const api = createServer((req, res) => {
   upstreamPaths.push(req.url ?? "");
   res.setHeader("Content-Type", "application/json");
   if (req.url === "/api/site/meta") return res.end(JSON.stringify({ changelogVersion: null }));
-  if (new URL(req.url!, "http://api.local").pathname === "/api/geo/daily") return res.end(JSON.stringify(overview));
+  const pathname = new URL(req.url!, "http://api.local").pathname;
+  if (pathname === "/api/geo/daily") return res.end(JSON.stringify(overview));
+  if (pathname === "/api/geo/overview") return res.end(JSON.stringify(geoOverview()));
+  if (pathname === "/api/geo/public-items") return res.end(JSON.stringify(geoFeed()));
   res.writeHead(404);
   res.end("{}");
 });
@@ -39,7 +42,7 @@ test("origin-form slashes keep the router's homepage and unknown-route semantics
   for (const method of ["GET", "HEAD"] as const) {
     const home = await raw("/", method);
     assert.equal(home.status, 200, web.logs());
-    if (method === "GET") assert.match(home.body, /今天，GEO 值得关注什么/);
+    if (method === "GET") assert.match(home.body, /今日 GEO 资讯/);
     else assert.equal(home.body, "");
     for (const path of ["//", "////", "//?category=platform-updates"]) {
       const res = await raw(path, method);
@@ -47,7 +50,7 @@ test("origin-form slashes keep the router's homepage and unknown-route semantics
       assert.equal(res.headers["content-type"], home.headers["content-type"]);
       assert.match(res.headers["cache-control"] ?? "", /^public, max-age=\d+, s-maxage=\d+, must-revalidate$/);
       if (method === "HEAD") assert.equal(res.body, "");
-      else assert.match(res.body, /今天，GEO 值得关注什么/);
+      else assert.match(res.body, /今日 GEO 资讯/);
     }
     for (const path of ["/unknown-page", "//unknown-page", "//evil.invalid/unknown-page", "//unknown-page.data?token=private"]) {
       const res = await raw(path, method);
@@ -58,6 +61,6 @@ test("origin-form slashes keep the router's homepage and unknown-route semantics
   }
   assert.equal(web.logs(), "");
   assert.ok(upstreamPaths.some((path) => new URL(path, "http://api.local").pathname === "/api/geo/daily"));
-  assert.ok(upstreamPaths.every((path) => ["/api/site/meta", "/api/geo/daily"].includes(new URL(path, "http://api.local").pathname)),
-    `only the GEO daily and shell metadata are requested: ${upstreamPaths.join(", ")}`);
+  assert.ok(upstreamPaths.every((path) => ["/api/site/meta", "/api/geo/daily", "/api/geo/overview", "/api/geo/public-items"].includes(new URL(path, "http://api.local").pathname)),
+    `only the home page's public GEO reads and shell metadata are requested: ${upstreamPaths.join(", ")}`);
 });

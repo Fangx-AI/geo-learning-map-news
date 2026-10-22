@@ -23,11 +23,10 @@ export function ReadingCard({ item }: { item: GeoDailyItem }) {
         >
           {item.sourceName}
         </Link>{" "}
-        · 原文{" "}
+        ·{" "}
         <time dateTime={item.publishedAt ?? undefined}>
           {dateLabel(item.publishedAt)}
-        </time>{" "}
-        · 已核读全文
+        </time>
       </p>
       <div className="mt-2 flex items-start gap-4"><h3 className="min-w-0 flex-1 text-xl font-semibold leading-relaxed text-ink">
         <Link
@@ -44,12 +43,10 @@ export function ReadingCard({ item }: { item: GeoDailyItem }) {
       >
         {language === "zh" ? item.brief?.conclusion : content.summary}
       </p>
-      <p className="mt-3 text-sm leading-7 text-ink-3">
-        <span className="font-medium text-accent">
-          {note.curated ? "为什么值得读：" : "阅读方向："}
-        </span>
+      {note.curated && <p className="mt-3 text-sm leading-7 text-ink-3">
+        <span className="font-medium text-accent">为什么值得读：</span>
         {note.why}
-      </p>
+      </p>}
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs">
         <span className="text-ink-3">
           {note.task?.audience ?? "GEO 从业者"}
@@ -59,7 +56,7 @@ export function ReadingCard({ item }: { item: GeoDailyItem }) {
           state={{ geoReaderFrom: from }}
           className="inline-flex min-h-11 items-center font-medium text-accent"
         >
-          读结论、数据与行动建议 →
+          读解读 →
         </Link>
       </div>
     </article>

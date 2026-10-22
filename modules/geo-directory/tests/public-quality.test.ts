@@ -11,6 +11,12 @@ import { qualityFixtures } from "./quality-fixtures.ts";
 after(closeDb);
 const id = (value: string) => createHash("sha256").update(value).digest("hex");
 const source = "quality-fixture";
+/** Every page of one query; the fixtures outnumber the 50-item page limit. */
+async function allItems(query: GeoPublicQuery) {
+  const items = []; let cursor: string | undefined;
+  do { const page = await loadGeoPublicItems({ ...query, limit: 50, cursor }); items.push(...page.items); cursor = page.nextCursor ?? undefined; } while (cursor);
+  return items;
+}
 before(async () => {
   await sql`INSERT INTO geo_public_source_status (source_id, source_name, source_url) VALUES (${source}, 'Quality fixture', 'https://fixture.example')`;
   for (const fixture of qualityFixtures) await sql`INSERT INTO geo_public_items (id, canonical_id, title, summary, url, source_id, source_name, source_url, language, published_at, collected_at)
@@ -23,11 +29,24 @@ test("database ranking and public explanations agree for multilingual original, 
     assert.equal(rows.find(row => row.id === id(fixture.name))?.reading_rank, fixture.expected, fixture.name);
     assert.equal(readingFacts(fixture).rank, fixture.expected, fixture.name);
   }
-  const page = await loadGeoPublicItems({ source, sort: "recommended", limit: 50 });
+  const items = await allItems({ source, sort: "recommended" });
   const expected = [...qualityFixtures].sort((a, b) => a.expected - b.expected || id(b.name).localeCompare(id(a.name)));
-  assert.deepEqual(page.items.map(item => item.id), expected.map(item => id(item.name)));
-  assert.deepEqual(page.items.map(item => item.readingPriority?.tier), expected.map(item => ["priority", "standard", "deprioritized"][item.expected]));
-  assert.ok(page.items.every(item => !Object.hasOwn(item, "reading_rank")));
+  assert.deepEqual(items.map(item => item.id), expected.map(item => id(item.name)));
+  assert.deepEqual(items.map(item => item.readingPriority?.tier), expected.map(item => ["priority", "standard", "deprioritized"][item.expected]));
+  assert.ok(items.every(item => !Object.hasOwn(item, "reading_rank")));
+});
+
+test("the useful view leaves out promotion, compilations and reprints and reports how many it folded", async () => {
+  const page = await loadGeoPublicItems({ source, quality: "useful", limit: 50 });
+  const folded = qualityFixtures.filter(fixture => readingFacts(fixture).noise).length;
+  assert.ok(folded > 0 && folded < qualityFixtures.filter(fixture => fixture.expected === 2).length);
+  assert.equal(page.total, qualityFixtures.length - folded);
+  assert.equal(page.hiddenTotal, folded);
+  assert.ok(page.items.every(item => !item.readingPriority?.folded));
+  assert.equal((await loadGeoPublicItems({ source, limit: 1 })).hiddenTotal, 0);
+  const cursor = (await loadGeoPublicItems({ source, quality: "useful", limit: 1 })).nextCursor!;
+  assert.throws(() => readGeoCursor(cursor, { source }), /invalid/);
+  assert.equal(readGeoCursor(cursor, { source, quality: "useful" })?.sort, "latest");
 });
 
 test("both orderings traverse all rows across equal timestamps without repeats; cursors bind filters and mode", async () => {
@@ -41,7 +60,7 @@ test("both orderings traverse all rows across equal timestamps without repeats; 
     } while (cursor);
     assert.equal(ids.length, qualityFixtures.length);
     assert.equal(new Set(ids).size, qualityFixtures.length);
-    assert.deepEqual(ids, (await loadGeoPublicItems({ source, sort, limit: 50 })).items.map(item => item.id));
+    assert.deepEqual(ids, (await allItems({ source, sort })).map(item => item.id));
   }
   const page = await loadGeoPublicItems({ source, sort: "recommended", limit: 2 });
   const cursor = page.nextCursor!;
@@ -80,9 +99,9 @@ test("recommended groups select the strongest matching representative without cr
 test("public feed and overview expose only a signed image proxy and declared image origin", async () => {
   const target = id(qualityFixtures[0].name);
   await sql`UPDATE geo_public_items SET image_url = 'https://images.example/private-origin.jpg', image_origin = 'og' WHERE id = ${target}`;
-  const feed = await loadGeoPublicItems({ source, limit: 50 });
+  const feed = await allItems({ source });
   const overview = await loadGeoOverviewInput();
-  for (const item of [feed.items.find(item => item.id === target)!, overview.items.find(item => item.id === target)!]) {
+  for (const item of [feed.find(item => item.id === target)!, overview.items.find(item => item.id === target)!]) {
     assert.match(item.imageUrl!, /\/api\/img-proxy\?/);
     const query = new URL(item.imageUrl!, "https://site.example").searchParams;
     assert.deepEqual(verifyProxyRequest(Object.fromEntries(query)), { ok: true, url: "https://images.example/private-origin.jpg", mode: "card" });

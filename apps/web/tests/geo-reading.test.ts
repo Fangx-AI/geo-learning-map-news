@@ -140,8 +140,8 @@ test("card reading stays on-site, shows the complete bilingual excerpt and retur
     const article = page.locator(`[data-reader-item="${readerItem.id}"]`);
     await expect(article.locator("h1")).toHaveText(readerItem.translation!.title);
     await expect(article.locator("[data-reader-summary]")).toHaveText(readerItem.translation!.summary!);
-    await expect(article.getByRole('heading', { name: '先读这些完整解读', exact: true })).toBeVisible();
-    await expect(article.locator('aside a').first()).toHaveAttribute('href', `/read/${readerWithBrief.id}?from=%2Flibrary`);
+    await expect(article.getByRole('heading', { name: '相关深度解读', exact: true })).toBeVisible();
+    await expect(article.locator('aside a[href^="/read/"]').first()).toHaveAttribute('href', `/read/${readerWithBrief.id}?from=%2Flibrary`);
     assert.equal(await article.locator("[data-reader-summary]").evaluate(element => element.scrollHeight > element.clientHeight + 1), false, "the collected excerpt is not line-clamped");
     await article.getByRole("button", { name: "查看原文", exact: true }).click();
     await expect(article.locator("h1")).toHaveText("AI search citation experiment & limitations");
@@ -241,16 +241,16 @@ test("default title grouping reduces visible rows while every embedded source ke
     const start = hits.length;
     await page.goto(web.origin + "/all");
     assert.ok(hits.slice(start).some(url => url.pathname === "/api/geo/public-items" && url.searchParams.get("group") === "title"));
-    await expect(page.getByRole("status")).toContainText("已收录 43 条 · 合为 2 组展示");
+    await expect(page.getByRole("status")).toContainText("共 43 条 · 合为 2 组");
     await expect(page.locator('[data-public-item="reading-variant-1"]')).not.toBeVisible();
-    await page.getByText("相似标题 · 共 42 条", { exact: false }).click();
+    await page.getByText("另有 41 条相似报道", { exact: true }).click();
     const sibling = page.locator('[data-public-item="reading-variant-1"]');
     await expect(sibling).toBeVisible();
     await expectReaderLink(sibling.locator("h2 a"), variants[0]!.id, "/all");
     await expect(page.getByText(/尚未核实为同一篇内容/)).toBeVisible();
     await sibling.getByRole("button", { name: "收藏这条内容", exact: true }).click();
     await expect(sibling.getByRole("button", { name: "取消收藏", exact: true })).toHaveAttribute("aria-pressed", "true");
-    await expect(page.locator('[data-public-item="reading-main"] > div').first().getByRole("button", { name: "收藏这条内容", exact: true })).toHaveAttribute("aria-pressed", "false");
+    await expect(page.locator('[data-public-item="reading-main"]').getByRole("button", { name: "收藏这条内容", exact: true }).first()).toHaveAttribute("aria-pressed", "false");
     const stored = await page.evaluate(() => localStorage.getItem("aihot-starred-items"));
     assert.ok(stored?.includes(variants[0]!.url)); assert.ok(!stored?.includes(main.url));
     await expect(page.locator('[data-public-item="reading-main"] > p').getByRole("link", { name: /Verified Publisher/ })).toHaveAttribute("href", main.publisherUrl);
@@ -265,7 +265,7 @@ test("large-group expansion keeps all filters and paginates remaining original l
   try {
     const filters = new URLSearchParams({ q: "AI", source: "index-fixture", language: "en", platform: "web", kind: "aggregated", period: "7d", sort: "recommended" });
     await page.goto(web.origin + "/all?" + filters);
-    await page.getByText("相似标题 · 共 42 条", { exact: false }).click();
+    await page.getByText("另有 41 条相似报道", { exact: true }).click();
     await page.getByRole("link", { name: /还有 22 条，查看这一组全部条目/ }).click();
     await expect.poll(() => new URL(page.url()).searchParams.get("groupKey")).toBe(groupKey);
     let query = new URL(page.url()).searchParams;
@@ -282,29 +282,13 @@ test("large-group expansion keeps all filters and paginates remaining original l
   } finally { await context.close(); }
 });
 
-test("switching grouped and individual views preserves filtering and resets the cursor", async () => {
-  const context = await browser.newContext(); const page = await context.newPage();
-  try {
-    await page.goto(web.origin + "/all?q=AI&language=en&group=title&cursor=groups-next");
-    await expect(page.locator('[data-public-item="reading-solo"]')).toBeVisible();
-    await page.getByRole("button", { name: "逐条查看", exact: true }).click();
-    await expect.poll(() => new URL(page.url()).searchParams.get("group")).toBe("none");
-    assert.equal(new URL(page.url()).searchParams.get("q"), "AI"); assert.equal(new URL(page.url()).searchParams.get("language"), "en");
-    assert.equal(new URL(page.url()).searchParams.get("cursor"), null);
-    await expect(page.locator('[data-similar-titles]')).toHaveCount(0);
-    await page.getByRole("button", { name: "合并相似标题", exact: true }).click();
-    await expect.poll(() => new URL(page.url()).searchParams.get("group")).toBe("title");
-    await expect(page.locator('[data-similar-titles]')).toHaveCount(1);
-  } finally { await context.close(); }
-});
-
 test("old cursor links without a group mode retain individual pagination and can return to its first page", async () => {
   const context = await browser.newContext(); const page = await context.newPage();
   try {
     const start = hits.length;
     await page.goto(web.origin + "/all?cursor=members-next&language=en");
     assert.ok(hits.slice(start).some(url => url.pathname === "/api/geo/public-items" && url.searchParams.get("group") === "none"));
-    await expect(page.getByRole("button", { name: "逐条查看", exact: true })).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator('[data-similar-titles]')).toHaveCount(0);
     await expect(page.locator('[data-public-item="reading-variant-41"]')).toBeVisible();
     await page.getByRole("link", { name: "回到第一页", exact: true }).click();
     await expect.poll(() => new URL(page.url()).searchParams.get("cursor")).toBeNull();
@@ -314,36 +298,33 @@ test("old cursor links without a group mode retain individual pagination and can
   } finally { await context.close(); }
 });
 
-test("server search terms highlight literal phrases safely and summary-only matches remain visible in compact reading", async () => {
+test("server search terms highlight literal phrases safely and summary-only matches remain visible", async () => {
   const context = await browser.newContext(); const page = await context.newPage();
   try {
     await page.goto(web.origin + "/all?q=" + encodeURIComponent('"AI search" <img'));
-    const title = page.locator('[data-public-item="reading-main"] > h2');
+    const title = page.locator('[data-public-item="reading-main"] h2').first();
     await expect(title.locator("mark")).toHaveText(["AI search", "<img"]);
     await expect(title).toContainText("meets AI and search <img src=x onerror=alert(1)>");
     await expect(page.locator("main img")).toHaveCount(0);
     await page.goto(web.origin + "/all?q=" + encodeURIComponent('"citation evidence"'));
-    await expect(page.getByRole("button", { name: "简洁", exact: true })).toHaveAttribute("aria-pressed", "true");
     await expect(page.locator('[data-search-excerpt] mark')).toHaveText("citation evidence");
     await expect(page.locator('[data-search-excerpt]')).toBeVisible();
   } finally { await context.close(); }
 });
 
-test("reading preference survives public-page navigation and reload, without storing a reading history", async () => {
+test("daily reading preference survives navigation and reload, without storing a reading history", async () => {
   const context = await browser.newContext(); const page = await context.newPage();
   try {
-    await page.goto(web.origin + "/all");
+    await page.goto(web.origin + "/daily?day=2026-10-04");
     await page.getByRole("button", { name: "摘要", exact: true }).click();
-    await expect(page.getByText(main.summary!, { exact: true })).toBeVisible();
+    await expect(page.getByText(solo.summary!, { exact: true })).toBeVisible();
     assert.equal(await page.evaluate(() => localStorage.getItem("geo-reading-mode")), "summary");
+    await page.goto(web.origin + "/all");
     await page.goto(web.origin + "/daily?day=2026-10-04");
     await expect(page.getByRole("button", { name: "摘要", exact: true })).toHaveAttribute("aria-pressed", "true");
-    await expect(page.getByText(solo.summary!, { exact: true })).toBeVisible();
     await page.reload();
     await expect(page.getByRole("button", { name: "摘要", exact: true })).toHaveAttribute("aria-pressed", "true");
     await page.getByRole("button", { name: "简洁", exact: true }).click();
-    await page.goto(web.origin + "/all");
-    await expect(page.getByRole("button", { name: "简洁", exact: true })).toHaveAttribute("aria-pressed", "true");
     assert.equal(await page.evaluate(() => localStorage.getItem("geo-reading-mode")), "compact");
     assert.equal(await page.evaluate(() => localStorage.getItem("aihot-read-items")), null);
   } finally { await context.close(); }

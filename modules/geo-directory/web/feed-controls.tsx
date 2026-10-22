@@ -2,7 +2,6 @@ import { useRef, useState } from "react";
 import { IconChevronDown } from "@aihot/web/components/icons";
 
 export const platformNames: Record<string, string> = { web: "网站", x: "X", reddit: "Reddit", bluesky: "Bluesky", mastodon: "Mastodon", youtube: "YouTube", zhihu: "知乎", xiaohongshu: "小红书", wechat: "公众号" };
-export const kindNames: Record<string, string> = { direct: "原站内容", social: "社交原帖", aggregated: "聚合线索" };
 export const periodNames: Record<string, string> = { "24h": "最近 24 小时", "7d": "最近 7 天", "30d": "最近 30 天" };
 export const controlClass = "min-h-11 w-full rounded-control border border-line bg-surface px-3 text-[13px] text-ink focus:border-accent";
 
@@ -34,12 +33,6 @@ export function SourcePicker({ sources, value, onChange }: { sources: FeedSource
 export function ReadingToggle({ compact, onChange }: { compact: boolean; onChange: (value: boolean) => void }) {
   return <div role="group" aria-label="阅读方式" className="inline-flex shrink-0 rounded-control border border-line bg-surface p-0.5 text-[12px]">
     {([[true, "简洁"], [false, "摘要"]] as const).map(([value, label]) => <button key={label} type="button" aria-pressed={compact === value} onClick={() => onChange(value)} className={`min-h-9 rounded px-3 ${compact === value ? "bg-accent-soft font-semibold text-accent" : "text-ink-3 hover:text-accent"}`}>{label}</button>)}
-  </div>;
-}
-
-export function GroupingToggle({ grouped, onChange }: { grouped: boolean; onChange: (value: boolean) => void }) {
-  return <div role="group" aria-label="相似标题展示方式" className="inline-flex shrink-0 rounded-control border border-line bg-surface p-0.5 text-[12px]">
-    {([[true, "合并相似标题"], [false, "逐条查看"]] as const).map(([value, label]) => <button key={label} type="button" aria-pressed={grouped === value} onClick={() => onChange(value)} className={`min-h-9 rounded px-3 ${grouped === value ? "bg-accent-soft font-semibold text-accent" : "text-ink-3 hover:text-accent"}`}>{label}</button>)}
   </div>;
 }
 

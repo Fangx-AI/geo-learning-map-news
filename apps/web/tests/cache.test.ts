@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { after, before, test } from "node:test";
-import { geoOverview, geoDaily } from "./geo-fixtures.ts";
+import { geoOverview, geoDaily, geoFeed } from "./geo-fixtures.ts";
 import { UNSAFE_decodeViaTurboStream } from "react-router";
 import { startWebServer, type WebServer } from "./web-server.ts";
 
@@ -20,10 +20,10 @@ const api = createServer((req, res) => {
     const respond = () => res.end(JSON.stringify({ changelogVersion: "2026-09-28T12:00" }));
     return metaAfterDeadline ? setTimeout(respond, deadline * 1000 - Date.now() + 50) : respond();
   }
-  if (url.pathname === "/api/geo/overview" || url.pathname === "/api/geo/daily") {
+  if (url.pathname === "/api/geo/overview" || url.pathname === "/api/geo/daily" || url.pathname === "/api/geo/public-items") {
     res.setHeader("X-Accel-Expires", `@${deadline}`);
     res.setHeader("Cache-Control", "public, max-age=30, s-maxage=30");
-    return res.end(JSON.stringify(url.pathname === "/api/geo/daily" ? geoDaily() : geoOverview({ selectedDay: url.searchParams.get("day") ?? "2026-10-04" })));
+    return res.end(JSON.stringify(url.pathname === "/api/geo/daily" ? geoDaily() : url.pathname === "/api/geo/public-items" ? geoFeed() : geoOverview({ selectedDay: url.searchParams.get("day") ?? "2026-10-04" })));
   }
   if (url.pathname === "/api/site/hot") return res.end(JSON.stringify({ entries: [] }));
   if (url.pathname === "/api/site/echo-client") return res.end(JSON.stringify({ forwarded: req.headers["x-forwarded-for"], real: req.headers["x-real-ip"] }));
@@ -87,7 +87,7 @@ test("HTML and navigation share freshness; cookies do not personalize public res
   const html = await fetch(`${origin}/`);
   assert.equal(html.status, 200);
   assert.equal(html.headers.get("X-Accel-Expires"), `@${deadline}`);
-  assert.match(await html.text(), /今日重点/);
+  assert.match(await html.text(), /今日 GEO 资讯/);
   const plain = await fetch(`${origin}/about.data`);
   const signedIn = await fetch(`${origin}/about.data?_routes=root`, { headers: { cookie: "admin_session=private; reader=returning" } });
   assert.match(plain.headers.get("Cache-Control")!, /^public,/);

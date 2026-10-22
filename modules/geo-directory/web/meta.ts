@@ -2,7 +2,7 @@
 export function publicFeedAddress(path: "/all" | "/stream", search = "") {
   const input = new URLSearchParams(search);
   const filters = new URLSearchParams();
-  for (const key of ["q", "source", "language", "platform", "kind", "period", "sort", "group", "groupKey", "cursor"]) {
+  for (const key of ["q", "source", "language", "platform", "kind", "period", "quality", "sort", "group", "groupKey", "cursor"]) {
     const value = input.get(key)?.trim();
     if (value) filters.set(key, value);
   }

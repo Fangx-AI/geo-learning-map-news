@@ -132,7 +132,7 @@ export default function GeoReaderPage() {
       </div>
       {showBrief ? <><BriefContent brief={item.brief!} /><p className="mt-3 text-xs leading-6 text-ink-3">数据来自原文作者，本站未独立复现。</p>{task&&<section className="mt-6 rounded-card border border-line p-5"><h2 className="text-lg font-semibold text-ink">你可以先做什么</h2><p className="mt-2 text-xs text-ink-3">本站检查建议 · {task.audience} · 不代表已测得效果</p><ol className="mt-3 list-decimal space-y-3 pl-5 text-sm leading-7 text-ink-2">{task.steps.map(step=><li key={step}>{step}</li>)}</ol><p className="mt-3 text-sm leading-7 text-ink-2">验收：{task.check}</p></section>}<details className="mt-5 border-t border-line py-3"><summary className="min-h-11 cursor-pointer py-2 text-sm text-accent">术语看不懂？</summary><dl className="space-y-3 text-sm leading-7">{GEO_GLOSSARY.map(([term,meaning])=><div key={term}><dt className="font-semibold text-ink">{term}</dt><dd className="text-ink-2">{meaning}</dd></div>)}</dl></details><button aria-pressed={done} onClick={()=>setStorageError(rememberReading({id:item.id,title,updatedAt:item.brief!.updatedAt,at:Date.now(),y:window.scrollY},!done)?"":"浏览器未能保存阅读状态。")} className="min-h-11 rounded-control border border-line px-4 text-sm text-accent">{done?"已读完 ✓":"标记读完"}</button>{storageError&&<p role="alert">{storageError}</p>}</> : <section aria-labelledby="reader-summary-heading" className="pt-5">
         <h2 id="reader-summary-heading" className="mb-3 text-[12px] font-medium text-ink-4">来源摘要</h2>
-        {!summaryText ? <p className="text-[14px] leading-7 text-ink-3">来源暂未提供摘要。</p> : !item.brief && !social && repeatsTitle(summaryText, title) ? <p className="text-[14px] leading-7 text-ink-3">来源只提供了标题，完整内容请查看原文。</p> : <p data-reader-summary="" lang={item.brief ? item.language : content.language} className="whitespace-pre-line break-words text-[16px] leading-[1.95] text-ink-2 lg:text-[17px]"><LinkedText text={summaryText} /></p>}
+        {!summaryText ? <p className="text-[14px] leading-7 text-ink-3">来源暂未提供摘要。</p> : !item.brief && !social && repeatsTitle(summaryText, title, content.title) ? <p className="text-[14px] leading-7 text-ink-3">来源只提供了标题，完整内容请查看原文。</p> : <p data-reader-summary="" lang={item.brief ? item.language : content.language} className="whitespace-pre-line break-words text-[16px] leading-[1.95] text-ink-2 lg:text-[17px]"><LinkedText text={summaryText} /></p>}
       </section>}
       {!item.brief && <p className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2"><a href={item.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center rounded-control bg-accent px-5 text-[14px] font-semibold text-white">查看原文 ↗</a><span className="text-[12px] text-ink-3">本站只收录摘要，完整内容以原文为准。</span></p>}
       {showImage && <img src={imageUrl} alt="" referrerPolicy="no-referrer" decoding="async" ref={image => { if (image?.complete && !image.naturalWidth) setFailedImageUrl(imageUrl); }} onError={() => setFailedImageUrl(imageUrl)} className="mt-6 max-h-[360px] w-auto max-w-full rounded-card object-contain object-left" />}
@@ -170,8 +170,9 @@ function BriefContent({ brief }: { brief: ReaderBrief }) {
   </div>;
 }
 
+// Sentence punctuation right after a link stays in the text.
 function LinkedText({ text }: { text: string }) {
-  return <>{text.split(/(https?:\/\/[^\s<>"'）)】]+)/u).map((part, index) => index % 2 ? <a key={index} href={part} target="_blank" rel="noopener noreferrer nofollow" className="break-all text-accent hover:underline">{part}</a> : part)}</>;
+  return <>{text.split(/(https?:\/\/[^\s<>"'）)】]*[^\s<>"'）)】.,;:!?。，；：！？])/u).map((part, index) => index % 2 ? <a key={index} href={part} target="_blank" rel="noopener noreferrer nofollow" className="break-all text-accent hover:underline">{part}</a> : part)}</>;
 }
 
 function RelatedNews({ item }: { item: CardItem }) {

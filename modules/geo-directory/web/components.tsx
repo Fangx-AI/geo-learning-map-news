@@ -47,10 +47,9 @@ export function indexedHeadline(title: string, aggregated: boolean): { title: st
   return match ? { title: match[1]!.trim(), outlet: match[2]!.trim() } : { title, outlet: null };
 }
 const normalized = (text: string) => text.toLocaleLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
-/** Index and feed summaries often repeat the headline, sometimes followed by the outlet's name. */
-export function repeatsTitle(summary: string, title: string): boolean {
-  const a = normalized(summary), b = normalized(title);
-  return a.startsWith(b) && a.length - b.length <= 40;
+/** Index and feed summaries often only repeat the headline, the index's form of it included ("标题 - 媒体名"). */
+export function repeatsTitle(summary: string, ...titles: string[]): boolean {
+  return titles.some(title => normalized(summary) === normalized(title));
 }
 /** A social post as a headline: without the collector's excerpt label, trailing links and "via @author" credits. */
 export function postHeadline(text: string): string {
@@ -86,7 +85,7 @@ export function ItemCard({ item, compact = false, query = "", grouped = true }: 
   const title = social ? postHeadline(content.summary ?? content.title) : indexedHeadline(content.title, aggregated).title;
   const outlet = item.publisherName ? null : indexedHeadline(item.title, aggregated).outlet;
   const summary = social ? null : content.summary;
-  const distinctSummary = summary && !repeatsTitle(summary, title) ? summary : null;
+  const distinctSummary = summary && !repeatsTitle(summary, title, content.title) ? summary : null;
   const matchesSummaryOnly = distinctSummary && !hasSearchMatch(title, query) && hasSearchMatch(distinctSummary, query);
   const alternativeTitle = content.translated ? content.originalTitle : content.translatedTitle;
   const alternativeSummary = content.translated ? content.originalSummary : content.translatedSummary;

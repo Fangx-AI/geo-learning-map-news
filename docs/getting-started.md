@@ -107,7 +107,7 @@ node --env-file=.env modules/geo-directory/scripts/watch-public.ts
 ./scripts/start-geo.ps1 -Action status
 ```
 
-该入口未安装开机任务。开发服务器已运行时不要再强行启动另一份；启动器会核验已有服务身份。更多说明见 [本机启动与恢复](geo-local.md)。
+上述一次性入口不会安装开机任务。需要登录后自动启动和后台恢复时，另执行 `./scripts/install-geo-autostart.ps1`。开发服务器已运行时不要再强行启动另一份；启动器会核验已有服务身份。更多说明见 [本机启动与恢复](geo-local.md)。
 
 | 现象 | 先检查什么 |
 | --- | --- |

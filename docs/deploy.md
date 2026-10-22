@@ -1,5 +1,19 @@
 # 部署
 
+## Windows 本机数据库恢复
+
+已初始化的本机数据库可执行 `node --env-file=.env scripts/geo-local.ts start`。Windows 上现在由随附的 `pg_ctl` 在后台启动原有 `.data/postgres`，日志写入 `.data/local-services/postgres-native-*.log`；启动命令退出不再停止数据库。此调整针对本机多次异常中断后的恢复，保留原数据，不新建库、不清理测试库，也不注册开机服务。
+
+`pg_ctl` 接受启动请求不代表数据库已就绪。用 `node --env-file=.env scripts/geo-local.ts status` 检查；如果原库正在恢复，恢复入口保留进程并等待最多20分钟，不重复启动。后台守护与可选的 Windows 登录启动项见 [本机恢复](geo-local.md#后台恢复与登录后启动)。数据库端口读取 `.env` 的 `DATABASE_URL`，不再写死 55432；修改端口前须确认原数据库退出、目标端口空闲。
+
+确实需要关闭本机数据库时，在项目目录使用受控关闭；不要直接关闭 PostgreSQL 窗口或强制结束进程：
+
+```powershell
+& .\.data\runtime\node_modules\@embedded-postgres\windows-x64\native\bin\pg_ctl.exe stop -D .data/postgres -m fast -w
+```
+
+`fast` 会断开当前连接、回滚未提交事务，再正常关闭数据库。[PostgreSQL 官方说明](https://www.postgresql.org/docs/current/app-pg-ctl.html)
+
 ## 用 Docker（推荐）
 
 需要一台装了 Docker（带 Compose）的机器。云服务器建议至少 2 核、4 GB 内存，构建镜像时要用到。

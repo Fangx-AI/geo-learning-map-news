@@ -2,7 +2,7 @@
 import { existsSync, closeSync, openSync } from "node:fs";
 import { mkdir, appendFile } from "node:fs/promises";
 import { spawn } from "node:child_process";
-import { createConnection } from "node:net";
+import { createConnection, createServer } from "node:net";
 import { setTimeout as delay } from "node:timers/promises";
 import path from "node:path";
 import postgres from "postgres";
@@ -20,7 +20,7 @@ export function localSettings(env: NodeJS.ProcessEnv = process.env, root = path.
   const databaseUrl = env.DATABASE_URL ?? "";
   let database: URL;
   try { database = new URL(databaseUrl); } catch { throw new LocalRecoveryError("缺少有效 DATABASE_URL；请先配置本机 .env。"); }
-  if (!/^postgres(?:ql)?:$/.test(database.protocol) || database.hostname !== "127.0.0.1" || database.port !== "55432") throw new LocalRecoveryError("恢复入口只管理 127.0.0.1:55432 本机数据库。");
+  if (!/^postgres(?:ql)?:$/.test(database.protocol) || database.hostname !== "127.0.0.1" || !Number.isInteger(Number(database.port)) || Number(database.port) < 1024 || Number(database.port) > 65535) throw new LocalRecoveryError("恢复入口只管理 127.0.0.1 非特权端口的本机数据库。");
   const port = (input: string | undefined, fallback: number) => {
     const value = input === undefined || input === "" ? fallback : Number(input);
     if (!Number.isInteger(value) || value < 1 || value > 65535) throw new LocalRecoveryError("本机服务端口无效。");
@@ -56,8 +56,19 @@ async function portOpen(url: string): Promise<boolean> {
 
 async function get(url: string): Promise<Response> { return fetch(url, { signal: AbortSignal.timeout(4000), redirect: "error", headers: { "cache-control": "no-cache" } }); }
 
+async function portAvailable(url: string): Promise<boolean> {
+  const target = new URL(url);
+  return new Promise(resolve => {
+    const server = createServer();
+    server.once("error", () => resolve(false));
+    server.listen({ host: target.hostname, port: Number(target.port), exclusive: true }, () => server.close(() => resolve(true)));
+  });
+}
+
 export async function probeHttp(url: string, kind: "api" | "web", siteName: string): Promise<ServiceProbe> {
-  if (!await portOpen(url)) return { ready: false, occupied: false, detail: "未运行" };
+  if (!await portOpen(url)) return await portAvailable(url)
+    ? { ready: false, occupied: false, detail: "未运行" }
+    : { ready: false, occupied: true, detail: "端口被占用或被系统保留，无法监听；请配置空闲端口" };
   try {
     const [health, schema, status] = await Promise.all([get(url + "/api/health"), get(url + "/openapi-v1.json"), get(url + "/api/geo/collection-status")]);
     if (!health.ok || !schema.ok || !status.ok) throw new LocalRecoveryError();
@@ -74,7 +85,9 @@ export async function probeHttp(url: string, kind: "api" | "web", siteName: stri
 function databaseClient(settings: LocalSettings) { return postgres(settings.databaseUrl, { max: 1, connect_timeout: 3, idle_timeout: 0, max_lifetime: 0, onnotice: () => {}, connection: { statement_timeout: 4000 } }); }
 
 async function probeDatabase(settings: LocalSettings): Promise<ServiceProbe> {
-  if (!await portOpen(settings.databaseUrl)) return { ready: false, occupied: false, detail: "未运行" };
+  if (!await portOpen(settings.databaseUrl)) return await portAvailable(settings.databaseUrl)
+    ? { ready: false, occupied: false, detail: "未运行" }
+    : { ready: false, occupied: true, detail: "数据库端口被占用或被系统保留，无法监听；请配置空闲端口" };
   const db = databaseClient(settings);
   try { await db`SELECT 1`; return { ready: true, occupied: true, detail: "已连接配置数据库，复用" }; }
   catch (error) {
@@ -118,8 +131,9 @@ export async function recoverLocal(settings: LocalSettings, actions: RecoveryAct
   let status = await actions.probe();
   if (rebuild && status.web.occupied) throw new LocalRecoveryError("网页端口正在使用，拒绝重建以免旧 SSR 与新 assets 混用。请先自行停止网页服务，再执行 --rebuild。");
   if (!status.database.ready) {
-    if (status.database.occupied) throw new LocalRecoveryError(status.database.detail);
-    await actions.launch("database"); await actions.wait("database"); status = await actions.probe();
+    if (status.database.occupied && !status.database.detail.includes("正在启动恢复")) throw new LocalRecoveryError(status.database.detail);
+    if (!status.database.occupied) await actions.launch("database");
+    await actions.wait("database"); status = await actions.probe();
   }
   if (!status.api.ready && status.api.occupied) throw new LocalRecoveryError(status.api.detail);
   if (!status.api.ready || settings.collect && !status.collector.ready) await actions.migrate();
@@ -169,9 +183,15 @@ async function runtimeActions(settings: LocalSettings): Promise<RecoveryActions>
       await launch(service, [path.join(settings.root, files[service])], true);
     },
     wait: async service => {
-      const deadline = Date.now() + 60_000;
-      while (Date.now() < deadline) { if ((await probeLocal(settings))[service].ready) return; await delay(1000); }
-      throw new LocalRecoveryError(`${service} 启动后 60 秒内未通过核验；保留其他服务，请检查 .data/local-services 日志后重试。`);
+      const timeout = service === "database" ? 20 * 60_000 : 60_000;
+      const deadline = Date.now() + timeout;
+      let nextReport = Date.now() + 30_000;
+      while (Date.now() < deadline) {
+        if ((await probeLocal(settings))[service].ready) return;
+        if (Date.now() >= nextReport) { console.log(`${service} 尚在等待就绪，保留现有进程。`); nextReport = Date.now() + 30_000; }
+        await delay(service === "database" ? 5000 : 1000);
+      }
+      throw new LocalRecoveryError(`${service} 在 ${timeout / 60_000} 分钟内未通过核验；保留其他服务，请检查 .data/local-services 日志。`);
     },
   };
 }

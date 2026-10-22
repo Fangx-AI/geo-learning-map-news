@@ -23,6 +23,9 @@ test("local recovery refuses remote or conflicting destinations and disables pai
   assert.throws(() => localSettings({ ...env, DATABASE_URL: "postgres://example.com/database" }), /本机数据库/);
   assert.throws(() => localSettings({ ...env, API_BASE_URL: "https://remote.example/" }), /本机 API/);
   assert.throws(() => localSettings({ ...env, API_PORT: "3000" }), /不同端口/);
+  assert.equal(new URL(localSettings({ ...env, DATABASE_URL: "postgres://local@127.0.0.1:55433/local_test" }).databaseUrl).port, "55433");
+  assert.throws(() => localSettings({ ...env, DATABASE_URL: "postgres://local@127.0.0.1:80/local_test" }), /本机数据库/);
+  assert.throws(() => localSettings({ ...env, DATABASE_URL: "postgres://local@127.0.0.1:3001/local_test" }), /不同端口/);
 });
 
 test("warm recovery is idempotent and rebuilding cannot overwrite assets used by an existing web process", async () => {
@@ -32,6 +35,14 @@ test("warm recovery is idempotent and rebuilding cannot overwrite assets used by
   assert.deepEqual(calls, []);
   await assert.rejects(recoverLocal(settings, actions, true), /拒绝重建/);
   assert.deepEqual(calls, [], "no migration, build, launch or replacement occurs on the rejected path");
+});
+
+test("crash recovery waits for the existing database and never starts a second postmaster", async () => {
+  const state = allReady();
+  state.database = { ready: false, occupied: true, detail: "数据库正在启动恢复" };
+  const calls: string[] = [];
+  await recoverLocal(settings, { probe: async () => state, launch: async () => { throw Error("must not launch"); }, wait: async () => { calls.push("wait"); state.database = ready(); }, migrate: async () => {}, build: async () => {}, hasBuild: () => true, report: () => {} });
+  assert.deepEqual(calls, ["wait"]);
 });
 
 test("recovery starts only missing components in dependency order and refuses a foreign occupied API port", async () => {

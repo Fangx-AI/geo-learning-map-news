@@ -41,6 +41,29 @@ export function parseEdition(input: unknown, sourceUrl: string) {
 }
 
 /** Assemble the actual message boundaries returned by read_thread; a missing final part is never published. */
+export function mergeEditionThreads(inputs: unknown[], expectedThreadId = process.env.GEO_DAILY_SOURCE_THREAD_ID) {
+  const schema = z.object({ thread: z.object({ id: z.string() }), turns: z.array(z.object({ status: z.string(), items: z.array(z.object({ type: z.string(), id: z.string(), text: z.string().optional(), truncated: z.boolean().optional() }).passthrough()) })) });
+  const items = new Map<string, z.infer<typeof schema>["turns"][number]["items"][number]>();
+  for (const input of inputs) {
+    const data = schema.parse(input);
+    if (!expectedThreadId || data.thread.id !== expectedThreadId) throw new Error("Unexpected daily report conversation");
+    for (const turn of data.turns) {
+      if (turn.status !== "completed") continue;
+      for (const item of turn.items) {
+        if (item.type !== "agentMessage" || !item.text) continue;
+        const prior = items.get(item.id);
+        if (prior && prior.text !== item.text) {
+          if (prior.truncated && !item.truncated && item.text.startsWith(prior.text!)) { items.set(item.id, item); continue; }
+          if (item.truncated && prior.text!.startsWith(item.text)) continue;
+          throw new Error(`Source message changed: ${item.id}; existing snapshots preserved`);
+        }
+        if (!prior || prior.truncated && !item.truncated) items.set(item.id, item);
+      }
+    }
+  }
+  return { thread: { id: expectedThreadId }, turns: [{ status: "completed", items: [...items.values()] }] };
+}
+
 export function editionsFromThread(input: unknown, sourceUrl: string, expectedThreadId = process.env.GEO_DAILY_SOURCE_THREAD_ID) {
   const thread = z.object({ thread: z.object({ id: z.string() }), turns: z.array(z.object({ status: z.string(), items: z.array(z.object({ type: z.string(), id: z.string(), text: z.string().optional() }).passthrough()) })) }).parse(input);
   if (!expectedThreadId || thread.thread.id !== expectedThreadId) throw new Error("Unexpected daily report conversation");
@@ -53,21 +76,32 @@ export function editionsFromThread(input: unknown, sourceUrl: string, expectedTh
       const match = item.text.match(/^<!-- GEO-EDITION date=(\d{4}-\d{2}-\d{2}) issue=(\d+) part=(\d+) total=(\d+) -->\s*\n/);
       if (!match) { if (/^# (?:🌍 )?全球 GEO (?:全景情报|日报)/u.test(item.text)) unframed.push(item.id); continue; }
       const group = groups.get(match[1]!) ?? [];
+      if (item.truncated === true) continue;
       group.push({ id: item.id, text: item.text, issue: Number(match[2]), part: Number(match[3]), total: Number(match[4]) }); groups.set(match[1]!, group);
     }
   }
   const editions: ReturnType<typeof parseEdition>[] = [];
   const pending: string[] = [];
+  const gaps: { day: string; received: number[]; missing: number[]; total: number; reason: string }[] = [];
   for (const [day, group] of groups) {
-    const parts = [...new Map(group.map(p => [p.id, p])).values()].sort((a, b) => a.part - b.part);
+    // A complete single-message replacement may repair a previously incomplete multipart edition.
+    // Multiple different complete replacements remain a conflict, never silently last-write-wins.
+    const completeSingles = group.filter(p => p.part === 1 && p.total === 1 && p.text.length <= 15000 && /<!-- GEO-PART-END -->\s*<!-- GEO-EDITION-END -->\s*$/.test(p.text));
+    if (new Set(completeSingles.map(p => p.text)).size > 1) throw new Error(`Conflicting complete editions: ${day}`);
+    const selected = completeSingles.length ? [completeSingles[0]!] : group;
+    const parts = [...new Map(selected.map(p => [p.id, p])).values()].sort((a, b) => a.part - b.part);
     const first = parts[0]!;
-    if (first.total < 1 || first.total > 30 || parts.length !== first.total || parts.some((p, i) => p.part !== i + 1 || p.total !== first.total || p.issue !== first.issue || p.text.length > 15000 || !/<!-- GEO-PART-END -->\s*(?:<!-- GEO-EDITION-END -->)?\s*$/.test(p.text)) || !parts.at(-1)!.text.trimEnd().endsWith("<!-- GEO-EDITION-END -->")) { pending.push(day); continue; }
+    if (first.total < 1 || first.total > 30 || parts.length !== first.total || parts.some((p, i) => p.part !== i + 1 || p.total !== first.total || p.issue !== first.issue || p.text.length > 15000 || !/<!-- GEO-PART-END -->\s*(?:<!-- GEO-EDITION-END -->)?\s*$/.test(p.text)) || !parts.at(-1)!.text.trimEnd().endsWith("<!-- GEO-EDITION-END -->")) {
+      pending.push(day);
+      gaps.push({ day, received: parts.map(p => p.part), missing: Array.from({ length: Math.min(30, Math.max(0, first.total)) }, (_, i) => i + 1).filter(n => !parts.some(p => p.part === n)), total: first.total, reason: "missing-parts-or-invalid-boundaries" });
+      continue;
+    }
     const text = parts.map(p => p.text.replace(/^<!-- GEO-EDITION[^\n]+-->\s*\n/, "").replace(/<!-- GEO-(?:PART|EDITION)-END -->/g, "").trim()).join("\n\n");
     const edition = parseEdition({ id: first.id, author: { role: "assistant" }, status: "finished_successfully", content: { parts: [text] } }, sourceUrl);
     if (edition.day !== day || edition.issue !== first.issue) throw new Error("Report header disagrees with message markers");
     editions.push(edition);
   }
-  return { editions, pending, unframed };
+  return { editions, pending, unframed, gaps };
 }
 
 export async function saveEdition(edition: ReturnType<typeof parseEdition>) {

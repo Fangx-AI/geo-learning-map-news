@@ -34,8 +34,10 @@ export async function loader({ request, params }: { request: Request; params: { 
   const library = !result.item.brief ? await loadOr404<GeoDailyDigest>("/api/geo/daily?view=library", { signal: request.signal }).catch(() => null) : null;
   const suggestions = (library?.research ?? []).filter(candidate => candidate.id !== result.item.id && candidate.brief?.coverage === "full-article" && !candidate.brief.automated).slice(0, 3);
   // The same platform's latest news, so a reader who lands from a share link can keep reading.
+  // Search the platform by the name this headline uses (OpenAI or ChatGPT, Gemini or Google).
   const channel = itemChannels(result.item.title, result.item.translation?.title)[0] ?? null;
-  const latest = channel ? await loadOr404<{ items: CardItem[] }>(`/api/geo/public-items?${new URLSearchParams({ q: channel.query, sort: "latest", quality: "useful", kind: "direct", limit: "12" })}`, { signal: request.signal }).catch(() => null) : null;
+  const alias = channel?.pattern.exec(`${result.item.title}\n${result.item.translation?.title ?? ""}`)?.[0];
+  const latest = channel && alias ? await loadOr404<{ items: CardItem[] }>(`/api/geo/public-items?${new URLSearchParams({ q: alias, sort: "latest", quality: "useful", kind: "direct", limit: "12" })}`, { signal: request.signal }).catch(() => null) : null;
   const related = (latest?.items ?? []).filter(candidate => candidate.id !== result.item.id && itemChannels(candidate.title, candidate.translation?.title).some(match => match.slug === channel!.slug)).slice(0, 5);
   return { ...result, suggestions, related, channel: channel && { slug: channel.slug, name: channel.name }, requestedId: params.id.toLowerCase() };
 }

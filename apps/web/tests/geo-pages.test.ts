@@ -315,7 +315,8 @@ test("daily archives select actual dates, show the cap honestly and hot clusters
     await page.goto(web.origin + "/daily/archive");
     await expect(page.getByRole("heading", { name: "按日期看资讯", exact: true })).toBeVisible();
     await expect(page.getByText("当前展示前 2 条，该日共 205 条。", { exact: true })).toBeVisible();
-    await page.locator('a[href="/daily/2026-10-03"]').click();
+    await page.locator('[data-day-list] a[href="/daily/2026-10-03"]').click();
+    await expect(page.getByRole("link", { name: "后一天 →", exact: true })).toHaveAttribute("href", "/daily/2026-10-04");
     await expect(page.getByRole("heading", { name: "2026-10-03 · 1 条资料", exact: true })).toBeVisible();
     await expect(page.getByRole("link", { name: /前一日公开资料/ })).toBeVisible();
     await expect(page.locator('[data-public-item="previous-day"] time')).toHaveText(/10月3日$/);

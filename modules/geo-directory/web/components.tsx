@@ -41,6 +41,26 @@ const badgeTone: Record<string, string> = { 官方: "bg-ok-soft text-ok-ink", �
 export function ValueBadge({ badge }: { badge?: string | null }) {
   return badge ? <span data-value-badge="" className={`rounded-mark px-1.5 py-0.5 text-[11px] font-semibold ${badgeTone[badge] ?? "bg-bg-sunk text-ink-2"}`}>{badge}</span> : null;
 }
+/** Google News and other indexes end a headline with " - 媒体名"; split the outlet off so it shows next to the source. */
+export function indexedHeadline(title: string, aggregated: boolean): { title: string; outlet: string | null } {
+  const match = aggregated ? /^(.{8,}?)\s*[-–—]\s+([^-–—]{1,40})$/u.exec(title) : null;
+  return match ? { title: match[1]!.trim(), outlet: match[2]!.trim() } : { title, outlet: null };
+}
+const normalized = (text: string) => text.toLocaleLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+/** Index and feed summaries often repeat the headline, sometimes followed by the outlet's name. */
+export function repeatsTitle(summary: string, title: string): boolean {
+  const a = normalized(summary), b = normalized(title);
+  return a.startsWith(b) && a.length - b.length <= 40;
+}
+/** A social post as a headline: without the collector's excerpt label, trailing links and "via @author" credits. */
+export function postHeadline(text: string): string {
+  let headline = text.replace(/^帖文节选｜/, "").trim(), previous = "";
+  while (headline !== previous) {
+    previous = headline;
+    headline = headline.replace(/\s*\[contains quote post or other embedded content\]$/i, "").replace(/\s*https?:\/\/\S*$/u, "").replace(/\s*[-–—]?\s*(?:via|通过|经由|經由)\s*@[\w.-]+(?:\s*(?:,|，|、|and|和|及)\s*@[\w.-]+)*[\s.。]*$/iu, "").trim();
+  }
+  return headline || text;
+}
 const clock = (value: Date) => new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(value);
 const beijingDay = (value: number) => new Date(value + 8 * 3600_000).toISOString().slice(0, 10);
 /** 今天 22:42 / 昨天 21:00 / 10月19日, in Beijing time. */
@@ -63,10 +83,10 @@ export function ItemCard({ item, compact = false, query = "", grouped = true }: 
   const content = useTranslatedContent({ ...item, translation });
   const social = item.contentKind === "social", aggregated = item.contentKind === "aggregated";
   // Social posts have no headline; the collector titles them with an excerpt.
-  const title = social ? content.summary ?? content.title.replace(/^帖文节选｜/, "") : content.title;
+  const title = social ? postHeadline(content.summary ?? content.title) : indexedHeadline(content.title, aggregated).title;
+  const outlet = item.publisherName ? null : indexedHeadline(item.title, aggregated).outlet;
   const summary = social ? null : content.summary;
-  const normalize = (text: string) => text.toLocaleLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
-  const distinctSummary = summary && normalize(summary) !== normalize(title) ? summary : null;
+  const distinctSummary = summary && !repeatsTitle(summary, title) ? summary : null;
   const matchesSummaryOnly = distinctSummary && !hasSearchMatch(title, query) && hasSearchMatch(distinctSummary, query);
   const alternativeTitle = content.translated ? content.originalTitle : content.translatedTitle;
   const alternativeSummary = content.translated ? content.originalSummary : content.translatedSummary;
@@ -99,6 +119,7 @@ export function ItemCard({ item, compact = false, query = "", grouped = true }: 
       {showImage && <Link to={readerHref} state={{ geoReaderFrom: location.pathname + location.search }} tabIndex={-1} aria-hidden="true" className="mt-1 shrink-0"><img src={imageUrl} width={120} height={80} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" ref={image => { if (image?.complete && !image.naturalWidth) setFailedImageUrl(imageUrl); }} onError={() => setFailedImageUrl(imageUrl)} className="aspect-[3/2] w-[84px] rounded-control object-cover lg:w-28" /></Link>}
     </div>
     <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-ink-3">
+      {outlet && <span className="max-w-[45%] truncate font-medium text-ink-2" title="索引标注的媒体">{outlet}</span>}
       <Link to={`/all?source=${encodeURIComponent(item.sourceId)}`} className="max-w-[40%] truncate hover:text-accent hover:underline sm:max-w-[60%]" title={`只看 ${item.sourceName}`}><HighlightedText text={item.sourceName} query={query} /></Link>
       <time dateTime={item.publishedAt ?? undefined} title={!item.publishedAt ? "来源未提供发布日期" : aggregated ? "索引标注时间（北京时间）" : "原文发布时间（北京时间）"} suppressHydrationWarning>{(aggregated && item.publishedAt ? "索引标注 " : "") + newsTime(item.publishedAt)}</time>
       {showLanguage && <span className="hidden sm:inline">{languageNames[item.language] ?? item.language}</span>}

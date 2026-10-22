@@ -40,3 +40,23 @@ test("explicit generative search studies are admitted without broadening to gene
     "Research on generative art and painting",
   ]) assert.deepEqual(matchGeoTerms(text), [], text);
 });
+
+test("a retrieval paper needs the AI and search pairing in its title, not only in its abstract", () => {
+  const source: PublicSource = { id: "rss-arxiv-ir", name: "arXiv · Information Retrieval", kind: "rss", config: {}, tier: "T1", participation_mode: "editorial", first_party: true, interval_minutes: 360, enabled: true, cursor: null, fail_count: 0, languageHint: "en", sourceUrl: "https://arxiv.org/list/cs.IR/recent" };
+  const abstract = "We use large language models to improve ranking and search quality.";
+  // Titles from the cs.IR feed: two off-topic papers and three that discuss LLM search, retrieval or citations.
+  const papers = [
+    ["TAGR: Task-Adaptive Geo-Semantic Retrieval across Heterogeneous Urban Delivery Tasks", false],
+    ["PRISM: Prompt-Refined In-Context System Modelling for Financial Retrieval", false],
+    ["Can AI Chat Replace Traditional Search? Evidence from a RAG-based Live Events Experiment", true],
+    ["SIREN (Luring LLMs onto the Rocks): PAIR-Driven Preference Manipulation in Web-RAG Recommenders", true],
+    ["CiteFix: Enhancing RAG Accuracy Through Post-Processing Citation Correction", true],
+  ] as const;
+  for (const [title, kept] of papers) {
+    const items = toPublicCandidates([{ title, excerpt: abstract, url: `https://arxiv.org/abs/2610.0${title.length}` }], source);
+    assert.equal(items.length, kept ? 1 : 0, title);
+  }
+  // An explicit GEO term in the abstract still admits a paper, and articles keep the abstract rule.
+  assert.equal(toPublicCandidates([{ title: "Designing Agent-Ready Websites", excerpt: "A framework for generative engine optimization.", url: "https://arxiv.org/abs/2610.00001" }], source).length, 1);
+  assert.equal(toPublicCandidates([{ title: "Our ranking study", excerpt: abstract, url: "https://research.example/ranking" }], { ...source, id: "rss-research" }).length, 1);
+});

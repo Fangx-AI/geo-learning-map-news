@@ -17,14 +17,22 @@ const DIRECT: Array<[string, RegExp]> = [
   ["العربية GEO", /محركات البحث التوليدية|تحسين محركات الذكاء الاصطناعي/],
   ["हिन्दी / Türkçe / Русский GEO", /एआई खोज|जनरेटिव सर्च|üretken arama|yapay zeka arama|генеративный поиск/i],
 ];
+const AI_DISCOVERY = "AI + search / discovery";
 const AI = /\b(?:AI|LLM|LLMs|ChatGPT|Perplexity|Gemini|Copilot|Claude|DeepSeek|Kimi|Qwen)\b|large\s+language\s+model|生成式|人工智能|豆包|千问|文心|元宝|智谱/i;
 const DISCOVERY = /\b(?:SEO|GEO|AEO|search|searches|cite|cites|cited|citing|citation|citations|visibility|discoverability|crawler|crawling|indexing|robots|publisher|publishers|referral|referrals|ranking|rankings|traffic)\b|抓取|索引|推荐|推薦|引用|排名|流量|可见性|可見度|爬虫|品牌|搜索|搜尋|検索|검색/i;
 
 export function matchGeoTerms(text: string): string[] {
   const content = text.slice(0, 20_000).normalize("NFKC");
   const terms = DIRECT.filter(([, pattern]) => pattern.test(content)).map(([term]) => term);
-  if (AI.test(content) && (DISCOVERY.test(content) || /\b(?:query[- ]?fan[- ]?out|fan[- ]?out\s+quer(?:y|ies))\b|查询(?:扩展|扇出)/i.test(content))) terms.push("AI + search / discovery");
+  if (AI.test(content) && (DISCOVERY.test(content) || /\b(?:query[- ]?fan[- ]?out|fan[- ]?out\s+quer(?:y|ies))\b|查询(?:扩展|扇出)/i.test(content))) terms.push(AI_DISCOVERY);
   return terms;
+}
+
+/** Nearly every retrieval abstract pairs LLMs with ranking or search, so for a paper that pairing has to be in the title. */
+export function matchPaperTerms(title: string, summary: string): string[] {
+  const terms = matchGeoTerms(`${title}\n${summary}`);
+  const content = title.normalize("NFKC");
+  return (AI.test(content) || /\bRAG\b/.test(content)) && (DISCOVERY.test(content) || /\b(?:RAG|retrieval|recommend(?:er|ers|ation|ations)?|attribution|information[- ]seeking)\b/i.test(content)) ? terms : terms.filter(term => term !== AI_DISCOVERY);
 }
 
 /** Prefer script evidence, otherwise the directory's source language; unknown stays unknown. */

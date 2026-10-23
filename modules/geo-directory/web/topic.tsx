@@ -9,12 +9,11 @@ export default function TopicPage() {
   const { topic } = useLoaderData<typeof loader>();
   const [params] = useSearchParams();
   const shown = Math.max(PAGE, Math.min(topic.items.length, Number(params.get("limit")) || PAGE));
-  // Same folding as the feeds: service promotion, rankings and reposts wait below the news.
-  const useful = topic.items.filter(item => !item.readingPriority?.folded), folded = topic.items.filter(item => item.readingPriority?.folded);
+  // The overview already leaves service promotion, rankings and reposts out of topics.
+  const useful = topic.items;
   return <div className="pb-12"><PublicHeader title={topic.name} description={topic.description} />
     <p className="my-4 text-[13px] leading-6 text-ink-3"><Link to="/topics" className="mr-4 text-accent">← 全部平台与主题</Link>共 {topic.count} 条{topic.count > topic.items.length ? `，可浏览最近 ${topic.items.length} 条` : ""}</p>
     <ItemList items={useful.slice(0, shown)} />
     {useful.length > shown && <Link to={`?${new URLSearchParams({ limit: String(shown + PAGE) })}`} preventScrollReset className="mt-4 flex min-h-11 items-center justify-center rounded-control border border-line bg-surface text-[13px] font-semibold text-accent hover:bg-accent-soft">再看 {Math.min(PAGE, useful.length - shown)} 条</Link>}
-    {folded.length > 0 && <details className="mt-6 rounded-card border border-line bg-bg-sunk"><summary className="min-h-11 cursor-pointer px-4 py-3 text-[13px] text-ink-3">已折叠 {folded.length} 条服务商软文、排行榜和转载</summary><div className="px-2 pb-2"><ItemList items={folded} compact /></div></details>}
   </div>;
 }

@@ -58,7 +58,7 @@ export default function FeaturedPage() {
     days.set(day, [...(days.get(day) ?? []), item]);
   }
   const [lead, ...rest] = data.highlights;
-  // A quiet day still leads with the newest important items, but does not call two-day-old news today's headline.
+  // A quiet day still leads with the newest important items, but does not call older news today's headline.
   const leadFresh = !!lead?.publishedAt && now - Date.parse(lead.publishedAt) <= 86_400_000;
   const weekday = new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", month: "long", day: "numeric", weekday: "long" }).format(new Date(now));
   return (
@@ -78,7 +78,7 @@ export default function FeaturedPage() {
       <div className="mt-2 grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="min-w-0 space-y-6">
           {lead && <section aria-labelledby="top-stories" className="rounded-card border border-line bg-surface px-5 py-5 lg:px-6">
-            <h2 id="top-stories" className="mb-4 text-[19px] font-semibold text-ink">{leadFresh ? "头条" : "近两日要闻"}</h2>
+            <h2 id="top-stories" className="mb-4 text-[19px] font-semibold text-ink">{leadFresh ? "头条" : data.window.kind === "48h" ? "近两日要闻" : "近期要闻"}</h2>
             <TopStory item={lead} lead />
             {rest.length > 0 && <div className="grid gap-x-6 sm:grid-cols-2">{rest.map(item => <TopStory key={item.id} item={item} lead={false} />)}</div>}
           </section>}

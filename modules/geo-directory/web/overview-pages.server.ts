@@ -22,14 +22,28 @@ async function getOverview(request: Request, upstream: Headers, options: { day?:
 }
 
 const RESEARCH_BADGES = new Set(["研究", "论文", "一手数据"]);
+// Recommended order puts studies, data and papers first, so a few pages hold the month's research.
+async function recentResearchCandidates(request: Request) {
+  const items: CardItem[] = [];
+  let cursor: string | null = null;
+  for (let page = 0; page < 4; page++) {
+    const query = new URLSearchParams({ sort: "recommended", quality: "useful", kind: "direct", group: "title", period: "30d", limit: "50" });
+    if (cursor) query.set("cursor", cursor);
+    const feed: GeoLatestFeed & { nextCursor?: string | null } = await loadOr404(`/api/geo/public-items?${query}`, { signal: request.signal });
+    items.push(...feed.items);
+    cursor = feed.nextCursor ?? null;
+    if (!cursor || !feed.items.some(item => RESEARCH_BADGES.has(item.readingPriority?.badge ?? ""))) break;
+  }
+  return items;
+}
 /** Full readings first; the last 30 days' studies, original data and papers are listed whether or not a reading exists. */
 export async function libraryLoader({ request }: Pick<PageArgs, "request">) {
   const upstream = new Headers();
   const [digest, recent] = await Promise.all([
     loadOr404<GeoDailyDigest>("/api/geo/daily?view=library", { signal: request.signal, responseHeaders: upstream }),
-    loadOr404<GeoLatestFeed>("/api/geo/public-items?sort=recommended&quality=useful&kind=direct&group=title&period=30d&limit=50", { signal: request.signal }).catch(() => null),
+    recentResearchCandidates(request).catch(() => []),
   ]);
-  const research = (recent?.items ?? []).filter(item => RESEARCH_BADGES.has(item.readingPriority?.badge ?? ""))
+  const research = recent.filter(item => RESEARCH_BADGES.has(item.readingPriority?.badge ?? ""))
     .sort((a, b) => Date.parse(b.publishedAt ?? b.collectedAt) - Date.parse(a.publishedAt ?? a.collectedAt));
   return cachedPage(60, { digest, research }, upstream);
 }

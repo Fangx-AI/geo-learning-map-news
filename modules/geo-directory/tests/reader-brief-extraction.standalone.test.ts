@@ -15,3 +15,15 @@ test("article tables retain cell separators, row boundaries and headers with the
   assert.ok(!article.text.includes("80175"));
   assert.match(article.text, /The results apply/);
 });
+
+test("a fragment URL reads only that entry of a longer page", () => {
+  const url = "https://docs.example/updates";
+  const entry = (month: string) => `<h2 id="${month.toLowerCase()}-2026">${month} 2026</h2><dl><dt>${month} 3</dt><dd><h3 id="${month}-a">Updated the ${month} guide</h3><p>${`What: the ${month} documentation now explains crawler controls and snippet options in more detail. `.repeat(3)}</p></dd></dl>`;
+  const html = `<html><head><title>Search updates</title><link rel="canonical" href="${url}"></head><body><article><h1>Search updates</h1>${entry("October")}${entry("September")}</article></body></html>`;
+  const reply = { status: 200, url, body: Buffer.from(html), headers: new Headers({ "content-type": "text/html" }), text: () => html };
+  const article = extractReaderArticle(`${url}#october-2026`, reply);
+  assert.match(article.text, /October documentation/);
+  assert.match(article.text, /Updated the October guide/);
+  assert.doesNotMatch(article.text, /September/);
+  assert.throws(() => extractReaderArticle(`${url}#march-2026`, reply), /no-article-section/);
+});

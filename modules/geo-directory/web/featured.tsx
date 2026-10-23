@@ -2,7 +2,7 @@ import { ContentLanguageToggle, useTranslatedContent } from "@aihot/web/componen
 import { Link, useLoaderData, useLocation } from "react-router";
 import { pageMeta } from "@aihot/web/lib/seo";
 import { PhoneBar } from "@aihot/web/components/shell/PhoneBar";
-import { ItemCard, ValueBadge, newsTime, type CardItem } from "./components.tsx";
+import { indexedHeadline, ItemCard, ValueBadge, newsTime, type CardItem } from "./components.tsx";
 import { CHANNELS, itemChannels } from "./channels.ts";
 import { geoReaderHref } from "./reader-links.ts";
 import type { featuredLoader as loader } from "./overview-pages.server.ts";
@@ -23,14 +23,16 @@ function TopStory({ item, lead }: { item: CardItem; lead: boolean }) {
   const location = useLocation();
   const from = location.pathname + location.search;
   const channels = itemChannels(item.title, item.translation?.title);
+  const aggregated = item.contentKind === "aggregated";
+  const outlet = item.publisherName ?? indexedHeadline(item.title, aggregated).outlet;
   return <article data-top-story={item.id} className={lead ? "border-b border-line pb-5" : "border-b border-line py-4 last:border-b-0 sm:[&:nth-last-child(2)]:border-b-0"}>
     <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
       <ValueBadge badge={item.readingPriority?.badge} />
       {channels.map(channel => <Link key={channel.slug} to={`/topics/${channel.slug}`} className="px-1 py-0.5 text-[11px] font-semibold text-accent hover:underline">{channel.name}</Link>)}
     </div>
-    <h3 lang={content.language} className={`font-semibold leading-snug text-ink ${lead ? "text-[22px]" : "text-[16px]"}`}><Link to={geoReaderHref(item.id, from)} state={{ geoReaderFrom: from }} className="hover:text-accent hover:underline">{content.title}</Link></h3>
+    <h3 lang={content.language} className={`font-semibold leading-snug text-ink ${lead ? "text-[22px]" : "text-[16px]"}`}><Link to={geoReaderHref(item.id, from)} state={{ geoReaderFrom: from }} className="hover:text-accent hover:underline">{indexedHeadline(content.title, aggregated).title}</Link></h3>
     {lead && content.summary && <p lang={content.language} className="mt-2 line-clamp-3 text-[15px] leading-7 text-ink-2">{content.summary}</p>}
-    <p className="mt-2 text-[12px] text-ink-3">{item.sourceName} · <time dateTime={item.publishedAt ?? undefined} suppressHydrationWarning>{newsTime(item.publishedAt)}</time>{item.nearDuplicates && item.nearDuplicates.count > 1 && ` · ${item.nearDuplicates.count} 个来源报道`}</p>
+    <p className="mt-2 text-[12px] text-ink-3">{outlet ? `${outlet} · ` : ""}{item.sourceName} · <time dateTime={item.publishedAt ?? undefined} suppressHydrationWarning>{newsTime(item.publishedAt)}</time>{item.nearDuplicates && item.nearDuplicates.count > 1 && ` · ${item.nearDuplicates.count} 个来源报道`}</p>
   </article>;
 }
 

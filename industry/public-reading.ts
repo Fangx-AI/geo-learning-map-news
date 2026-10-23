@@ -1,7 +1,7 @@
 // Public reading order is a transparent heuristic, separate from the model's five-dimensional
 // selection rubric and thresholds. Patterns are shared by PostgreSQL and JavaScript.
 export const PUBLIC_READING_POLICY = {
-  version: 4,
+  version: 5,
   labels: { priority: "优先阅读线索", standard: "相关资料", deprioritized: "补充线索" },
   limitations: "仅依据标题、短摘要和链接类型；未核实原创性、方法有效性或结论，关键词规则可能误判或遗漏。",
   // Link destinations and HN feed counters are metadata, not methodological evidence.
@@ -19,8 +19,8 @@ export const PUBLIC_READING_POLICY = {
     firstHand: "we (analy[sz]ed|tested|measured|audited|collected|found)|(^|[^a-z])we examined [0-9][0-9,. ]* domains([^a-z]|$)|(^|[^a-z])we (first )?conduct(ed)? (a |an |human )?(observational |empirical |large-scale empirical )?(study|evaluation)([^a-z]|$)|(^|[^a-z])we evaluate(d)? (both )?(web[- ]search|deep[- ]research|generative search)|I (tested|measured|audited)|our (experiment|dataset|study|results)|我们(测试|实测|分析|采集|测量)|我(测试|实测|测了)|自建数据|独立实验|実測|自社調査|직접 실험",
     change: "updat|expands? (to|into)|launch|rollout|roll.out|introduc|announc|(^|[^a-z])releas|adds? support|new .{0,32}(search|link|citation|crawler)|robots[.]txt|data-nosnippet|OAI-SearchBot|GPTBot|平台更新|上线|推出|发布|开放|新增|调整|改版|规范|政策|更新|導入|発表|지원|출시|업데이트|annonc|mise à jour|lanc|actualiza|anunci|Einführung|Aktualis",
     toolIntegration: "^(introduc(ing|es?)|announc(ing|es?)|adding) support for (Google AI (Mode|Overviews)|ChatGPT|Perplexity)([^a-z]|$)",
-    promotion: "book (a |your )?demo|contact us|(^|[^a-z])DM us to talk([^a-z]|$)|free trial|hire (us|our)|guaranteed? .{0,35}(rank|citation|visibility)|(^|[^a-z])(best|top)([^a-z]|$)[^.!?]{0,90}(agencies|agency|service providers)|agency ranking|联系我们|预约演示|免费试用|限时优惠|代运营|包收录|保排名|保证.{0,15}(排名|引用)|服务商.{0,12}(推荐|排名|哪家|实力|力荐)|公司.{0,6}推荐|哪家.{0,8}(强|好)|获客.{0,15}(服务|方案|低成本)|头部服务商|高性价比|用户力荐|支援サービス|無料サービス|무료 서비스|제안드립니다|agencias? .{0,25}(mejores|servicios)|meilleures? agences|melhores agências",
-    listicle: "(^|[^a-z])(best|top)([^a-z]|$)[^.!?]{0,70}(tools|software|platforms)|工具.{0,12}(排行榜|推荐榜|排名)|软件.{0,8}(排行榜|推荐榜)|平台.{0,8}(排行榜|推荐榜)|meilleurs outils|mejores herramientas|melhores ferramentas",
+    promotion: "book (a |your )?demo|contact us|(^|[^a-z])DM us to talk([^a-z]|$)|free trial|hire (us|our)|guaranteed? .{0,35}(rank|citation|visibility)|(^|[^a-z])(best|top)([^a-z]|$)[^.!?]{0,90}(agencies|agency|service providers)|agency ranking|(number one|No[.] ?1|#1)[^.!?]{0,60}(agency|agencies)|联系我们|预约演示|免费试用|限时优惠|代运营|包收录|保排名|保证.{0,15}(排名|引用)|服务商.{0,12}(推荐|排名|哪家|实力|力荐|怎么选|选型|筛选|甄别|盘点|测评|评测|实测|解析|[五六八十]强)|主流.{0,6}服务商|助力.{0,12}获客|公司.{0,6}推荐|哪家.{0,8}(强|好)|靠谱吗|选型(指南|参考|依据|逻辑|建议)|避坑指南|获客.{0,15}(服务|方案|低成本)|低成本获客|精准(询盘|客源|获客)|(北京|上海|广州|深圳|杭州|宁波|温州|武汉|东莞|佛山|成都|重庆|苏州|无锡|南京|天津|西安|长沙|郑州|青岛|济南|厦门|福州|合肥|昆明|南昌|石家庄|沈阳|大连)(做)?GEO ?(优化|推广|服务|公司)|头部服务商|高性价比|用户力荐|支援サービス|無料サービス|무료 서비스|제안드립니다|agencias? .{0,25}(mejores|servicios)|meilleures? agences|melhores agências",
+    listicle: "(^|[^a-z])(best|top)([^a-z]|$)[^.!?]{0,70}(tools|software|platforms)|工具.{0,12}(排行榜|推荐榜|排名|实力榜)|(公司|服务商|品牌)(排行榜|实力榜|榜单)|十大.{0,6}(品牌|公司|服务商)|软件.{0,8}(排行榜|推荐榜)|平台.{0,8}(排行榜|推荐榜)|meilleurs outils|mejores herramientas|melhores ferramentas",
     critique: "debunk|scam|myth|criti(que|cism)|doesn.t work|do not work|failed experiment|negative result|no effect|self[- ]promot|cannot guarantee|not guarantee|骗局|割韭菜|批评|批判|失败实验|没有效果|无效|自我推广|不能保证|不保证|誇大広告|효과 없",
     compilation: "weekly (recap|roundup|update)|video recap|news roundup|sponsored by|it.s new [0-9]{1,2}/[0-9]{1,2}|新闻汇总|新闻盘点|赞助播出",
     reprint: "originally published (on|at)|reprinted (from|with)|转载自|原文来自|本文转载|转自[：:]",

@@ -14,6 +14,6 @@ export default function Editions() {
     <h1 className="mt-4 text-[32px] font-semibold tracking-tight text-ink">整期日报</h1>
     <p className="mt-3 text-sm leading-7 text-ink-2">完整阅读每日全球 GEO 情报，保留原始引用。</p>
     <div className="mt-8 divide-y divide-line">{editions.map(e => <article key={e.id} className="py-6"><time className="text-xs text-ink-3" dateTime={e.day}>{e.day}</time><h2 className="mt-2 text-xl font-semibold leading-relaxed"><Link className="text-ink hover:text-accent" to={`/daily/editions/${e.id}`}>{e.title}</Link></h2><Link className="mt-3 inline-flex min-h-11 items-center text-sm text-accent" to={`/daily/editions/${e.id}`}>阅读整期 →</Link></article>)}</div>
-    {!editions.length && <p className="mt-8 text-ink-3">完整日报尚未同步。</p>}
+    {!editions.length && <p className="mt-8 text-[14px] leading-7 text-ink-3">完整日报尚未同步。每天收录的资讯可以<Link to="/daily/archive" className="mx-1 text-accent hover:underline">按日期查看 →</Link></p>}
   </div>;
 }

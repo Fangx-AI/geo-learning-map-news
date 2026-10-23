@@ -11,6 +11,7 @@ for (const fixture of qualityFixtures) test(`reading policy: ${fixture.name}`, (
   assert.match(priority.limitations[0], /未核实/);
   assert.ok(!("score" in priority));
   assert.equal(priority.policyVersion, READING_POLICY_VERSION);
+  if (fixture.folded !== undefined) assert.equal(priority.folded, fixture.folded);
 });
 
 test("missing evidence and unknown dates stay explicit and no publisher domain is invented", () => {

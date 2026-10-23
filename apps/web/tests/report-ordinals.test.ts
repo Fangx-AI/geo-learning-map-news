@@ -145,7 +145,8 @@ test("the GEO daily archive counts dates and links to the matching daily digests
   const { html, text } = await dailyPage("/daily/archive");
   assert.match(html, /<h1[^>]*>按日期看资讯<\/h1>/);
   assert.match(text, /最近有收录的日期（2 天）/);
-  assert.match(html, /<details open=""/);
+  assert.match(html, /data-day-list=""/);
+  assert.match(html, /aria-current="page"[^>]*>10月16日/);
   for (const day of [latestDay, previousDay]) assert.ok(html.includes(`href="/daily/${day}"`));
   assert.doesNotMatch(text, /共\s*405\s*期/);
   assert.equal(web.logs(), "");

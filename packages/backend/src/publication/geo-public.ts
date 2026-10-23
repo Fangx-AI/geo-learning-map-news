@@ -202,22 +202,26 @@ export async function loadGeoPublicItems(query: GeoPublicQuery = {}): Promise<{ 
   // visible immediately when the first is disabled, including when its next fetch returns 304.
   const eligible = sql`SELECT DISTINCT ON (coalesce(nullif(i.canonical_id, ''), i.id)) ${publicColumns}, coalesce(i.group_key, nullif(i.canonical_id,''), i.id) AS effective_group, (${geoPlatformSql}) AS platform, (${geoContentKindSql}) AS content_kind FROM geo_public_items i JOIN geo_public_source_status s ON s.source_id = i.source_id ${geoTranslationJoinSql}
     WHERE ${condition} ORDER BY coalesce(nullif(i.canonical_id, ''), i.id), i.collected_at ASC, i.id DESC`;
-  const order = sort === "recommended" ? sql`i.reading_rank ASC, coalesce(i.published_at, i.collected_at) DESC, i.id DESC` : sql`coalesce(i.published_at, i.collected_at) DESC, i.id DESC`;
+  // An undated item is placed at its collection time, except one found in its source's first
+  // crawl: that is the source's backlog, of unknown age, so it goes after every dated item.
+  const sortAt = sql`coalesce(i.published_at, CASE WHEN i.collected_at > f.first_collected_at + interval '1 hour' THEN i.collected_at ELSE 'epoch'::timestamptz END)`;
+  const firstCrawl = sql`JOIN (SELECT source_id, min(collected_at) AS first_collected_at FROM geo_public_items GROUP BY source_id) f ON f.source_id = i.source_id`;
+  const order = sort === "recommended" ? sql`i.reading_rank ASC, i.sort_at DESC, i.id DESC` : sql`i.sort_at DESC, i.id DESC`;
   // Only the group's representative prefers a direct link within its reading tier.
   // Global order and cursor comparisons continue to use the representative's date and ID.
-  const groupOrder = sort === "recommended" ? sql`i.reading_rank ASC, ${geoGroupLinkPreferenceSql} ASC, coalesce(i.published_at, i.collected_at) DESC, i.id DESC` : order;
+  const groupOrder = sort === "recommended" ? sql`i.reading_rank ASC, ${geoGroupLinkPreferenceSql} ASC, i.sort_at DESC, i.id DESC` : order;
   const useful = query.quality === "useful";
   const readingRank = sort === "recommended" ? geoReadingRankSql : sql`1`;
   const folded = useful ? geoNoiseSql : sql`false`;
-  const later = sql`(coalesce(i.published_at, i.collected_at), i.id) < (${cursor?.at ?? null}::text::timestamptz, ${cursor?.id ?? null}::text)`;
+  const later = sql`(i.sort_at, i.id) < (${cursor?.at ?? null}::text::timestamptz, ${cursor?.id ?? null}::text)`;
   const afterCursor = sort === "recommended" ? sql`(i.reading_rank > ${cursor?.rank ?? null}::int OR (i.reading_rank = ${cursor?.rank ?? null}::int AND ${later}))` : later;
   const [rows, [count], sources, languages, [latest]] = await Promise.all([
     sql<PublicRow[]>`
-      WITH eligible AS (${eligible}), scored AS (SELECT i.*, ${readingRank} AS reading_rank, ${folded} AS folded FROM eligible i), ranked AS (
+      WITH eligible AS (${eligible}), scored AS (SELECT i.*, ${readingRank} AS reading_rank, ${folded} AS folded, ${sortAt} AS sort_at FROM eligible i ${firstCrawl}), ranked AS (
         SELECT i.*, count(*) OVER (PARTITION BY effective_group)::int AS group_count,
           row_number() OVER (PARTITION BY effective_group ORDER BY ${groupOrder}) AS group_rank FROM scored i WHERE NOT i.folded
       )
-      SELECT i.*, to_char(coalesce(i.published_at, i.collected_at) AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS cursor_at FROM ranked i
+      SELECT i.*, to_char(i.sort_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS cursor_at FROM ranked i
       WHERE (${groupMode === "none"} OR group_rank = 1)
         AND (${cursor?.at ?? null}::text IS NULL OR ${afterCursor})
       ORDER BY ${order} LIMIT ${limit + 1}`,
@@ -230,7 +234,7 @@ export async function loadGeoPublicItems(query: GeoPublicQuery = {}): Promise<{ 
   const last = visible.at(-1);
   const grouped = groupMode === "title" ? visible.filter(row => row.group_count > 1) : [];
   const members = grouped.length ? await sql<PublicRow[]>`
-    WITH eligible AS (${eligible}), scored AS (SELECT i.*, ${readingRank} AS reading_rank, ${folded} AS folded FROM eligible i), members AS (
+    WITH eligible AS (${eligible}), scored AS (SELECT i.*, ${readingRank} AS reading_rank, ${folded} AS folded, ${sortAt} AS sort_at FROM eligible i ${firstCrawl}), members AS (
       SELECT i.*, row_number() OVER (PARTITION BY effective_group ORDER BY ${groupOrder}) AS member_rank
       FROM scored i WHERE NOT i.folded AND effective_group = ANY(${grouped.map(row => row.effective_group)}::text[]) AND NOT (id = ANY(${grouped.map(row => row.id)}::text[]))
     ) SELECT * FROM members WHERE member_rank <= 19 ORDER BY effective_group, member_rank` : [];

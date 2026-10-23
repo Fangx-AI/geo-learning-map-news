@@ -2,7 +2,7 @@ import type { ReadingInput } from "@aihot/backend/publication/geo-quality";
 import { qualityFixturesRound2 } from "./quality-fixtures-round2.ts";
 
 // Include short excerpts resembling the collected edge cases, not judgments of their truth.
-export const qualityFixtures: Array<ReadingInput & { expected: number; name: string }> = [
+export const qualityFixtures: Array<ReadingInput & { expected: number; name: string; folded?: boolean }> = [
   ...qualityFixturesRound2,
   { name: "official ChatGPT ads expansion", title: "ChatGPT Ads expands to 26 new countries as over 100,000 advertisers have used the platform", summary: null, url: "https://openai.com/index/chatgpt-ads-expansion/", expected: 0 },
   { name: "AI discovery partnership", title: "Cloudflare and OpenAI: Making AI discovery better for everyone", summary: null, url: "https://blog.cloudflare.com/ai-discovery/", expected: 1 },
@@ -42,5 +42,13 @@ export const qualityFixtures: Array<ReadingInput & { expected: number; name: str
   { name: "Japanese weekly compilation", title: "AI Overviews 1,065人の比較実験【SEO Weekly Update】", summary: "2026 年 10 月第 2 週の注目 SEO ニュース", url: "https://publisher.example/jp-weekly", expected: 2 },
   { name: "commentary forwarding another article", title: "Google AI search updates", summary: "An excellent article from another author, make it this one from Lily.", url: "https://bsky.app/profile/research.example/post/def", contentKind: "social", expected: 1 },
   { name: "Bing official topics update", title: "New AI Visibility Insights in Bing Webmaster Tools: Intents, Topics, Citation Share, Compare", summary: "Bing Webmaster Tools adds AI visibility reporting for intents and topics.", url: "https://blogs.bing.com/webmaster/october-2026/new-ai-visibility-insights", expected: 1 },
+  // Chinese advertorials from Google News and blogs: vendor rankings, city "GEO优化" services and lead-generation pitches.
+  { name: "vendor roundup", title: "2026年GEO优化服务商盘点：聚合媒体信源型服务商如何适配AI搜索优化 - 中宏网", summary: null, url: "https://news.google.com/rss/articles/vendor-roundup", contentKind: "aggregated", expected: 2, folded: true },
+  { name: "city GEO service", title: "全链路GEO优化深度解析：上海GEO优化公司如何用自研底座重构AI时代", summary: null, url: "https://finance.sina.com.cn/geo-shanghai", expected: 2, folded: true },
+  { name: "top five evaluation", title: "AI搜索入口争夺战：2026年9月GEO五强评估与选型逻辑 - 品玩", summary: null, url: "https://news.google.com/rss/articles/five", contentKind: "aggregated", expected: 2, folded: true },
+  { name: "lead generation pitch", title: "GEO优化，让AI主动为你推送精准客源", summary: null, url: "https://zhuanlan.zhihu.com/p/1", expected: 2, folded: true },
+  { name: "number one agency press release", title: "AI Search Engineers, the No. 1 AI Search Results Engineering Agency in the USA, Documents That Professional Service Businesses Invisible in Google AI Overviews", summary: null, url: "https://www.morningstar.com/news/press-release", expected: 2, folded: true },
+  { name: "quoted user question is not a pitch", title: "自由职业者做GEO：从平台引用机制到可复现的获客方法", summary: "现在潜在客户可能先问豆包一句“XX设计师哪家靠谱”。本文讨论自由职业者如何通过GEO进入AI回答的引用源。", url: "https://blog.csdn.net/Venture_ai/article/details/166245211", expected: 1, folded: false },
+  { name: "industry assessment news", title: "中国信通院启动首批“生成式引擎优化(GEO)服务能力”评估", summary: null, url: "https://finance.sina.com.cn/caict-geo", expected: 1, folded: false },
   { name: "ChatGPT adoption report", title: "How ChatGPT adoption has expanded", summary: "A look at who uses ChatGPT across countries.", url: "https://openai.com/index/how-chatgpt-adoption-has-expanded", expected: 2 },
 ];

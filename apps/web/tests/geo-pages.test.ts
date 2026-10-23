@@ -102,11 +102,15 @@ test("mobile combined filters preserve every condition through pagination, first
     await page.getByLabel("搜索来源").fill("官方");
     await expect(page.getByRole("list", { name: "可选资讯来源" }).getByRole("button", { name: /社区资料/ })).toHaveCount(0);
     await page.getByRole("list", { name: "可选资讯来源" }).getByRole("button", { name: /^官方资料/ }).click();
+    // Each change starts from the rendered filters, so wait for the page to show the previous one.
     await expect(page).toHaveURL(/source=official-fixture/);
+    await expect(page.getByLabel("选择资讯来源")).toHaveText(/官方资料/);
     await page.getByLabel("原文语言").selectOption("zh");
     await expect(page).toHaveURL(/language=zh/);
+    await expect(page.getByLabel("原文语言")).toHaveValue("zh");
     await page.getByLabel("发布平台").selectOption("web");
     await expect(page).toHaveURL(/platform=web/);
+    await expect(page.getByLabel("发布平台")).toHaveValue("web");
     await expect(page.getByRole("group", { name: "内容类型" }).getByRole("button", { name: "文章", exact: true })).toHaveAttribute("aria-pressed", "true");
     await page.getByRole("group", { name: "发布时间" }).getByRole("button", { name: "最近 7 天", exact: true }).click();
     await expect(page).toHaveURL(/period=7d/);
@@ -175,6 +179,8 @@ test("cards show the source summary, and content-type chips separate articles, m
     await page.getByLabel("发布平台").selectOption("zhihu");
     await expect(page).toHaveURL(/platform=zhihu/);
     const index = page.locator('[data-public-item="index-result"]');
+    // The URL changes before the filtered list renders; wait for the card's return link to follow it.
+    await expect(index.locator("h2 a")).toHaveAttribute("href", /platform%3Dzhihu/);
     await expectReaderLink(index.locator("h2 a"), aggregate.id, "/all" + new URL(page.url()).search);
     await expect(index.locator("time")).toContainText("索引标注");
     await page.getByLabel("发布平台").selectOption("");
@@ -315,7 +321,8 @@ test("daily archives select actual dates, show the cap honestly and hot clusters
     await page.goto(web.origin + "/daily/archive");
     await expect(page.getByRole("heading", { name: "按日期看资讯", exact: true })).toBeVisible();
     await expect(page.getByText("当前展示前 2 条，该日共 205 条。", { exact: true })).toBeVisible();
-    await page.locator('a[href="/daily/2026-10-03"]').click();
+    await page.locator('[data-day-list] a[href="/daily/2026-10-03"]').click();
+    await expect(page.getByRole("link", { name: "后一天 →", exact: true })).toHaveAttribute("href", "/daily/2026-10-04");
     await expect(page.getByRole("heading", { name: "2026-10-03 · 1 条资料", exact: true })).toBeVisible();
     await expect(page.getByRole("link", { name: /前一日公开资料/ })).toBeVisible();
     await expect(page.locator('[data-public-item="previous-day"] time')).toHaveText(/10月3日$/);

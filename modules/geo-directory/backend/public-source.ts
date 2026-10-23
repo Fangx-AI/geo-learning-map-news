@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { normalizeUrl } from "@aihot/backend/lib/url";
 import { collapseWhitespace, stripTags } from "@aihot/backend/lib/text";
 import type { Candidate, SourceRow } from "@aihot/backend/sources/types";
-import { inferLanguage, matchGeoTerms } from "./relevance.ts";
+import { inferLanguage, matchGeoTerms, matchPaperTerms } from "./relevance.ts";
 import { sogouWeixinResultUrl } from "./public-domestic.ts";
 import { candidateImage, type PublicImageOrigin } from "./public-image.ts";
 import { makePublicSummary, summaryPlainText, type PublicSummaryOrigin } from "./public-summary.ts";
@@ -64,7 +64,7 @@ export function toPublicCandidates(candidates: Candidate[], source: PublicSource
     const summaryText = typeof raw.summaryOriginalText === "string" ? raw.summaryOriginalText : candidate.excerpt || candidate.bodyText || "";
     const suppliedSummary = summaryPlainText(summaryText);
     if (!title) continue;
-    const matchedTerms = matchGeoTerms(`${title}\n${suppliedSummary}`);
+    const matchedTerms = /^https?:\/\/(?:export\.)?arxiv\.org\//.test(url) ? matchPaperTerms(title, suppliedSummary) : matchGeoTerms(`${title}\n${suppliedSummary}`);
     if (!matchedTerms.length && source.geoFocused && /\b(?:GEO|AEO|LLMO)\b/i.test(title)) matchedTerms.push("GEO / AEO 专题来源");
     if (!matchedTerms.length) continue;
     const date = candidate.publishedAt;

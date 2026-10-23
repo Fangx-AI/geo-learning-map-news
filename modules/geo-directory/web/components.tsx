@@ -51,6 +51,14 @@ const normalized = (text: string) => text.toLocaleLowerCase().replace(/[^\p{L}\p
 export function repeatsTitle(summary: string, ...titles: string[]): boolean {
   return titles.some(title => normalized(summary) === normalized(title));
 }
+// Sentence punctuation right after a link stays in the text.
+export const EXCERPT_LINK = /(https?:\/\/[^\s<>"'）)】]*[^\s<>"'）)】.,;:!?。，；：！？])/u;
+/** A link in a source excerpt, shown by its site name so it does not break the sentence. */
+export function linkLabel(url: string): string {
+  try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return url; }
+}
+/** Feeds cut excerpts mid-sentence and mark it with an ellipsis. */
+export const isTruncatedExcerpt = (text: string) => /(?:…|\.{3}|\[(?:…|\.{3})\])\s*$/u.test(text);
 /** A social post as a headline: without the collector's excerpt label, trailing links and "via @author" credits. */
 export function postHeadline(text: string): string {
   let headline = text.replace(/^帖文节选｜/, "").trim(), previous = "";
@@ -85,7 +93,7 @@ export function ItemCard({ item, compact = false, query = "", grouped = true }: 
   const title = social ? postHeadline(content.summary ?? content.title) : withoutTitleCredit(indexedHeadline(content.title, aggregated).title);
   const outlet = item.publisherName ? null : indexedHeadline(item.title, aggregated).outlet;
   const summary = social ? null : content.summary;
-  const distinctSummary = summary && !repeatsTitle(summary, title, content.title) ? summary : null;
+  const distinctSummary = summary && !repeatsTitle(summary, title, content.title) ? summary.split(EXCERPT_LINK).map((part, index) => index % 2 ? linkLabel(part) : part).join("") : null;
   const matchesSummaryOnly = distinctSummary && !hasSearchMatch(title, query) && hasSearchMatch(distinctSummary, query);
   const alternativeTitle = content.translated ? content.originalTitle : content.translatedTitle;
   const alternativeSummary = content.translated ? content.originalSummary : content.translatedSummary;

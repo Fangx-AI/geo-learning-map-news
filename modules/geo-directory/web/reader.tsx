@@ -8,8 +8,8 @@ import { ItemTranslationToggle, useTranslatedContent } from "@aihot/web/componen
 import { PhoneBar } from "@aihot/web/components/shell/PhoneBar";
 import { historyIndex, type Screen } from "@aihot/web/components/shell/screens";
 import { markBack } from "@aihot/web/components/shell/transitions";
-import { IconChevronLeft } from "@aihot/web/components/icons";
-import { cardImageUrl, dateLabel, indexedHeadline, newsTime, postHeadline, repeatsTitle, ValueBadge, type CardItem } from "./components.tsx";
+import { IconBookmark, IconChevronLeft } from "@aihot/web/components/icons";
+import { cardImageUrl, dateLabel, EXCERPT_LINK, indexedHeadline, isTruncatedExcerpt, linkLabel, newsTime, postHeadline, repeatsTitle, ValueBadge, type CardItem } from "./components.tsx";
 import { itemChannels } from "./channels.ts";
 import { withoutTitleCredit } from "@aihot/industry/translation";
 import { geoReaderHref, safeReaderReturnTo } from "./reader-links.ts";
@@ -133,15 +133,15 @@ export default function GeoReaderPage() {
       <div className="mt-2 flex flex-wrap items-center gap-3 border-b border-line pb-3">
         {item.brief ? <div role="group" aria-label="阅读内容" className="flex rounded-control bg-bg-sunk p-1">{([['zh', '中文解读'], ['original', '原文摘要']] as const).map(([value, label]) => <button key={value} type="button" aria-pressed={showBrief === (value === 'zh')} onClick={() => setBriefLanguage(value)} className={`min-h-10 rounded-control px-3 text-[13px] ${showBrief === (value === 'zh') ? 'bg-surface font-semibold text-accent shadow-sm' : 'text-ink-3'}`}>{label}</button>)}</div> : <ItemTranslationToggle content={content} />}
         {!showBrief && <TranslationCorrectionButton item={{ ...item, translation }} />}
-        <button type="button" aria-label={starred ? "取消收藏" : "收藏这条内容"} aria-pressed={starred} className="min-h-11 rounded-control border border-line px-3 text-[12px] text-accent hover:bg-accent-soft" onClick={toggleBookmark}>{starred ? "已收藏 ✓" : "收藏 ＋"}</button>
-        {item.brief && <a href={item.url} target="_blank" rel="noopener noreferrer" className="ml-auto min-h-9 py-2 text-[12px] text-accent hover:underline">查看原文 ↗</a>}
+        <button type="button" aria-label={starred ? "取消收藏" : "收藏这条内容"} aria-pressed={starred} className="ml-auto inline-flex min-h-9 items-center gap-1 px-1 text-[12px] text-accent hover:underline" onClick={toggleBookmark}><IconBookmark size={15} filled={starred} />{starred ? "已收藏" : "收藏"}</button>
+        {item.brief && <a href={item.url} target="_blank" rel="noopener noreferrer" className="min-h-9 py-2 text-[12px] text-accent hover:underline">查看原文 ↗</a>}
       </div>
       {showBrief ? <><BriefContent brief={item.brief!} /><p className="mt-3 text-xs leading-6 text-ink-3">数据来自原文作者，本站未独立复现。</p>{task&&<section className="mt-6 rounded-card border border-line p-5"><h2 className="text-lg font-semibold text-ink">你可以先做什么</h2><p className="mt-2 text-xs text-ink-3">本站检查建议 · {task.audience} · 不代表已测得效果</p><ol className="mt-3 list-decimal space-y-3 pl-5 text-sm leading-7 text-ink-2">{task.steps.map(step=><li key={step}>{step}</li>)}</ol><p className="mt-3 text-sm leading-7 text-ink-2">验收：{task.check}</p></section>}<details className="mt-5 border-t border-line py-3"><summary className="min-h-11 cursor-pointer py-2 text-sm text-accent">术语看不懂？</summary><dl className="space-y-3 text-sm leading-7">{GEO_GLOSSARY.map(([term,meaning])=><div key={term}><dt className="font-semibold text-ink">{term}</dt><dd className="text-ink-2">{meaning}</dd></div>)}</dl></details><button aria-pressed={done} onClick={()=>setStorageError(rememberReading({id:item.id,title,updatedAt:item.brief!.updatedAt,at:Date.now(),y:window.scrollY},!done)?"":"浏览器未能保存阅读状态。")} className="min-h-11 rounded-control border border-line px-4 text-sm text-accent">{done?"已读完 ✓":"标记读完"}</button>{storageError&&<p role="alert">{storageError}</p>}</> : <section aria-labelledby="reader-summary-heading" className="pt-5">
         <h2 id="reader-summary-heading" className="mb-3 text-[12px] font-medium text-ink-4">来源摘要</h2>
-        {!summaryText ? <p className="text-[14px] leading-7 text-ink-3">来源暂未提供摘要。</p> : !item.brief && !social && repeatsTitle(summaryText, title, content.title) ? <p className="text-[14px] leading-7 text-ink-3">来源只提供了标题，完整内容请查看原文。</p> : <p data-reader-summary="" lang={item.brief ? item.language : content.language} className="whitespace-pre-line break-words text-[16px] leading-[1.95] text-ink-2 lg:text-[17px]"><LinkedText text={summaryText} /></p>}
+        {!summaryText ? <p className="text-[14px] leading-7 text-ink-3">来源暂未提供摘要。</p> : !item.brief && !social && repeatsTitle(summaryText, title, content.title) ? <p className="text-[14px] leading-7 text-ink-3">来源只提供了标题，完整内容请查看原文。</p> : <><p data-reader-summary="" lang={item.brief ? item.language : content.language} className="whitespace-pre-line break-words text-[16px] leading-[1.95] text-ink-2 lg:text-[17px]"><LinkedText text={summaryText} /></p>{isTruncatedExcerpt(summaryText) && <p data-excerpt-truncated="" className="mt-2 text-[13px] text-ink-3">来源只提供了开头这一段，后面的内容请看原文。</p>}</>}
       </section>}
       {!item.brief && <p className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2"><a href={item.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center rounded-control bg-accent px-5 text-[14px] font-semibold text-white">查看原文 ↗</a><span className="text-[12px] text-ink-3">本站只收录摘要，完整内容以原文为准。</span></p>}
-      {showImage && <img src={imageUrl} alt="" referrerPolicy="no-referrer" decoding="async" ref={image => { if (image?.complete && !image.naturalWidth) setFailedImageUrl(imageUrl); }} onError={() => setFailedImageUrl(imageUrl)} className="mt-6 max-h-[360px] w-auto max-w-full rounded-card object-contain object-left" />}
+      {showImage && <img src={imageUrl} alt="" referrerPolicy="no-referrer" decoding="async" ref={image => { if (image?.complete && !image.naturalWidth) setFailedImageUrl(imageUrl); }} onError={() => setFailedImageUrl(imageUrl)} className="mt-6 max-h-[220px] w-auto max-w-full rounded-card object-contain object-left" />}
       {related.length > 0 && <section aria-labelledby="reader-related" className="mt-10 border-t border-line pt-5">
         <NextNews item={related[0]!} />
         <h2 id="reader-related" className="mt-6 text-[16px] font-semibold text-ink">{channel ? `${channel.name} 最新资讯` : "最新资讯"}</h2>
@@ -177,9 +177,8 @@ function BriefContent({ brief }: { brief: ReaderBrief }) {
   </div>;
 }
 
-// Sentence punctuation right after a link stays in the text.
 function LinkedText({ text }: { text: string }) {
-  return <>{text.split(/(https?:\/\/[^\s<>"'）)】]*[^\s<>"'）)】.,;:!?。，；：！？])/u).map((part, index) => index % 2 ? <a key={index} href={part} target="_blank" rel="noopener noreferrer nofollow" className="break-all text-accent hover:underline">{part}</a> : part)}</>;
+  return <>{text.split(EXCERPT_LINK).map((part, index) => index % 2 ? <a key={index} href={part} title={part} target="_blank" rel="noopener noreferrer nofollow" className="text-accent hover:underline">{linkLabel(part)} ↗</a> : part)}</>;
 }
 
 const relatedTitle = (item: CardItem, title: string) => item.contentKind === "social" ? postHeadline(title) : withoutTitleCredit(indexedHeadline(title, item.contentKind === "aggregated").title);

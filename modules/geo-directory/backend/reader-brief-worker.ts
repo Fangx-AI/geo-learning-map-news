@@ -42,7 +42,9 @@ interface Candidate {
 }
 const HOUR = 60 * 60 * 1000;
 const REFRESH_MS = 7 * 24 * HOUR;
-const fetchArticle: ReaderArticleFetch = url => guardedFetch(url, { timeoutMs: 20_000, maxBytes: 6 * 1024 * 1024, headers: { accept: "text/html,application/xhtml+xml" } });
+// The default zh-CN preference makes sites such as developers.google.com redirect to a
+// ?hl=zh-cn translation, which is a different page from the reported article.
+const fetchArticle: ReaderArticleFetch = url => guardedFetch(url, { timeoutMs: 20_000, maxBytes: 6 * 1024 * 1024, headers: { accept: "text/html,application/xhtml+xml", "accept-language": "en" } });
 const hash = (text: string) => createHash("sha256").update(text).digest("hex");
 const primarySourceIds = sources.filter(source => source.evidence === "official" || source.evidence === "research").flatMap(source => source.sourceId ? [source.sourceId] : []);
 function rejectAbstractOnly(url: string): void {
@@ -54,6 +56,21 @@ export function readerRetryAfter(value: string | null, now = Date.now()): number
   if (!value) return;
   const seconds = /^\d+(?:\.\d+)?$/.test(value.trim()) ? Number(value) * 1000 : Date.parse(value) - now;
   return Number.isFinite(seconds) && seconds > 0 ? seconds : undefined;
+}
+
+function fragmentSection($: cheerio.CheerioAPI, id: string): string {
+  const target = $("[id]").filter((_, element) => $(element).attr("id") === id).first();
+  if (!target.length) throw new ReaderArticleError("no-article-section");
+  const level = /^h([1-6])$/i.exec(target.prop("tagName") ?? "")?.[1];
+  if (!level) return $.html(target);
+  // A heading's section runs until the next heading of the same or a higher level.
+  const parts = [$.html(target)];
+  for (let next = target.next(); next.length; next = next.next()) {
+    const nextLevel = /^h([1-6])$/i.exec(next.prop("tagName") ?? "")?.[1];
+    if (nextLevel && Number(nextLevel) <= Number(level)) break;
+    parts.push($.html(next));
+  }
+  return parts.join("");
 }
 
 /** Only the same public HTML article may become model input; never a login/challenge teaser. */
@@ -72,7 +89,9 @@ export function extractReaderArticle(url: string, response: GuardedResponse): Ar
     || /(?:sign|log) in to (?:continue|read)|subscribe to (?:continue|read)|unlock (?:this|the full) article|订阅后(?:阅读|查看)|登录后(?:阅读|查看)|请完成验证/i.test(visible)
     || /"isAccessibleForFree"\s*:\s*(?:false|"false")/i.test(html)
     || $("form input[type=password]").length) throw new ReaderArticleError("restricted-content");
-  const article = readable(html, response.url);
+  // A fragment names one entry of a longer page, such as one month of a changelog.
+  const fragment = decodeURIComponent(new URL(url).hash.slice(1));
+  const article = fragment ? { html: fragmentSection($, fragment) } : readable(html, response.url);
   if (!article) throw new ReaderArticleError("no-article-body");
   // Insert paragraph boundaries without dropping any text from the extracted body, including tables.
   const body = cheerio.load(article.html);

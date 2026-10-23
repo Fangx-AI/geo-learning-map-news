@@ -242,3 +242,12 @@ test("validation lists every failing claim so one repair can fix them all", () =
   changed.geoValue[0].text = "启示：至少应比较30个查询的AI摘要点击情况。";
   assert.throws(() => validateReaderBriefDraft(changed, input, 1), (error: unknown) => invalid(error) && /Claim 1:.*Claim 3:/.test((error as Error).message));
 });
+
+test("a cut-off sentence or unclosed quote is not a publishable claim", async () => {
+  const response = (value: unknown) => async (endpoint: string) => endpoint === "/apply-template" ? { prompt: "full source" }
+    : endpoint === "/tokenize" ? { tokens: [1, 2, 3] } : { choices: [{ finish_reason: "stop", message: { content: JSON.stringify(value) } }] };
+  const cut = draft(); cut.findings.push(value("这项研究还在“传统结果点击", ["p1"]));
+  assert.deepEqual((await requestReaderBrief(input, response(cut))).findings, draft().findings);
+  const conclusion = draft(); conclusion.conclusion.text = "这项美国用户观察研究发现，有AI摘要时传统结果的点击比例较低";
+  assert.throws(() => validateReaderBriefDraft(conclusion, input, 1), invalid);
+});

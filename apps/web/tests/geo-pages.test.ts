@@ -102,11 +102,15 @@ test("mobile combined filters preserve every condition through pagination, first
     await page.getByLabel("搜索来源").fill("官方");
     await expect(page.getByRole("list", { name: "可选资讯来源" }).getByRole("button", { name: /社区资料/ })).toHaveCount(0);
     await page.getByRole("list", { name: "可选资讯来源" }).getByRole("button", { name: /^官方资料/ }).click();
+    // Each change starts from the rendered filters, so wait for the page to show the previous one.
     await expect(page).toHaveURL(/source=official-fixture/);
+    await expect(page.getByLabel("选择资讯来源")).toHaveText(/官方资料/);
     await page.getByLabel("原文语言").selectOption("zh");
     await expect(page).toHaveURL(/language=zh/);
+    await expect(page.getByLabel("原文语言")).toHaveValue("zh");
     await page.getByLabel("发布平台").selectOption("web");
     await expect(page).toHaveURL(/platform=web/);
+    await expect(page.getByLabel("发布平台")).toHaveValue("web");
     await expect(page.getByRole("group", { name: "内容类型" }).getByRole("button", { name: "文章", exact: true })).toHaveAttribute("aria-pressed", "true");
     await page.getByRole("group", { name: "发布时间" }).getByRole("button", { name: "最近 7 天", exact: true }).click();
     await expect(page).toHaveURL(/period=7d/);

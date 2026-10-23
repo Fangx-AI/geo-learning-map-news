@@ -11,6 +11,7 @@ import { markBack } from "@aihot/web/components/shell/transitions";
 import { IconChevronLeft } from "@aihot/web/components/icons";
 import { cardImageUrl, dateLabel, indexedHeadline, newsTime, postHeadline, repeatsTitle, ValueBadge, type CardItem } from "./components.tsx";
 import { itemChannels } from "./channels.ts";
+import { withoutTitleCredit } from "@aihot/industry/translation";
 import { geoReaderHref, safeReaderReturnTo } from "./reader-links.ts";
 import { useLiveTranslation } from "./translation-updates.ts";
 import { TranslationCorrectionButton } from "./translation-correction.tsx";
@@ -38,8 +39,11 @@ export async function loader({ request, params }: { request: Request; params: { 
   const channel = itemChannels(result.item.title, result.item.translation?.title)[0] ?? null;
   const alias = channel?.pattern.exec(`${result.item.title}\n${result.item.translation?.title ?? ""}`)?.[0];
   const latest = channel && alias ? await loadOr404<{ items: CardItem[] }>(`/api/geo/public-items?${new URLSearchParams({ q: alias, sort: "latest", quality: "useful", kind: "direct", limit: "12" })}`, { signal: request.signal }).catch(() => null) : null;
-  const related = (latest?.items ?? []).filter(candidate => candidate.id !== result.item.id && itemChannels(candidate.title, candidate.translation?.title).some(match => match.slug === channel!.slug)).slice(0, 5);
-  return { ...result, suggestions, related, channel: channel && { slug: channel.slug, name: channel.name }, requestedId: params.id.toLowerCase() };
+  const sameChannel = (latest?.items ?? []).filter(candidate => candidate.id !== result.item.id && itemChannels(candidate.title, candidate.translation?.title).some(match => match.slug === channel!.slug)).slice(0, 5);
+  // No platform, or nothing else on it yet: the site's latest useful news keeps the reader going.
+  const fallback = sameChannel.length ? null : await loadOr404<{ items: CardItem[] }>(`/api/geo/public-items?${new URLSearchParams({ sort: "latest", quality: "useful", kind: "direct", group: "title", limit: "8" })}`, { signal: request.signal }).catch(() => null);
+  const related = sameChannel.length ? sameChannel : (fallback?.items ?? []).filter(candidate => candidate.id !== result.item.id).slice(0, 5);
+  return { ...result, suggestions, related, channel: sameChannel.length && channel ? { slug: channel.slug, name: channel.name } : null, requestedId: params.id.toLowerCase() };
 }
 
 export function meta({ loaderData }: { loaderData?: { item: ReaderItem } }) {
@@ -91,7 +95,7 @@ export default function GeoReaderPage() {
   useEffect(() => setBriefLanguage(null), [preference, item.id]);
   const showBrief = !!item.brief && (briefLanguage ?? preference) === "zh";
   const social = item.contentKind === "social";
-  const title = item.brief ? decodeHTML(showBrief ? translation?.title ?? item.title : item.title) : social ? postHeadline(content.title) : indexedHeadline(content.title, item.contentKind === "aggregated").title;
+  const title = item.brief ? decodeHTML(showBrief ? translation?.title ?? item.title : item.title) : social ? postHeadline(content.title) : withoutTitleCredit(indexedHeadline(content.title, item.contentKind === "aggregated").title);
   const summaryText = (item.brief ? content.originalSummary : content.summary)?.trim();
   const outlet = item.publisherName ?? indexedHeadline(item.title, item.contentKind === "aggregated").outlet;
   const titleLanguage = item.brief ? showBrief && translation ? "zh" : item.language : content.language;
@@ -139,12 +143,13 @@ export default function GeoReaderPage() {
       {!item.brief && <p className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2"><a href={item.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center rounded-control bg-accent px-5 text-[14px] font-semibold text-white">查看原文 ↗</a><span className="text-[12px] text-ink-3">本站只收录摘要，完整内容以原文为准。</span></p>}
       {showImage && <img src={imageUrl} alt="" referrerPolicy="no-referrer" decoding="async" ref={image => { if (image?.complete && !image.naturalWidth) setFailedImageUrl(imageUrl); }} onError={() => setFailedImageUrl(imageUrl)} className="mt-6 max-h-[360px] w-auto max-w-full rounded-card object-contain object-left" />}
       {related.length > 0 && <section aria-labelledby="reader-related" className="mt-10 border-t border-line pt-5">
-        <h2 id="reader-related" className="text-[16px] font-semibold text-ink">{channel!.name} 最新资讯</h2>
-        <ul className="mt-2 divide-y divide-line">{related.map(candidate => <RelatedNews key={candidate.id} item={candidate} />)}</ul>
-        <Link to={`/topics/${channel!.slug}`} className="mt-1 inline-flex min-h-11 items-center text-[13px] font-medium text-accent hover:underline">{channel!.name} 的全部资讯 →</Link>
+        <NextNews item={related[0]!} />
+        <h2 id="reader-related" className="mt-6 text-[16px] font-semibold text-ink">{channel ? `${channel.name} 最新资讯` : "最新资讯"}</h2>
+        <ul className="mt-2 divide-y divide-line">{related.slice(1).map(candidate => <RelatedNews key={candidate.id} item={candidate} />)}</ul>
+        <Link to={channel ? `/topics/${channel.slug}` : "/all"} className="mt-1 inline-flex min-h-11 items-center text-[13px] font-medium text-accent hover:underline">{channel ? `${channel.name} 的全部资讯 →` : "全部资讯 →"}</Link>
       </section>}
-      {!item.brief && suggestions.length > 0 && <aside className="mt-8 border-t border-line pt-5 text-[14px] leading-7 text-ink-2"><h2 className="text-[16px] font-semibold text-ink">相关深度解读</h2><ul className="mt-2 divide-y divide-line">{suggestions.map(candidate => <ReaderSuggestion key={candidate.id} item={candidate} />)}</ul><Link to="/library" className="mt-1 inline-flex min-h-11 items-center text-[13px] font-medium text-accent hover:underline">全部深度解读 →</Link></aside>}
-      {showBrief && <footer className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4"><Link to="/library" className="inline-flex min-h-11 items-center text-[13px] text-accent hover:underline">更多深度解读 →</Link></footer>}
+      {!item.brief && suggestions.length > 0 && <aside className="mt-8 border-t border-line pt-5 text-[14px] leading-7 text-ink-2"><h2 className="text-[16px] font-semibold text-ink">相关深度解读</h2><ul className="mt-2 divide-y divide-line">{suggestions.map(candidate => <ReaderSuggestion key={candidate.id} item={candidate} />)}</ul><Link to="/library" className="mt-1 inline-flex min-h-11 items-center text-[13px] font-medium text-accent hover:underline">全部研究与解读 →</Link></aside>}
+      {showBrief && <footer className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4"><Link to="/library" className="inline-flex min-h-11 items-center text-[13px] text-accent hover:underline">更多研究与解读 →</Link></footer>}
     </article>
   </div>;
 }
@@ -177,10 +182,21 @@ function LinkedText({ text }: { text: string }) {
   return <>{text.split(/(https?:\/\/[^\s<>"'）)】]*[^\s<>"'）)】.,;:!?。，；：！？])/u).map((part, index) => index % 2 ? <a key={index} href={part} target="_blank" rel="noopener noreferrer nofollow" className="break-all text-accent hover:underline">{part}</a> : part)}</>;
 }
 
+const relatedTitle = (item: CardItem, title: string) => item.contentKind === "social" ? postHeadline(title) : withoutTitleCredit(indexedHeadline(title, item.contentKind === "aggregated").title);
+function NextNews({ item }: { item: CardItem }) {
+  const location = useLocation();
+  const content = useTranslatedContent(item);
+  return <Link data-reader-next="" to={geoReaderHref(item.id, new URLSearchParams(location.search).get("from") ?? "")} className="group block rounded-card border border-line bg-surface p-4 hover:border-accent">
+    <span className="text-[12px] font-medium text-ink-3">接着看</span>
+    <span lang={content.language} className="mt-1 block text-[16px] font-semibold leading-relaxed text-ink group-hover:text-accent">{relatedTitle(item, content.title)} →</span>
+    <span className="mt-1 block text-[12px] text-ink-3" suppressHydrationWarning>{item.sourceName} · {newsTime(item.publishedAt)}</span>
+  </Link>;
+}
+
 function RelatedNews({ item }: { item: CardItem }) {
   const location = useLocation();
   const content = useTranslatedContent(item);
-  const title = item.contentKind === "social" ? postHeadline(content.title) : content.title;
+  const title = relatedTitle(item, content.title);
   return <li className="py-3"><Link to={geoReaderHref(item.id, new URLSearchParams(location.search).get("from") ?? "")} lang={content.language} className="font-medium leading-relaxed text-ink hover:text-accent hover:underline">{title}</Link><p className="mt-1 text-[12px] text-ink-3" suppressHydrationWarning>{item.sourceName} · {newsTime(item.publishedAt)}</p></li>;
 }
 

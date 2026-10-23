@@ -1,5 +1,5 @@
 /** Increment when cached Chinese needs a source-aware terminology repair. */
-export const GEO_TRANSLATION_VERSION = "bing-geo-v4";
+export const GEO_TRANSLATION_VERSION = "bing-geo-v5";
 
 export interface GeoTranslationText { title: string; summary: string | null }
 export interface GeoTranslationTerm {
@@ -87,9 +87,18 @@ export function geoTranslationPrefix(text: string): string {
   return /^(?:帖文节选[｜|](?:(?:@[A-Za-z0-9_.-]{1,100}|r\/[A-Za-z0-9_]{1,80})[：:]\s*)?)/u.exec(text)?.[0] ?? "";
 }
 
-export type GeoTranslationIssue = "untranslated-prefix" | "invented-year";
+/** A trailing author credit ("… via @sejournal, @author") is byline, not headline; translating it mangles the sentence. */
+export const GEO_TITLE_CREDIT = /\s*[-–—]?\s*(?:via|通过|经由|經由)\s*@[\w.-]+(?:\s*(?:,|，|、|and|和|及)\s*@[\w.-]+)*[\s.。]*$/iu;
+export function withoutTitleCredit(title: string): string {
+  const stripped = title.replace(GEO_TITLE_CREDIT, "").trim();
+  return stripped || title;
+}
+
+export type GeoTranslationIssue = "untranslated-prefix" | "invented-year" | "translated-credit";
 export function geoTranslationIssues(input: GeoTranslationText, output: GeoTranslationText): GeoTranslationIssue[] {
   const issues = new Set<GeoTranslationIssue>();
+  const credit = GEO_TITLE_CREDIT.exec(input.title)?.[0];
+  if (credit && withoutTitleCredit(input.title) !== input.title && credit.match(/@[\w.-]+/g)!.some(handle => output.title.slice(geoTranslationPrefix(output.title).length).includes(handle))) issues.add("translated-credit");
   for (const field of ["title", "summary"] as const) {
     const source = input[field], translated = output[field];
     if (!source || !translated) continue;

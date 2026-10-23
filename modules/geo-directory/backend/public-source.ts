@@ -64,7 +64,8 @@ export function toPublicCandidates(candidates: Candidate[], source: PublicSource
     const summaryText = typeof raw.summaryOriginalText === "string" ? raw.summaryOriginalText : candidate.excerpt || candidate.bodyText || "";
     const suppliedSummary = summaryPlainText(summaryText);
     if (!title) continue;
-    const matchedTerms = /^https?:\/\/(?:export\.)?arxiv\.org\//.test(url) ? matchPaperTerms(title, suppliedSummary) : matchGeoTerms(`${title}\n${suppliedSummary}`);
+    // A GEO-focused paper feed is already a GEO search; the title rule only screens general retrieval feeds.
+    const matchedTerms = /^https?:\/\/(?:export\.)?arxiv\.org\//.test(url) && !source.geoFocused ? matchPaperTerms(title, suppliedSummary) : matchGeoTerms(`${title}\n${suppliedSummary}`);
     if (!matchedTerms.length && source.geoFocused && /\b(?:GEO|AEO|LLMO)\b/i.test(title)) matchedTerms.push("GEO / AEO 专题来源");
     if (!matchedTerms.length) continue;
     const date = candidate.publishedAt;

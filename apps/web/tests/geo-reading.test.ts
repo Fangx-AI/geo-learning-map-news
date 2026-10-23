@@ -199,6 +199,9 @@ test("direct reader loads without JavaScript, states missing excerpts honestly a
     await expect(page.getByText("来源暂未提供摘要。", { exact: true })).toBeVisible();
     await expect(page.locator("[data-reader-summary]")).toHaveCount(0);
     await expect(page.getByRole("link", { name: "返回列表", exact: true })).toHaveAttribute("href", "/all");
+    // No platform in the headline: the site's latest news keeps the reader going.
+    await expect(page.locator("[data-reader-next]")).toHaveAttribute("href", /^\/read\//);
+    await expect(page.getByRole("link", { name: "全部资讯 →", exact: true })).toHaveAttribute("href", "/all");
     for (const id of ["d".repeat(64), "invalid-id"]) {
       const missing = await page.goto(web.origin + `/read/${id}?from=${encodeURIComponent("/all?source=reader-fixture&cursor=reader-next")}`);
       assert.equal(missing!.status(), 404);

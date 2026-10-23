@@ -1,7 +1,7 @@
 import { setTimeout as delay } from "node:timers/promises";
 import { decodeHTML } from "entities";
 import { guardedFetch, type GuardedFetchOptions, type GuardedResponse } from "@aihot/backend/lib/http-fetch";
-import { GEO_TRANSLATION_VERSION, geoTranslationIssues, geoTranslationPrefix, normalizeGeoTranslation } from "@aihot/industry/translation";
+import { GEO_TRANSLATION_VERSION, geoTranslationIssues, geoTranslationPrefix, normalizeGeoTranslation, withoutTitleCredit } from "@aihot/industry/translation";
 import type { PublicTranslator, TranslationInput, TranslationOutput } from "./translate-public.ts";
 
 const origin = "https://www.bing.com";
@@ -167,7 +167,7 @@ export class BingPublicTranslator {
   private async item(input: TranslationInput): Promise<TranslationOutput> {
     if (this.signal.aborted) throw new BingTranslationError();
     if (typeof input.title !== "string" || !input.title.trim() || input.title.length > 20_000 || (input.summary !== null && (typeof input.summary !== "string" || input.summary.length > 20_000))) throw new BingTranslationError("invalid");
-    const title = await this.text(input.title);
+    const title = await this.text(withoutTitleCredit(input.title));
     const summary = input.summary === null ? null : input.summary === input.title ? title : await this.text(input.summary);
     const translated = normalizeGeoTranslation(input, { title, summary, provider: GEO_TRANSLATION_VERSION });
     // A bad sentence is local to this item, not a service outage or an IP rate limit.

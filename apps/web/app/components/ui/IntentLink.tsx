@@ -3,7 +3,7 @@ import { Link, UNSAFE_DataRouterContext, UNSAFE_FrameworkContext, useHref, useLo
 import { hasFreshPage } from '../../lib/page-reuse';
 
 /** Hover, keyboard focus and a stationary touch prefetch; scrolling over a card does not. */
-export function IntentLink({ onFocus, onBlur, onMouseEnter, onMouseLeave, onTouchStart, onTouchMove, onTouchEnd, onTouchCancel, ...props }: Omit<LinkProps, "prefetch">) {
+export function IntentLink({ onClick, onFocus, onBlur, onMouseEnter, onMouseLeave, onTouchStart, onTouchMove, onTouchEnd, onTouchCancel, ...props }: Omit<LinkProps, "prefetch">) {
   const [ready, setReady] = useState(false);
   const href = useHref(props.to);
   const location = useLocation();
@@ -33,7 +33,9 @@ export function IntentLink({ onFocus, onBlur, onMouseEnter, onMouseLeave, onTouc
   };
   const cancel = () => { clear(); setReady(false); };
   useEffect(() => { cancel(); return clear; }, [props.to]);
+  // A click navigates; a hover timer firing while that navigation loads would prefetch the page being opened.
   return <><Link {...props} prefetch={shouldPrefetch ? "render" : "none"}
+    onClick={(e) => { onClick?.(e); cancel(); }}
     onFocus={(e) => { onFocus?.(e); if (!e.defaultPrevented) start(); }}
     onBlur={(e) => { onBlur?.(e); cancel(); }}
     onMouseEnter={(e) => { onMouseEnter?.(e); if (!e.defaultPrevented) start(); }}

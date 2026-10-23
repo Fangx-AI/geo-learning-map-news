@@ -60,3 +60,10 @@ test("a retrieval paper needs the AI and search pairing in its title, not only i
   assert.equal(toPublicCandidates([{ title: "Designing Agent-Ready Websites", excerpt: "A framework for generative engine optimization.", url: "https://arxiv.org/abs/2610.00001" }], source).length, 1);
   assert.equal(toPublicCandidates([{ title: "Our ranking study", excerpt: abstract, url: "https://research.example/ranking" }], { ...source, id: "rss-research" }).length, 1);
 });
+
+test("a GEO-focused paper feed keeps on-topic papers whose titles do not name AI search", () => {
+  const source: PublicSource = { id: "rss-arxiv-geo", name: "arXiv · GEO 原始论文", kind: "rss", config: {}, tier: "T1", participation_mode: "editorial", first_party: true, interval_minutes: 1440, enabled: true, cursor: null, fail_count: 0, languageHint: "en", sourceUrl: "https://export.arxiv.org/api/query", geoFocused: true };
+  const candidate = { title: "Scoring Without the Engine: A Content Score for Generative Engines", excerpt: "We use large language models to estimate how often content is cited by generative engines.", url: "https://arxiv.org/abs/2610.00002" };
+  assert.equal(toPublicCandidates([candidate], source).length, 1);
+  assert.equal(toPublicCandidates([candidate], { ...source, id: "rss-arxiv-ir", name: "arXiv · Information Retrieval", geoFocused: false }).length, 0);
+});

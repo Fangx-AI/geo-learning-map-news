@@ -1,16 +1,16 @@
 import { Link, useLocation, useSearchParams } from "react-router";
 import { useState } from "react";
 import { toggleStar, useIsStarred, type ChineseTranslation } from "@aihot/web/lib/local-state";
-import { ContentLanguageToggle, ItemTranslationToggle, useTranslatedContent } from "@aihot/web/components/translation";
+import { ContentLanguageToggle, useTranslatedContent } from "@aihot/web/components/translation";
 import { PhoneBar } from "@aihot/web/components/shell/PhoneBar";
 import { languageNames } from "../data.ts";
 import { highlightedParts, hasSearchMatch, searchExcerpt, type SearchTerms } from "./search-text.ts";
 import type { ReactNode } from "react";
 import { useLiveTranslation } from "./translation-updates.ts";
-import { TranslationCorrectionButton } from "./translation-correction.tsx";
 import { geoReaderHref } from "./reader-links.ts";
 import { itemChannels } from "./channels.ts";
 import { IconBookmark } from "@aihot/web/components/icons";
+import { GEO_TITLE_CREDIT, withoutTitleCredit } from "@aihot/industry/translation";
 
 export interface CardItem {
   id: string; title: string; url: string; summary: string | null;
@@ -56,7 +56,7 @@ export function postHeadline(text: string): string {
   let headline = text.replace(/^帖文节选｜/, "").trim(), previous = "";
   while (headline !== previous) {
     previous = headline;
-    headline = headline.replace(/\s*\[contains quote post or other embedded content\]$/i, "").replace(/\s*https?:\/\/\S*$/u, "").replace(/\s*[-–—]?\s*(?:via|通过|经由|經由)\s*@[\w.-]+(?:\s*(?:,|，|、|and|和|及)\s*@[\w.-]+)*[\s.。]*$/iu, "").trim();
+    headline = headline.replace(/\s*\[contains quote post or other embedded content\]$/i, "").replace(/\s*https?:\/\/\S*$/u, "").replace(GEO_TITLE_CREDIT, "").trim();
   }
   return headline || text;
 }
@@ -82,7 +82,7 @@ export function ItemCard({ item, compact = false, query = "", grouped = true }: 
   const content = useTranslatedContent({ ...item, translation });
   const social = item.contentKind === "social", aggregated = item.contentKind === "aggregated";
   // Social posts have no headline; the collector titles them with an excerpt.
-  const title = social ? postHeadline(content.summary ?? content.title) : indexedHeadline(content.title, aggregated).title;
+  const title = social ? postHeadline(content.summary ?? content.title) : withoutTitleCredit(indexedHeadline(content.title, aggregated).title);
   const outlet = item.publisherName ? null : indexedHeadline(item.title, aggregated).outlet;
   const summary = social ? null : content.summary;
   const distinctSummary = summary && !repeatsTitle(summary, title, content.title) ? summary : null;
@@ -98,7 +98,7 @@ export function ItemCard({ item, compact = false, query = "", grouped = true }: 
   groupQuery.set("group", "none");
   if (siblings) groupQuery.set("groupKey", siblings.key);
   const channels = itemChannels(item.title, item.translation?.title);
-  const original = publicUrl(item.url), publisherUrl = publicUrl(item.publisherUrl);
+  const publisherUrl = publicUrl(item.publisherUrl);
   const readerHref = geoReaderHref(item.id, location.pathname + location.search);
   const showLanguage = !content.translated && !/^zh/.test(item.language) && item.language !== "und";
   return <li data-public-item={item.id} data-card-key={item.id} className={compact ? "px-4 py-3 lg:px-5" : "px-5 py-4 lg:px-6"}>
@@ -122,9 +122,6 @@ export function ItemCard({ item, compact = false, query = "", grouped = true }: 
       <Link to={`/all?source=${encodeURIComponent(item.sourceId)}`} className="max-w-[40%] truncate hover:text-accent hover:underline sm:max-w-[60%]" title={`只看 ${item.sourceName}`}><HighlightedText text={item.sourceName} query={query} /></Link>
       <time dateTime={item.publishedAt ?? undefined} title={!item.publishedAt ? "来源未提供发布日期" : aggregated ? "索引标注时间（北京时间）" : "原文发布时间（北京时间）"} suppressHydrationWarning>{(aggregated && item.publishedAt ? "索引标注 " : "") + newsTime(item.publishedAt)}</time>
       {showLanguage && <span className="hidden sm:inline">{languageNames[item.language] ?? item.language}</span>}
-      {original && <a href={original} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">原文 ↗</a>}
-      <ItemTranslationToggle content={content} />
-      <TranslationCorrectionButton item={{ ...item, translation }} />
       <button type="button" aria-label={starred ? "取消收藏" : "收藏这条内容"} aria-pressed={starred} className={`ml-auto inline-flex min-h-9 min-w-9 items-center justify-center ${starred ? "text-accent" : "text-ink-4 hover:text-accent"}`} onClick={() => toggleStar({ id: item.id, title: item.title, summary: item.summary, language: item.language, ...(content.translation ? { translation: content.translation } : {}), sourceName: item.sourceName, publishedAt: item.publishedAt, url: item.url, score: null, aiSelected: false })}><IconBookmark size={16} filled={starred} /></button>
     </div>
     {item.publisherName && <p className="mt-1 text-[12px] text-ink-3">{aggregated ? "索引标注发布者：" : "发布者："}{publisherUrl ? <a href={publisherUrl} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">{item.publisherName}<span className="sr-only">（发布者网站）</span> ↗</a> : item.publisherName}</p>}

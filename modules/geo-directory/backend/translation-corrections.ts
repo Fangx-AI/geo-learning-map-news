@@ -114,7 +114,7 @@ export async function reviewTranslationCorrection(id:number,action:"apply"|"reje
       if(stale||!row.enabled) throw new CorrectionRejected(409,"source_changed","原文已变化或来源已停用，不能应用旧建议。");
       const original={title:row.title_original,summary:row.summary_original};
       const translated={title:row.title_zh,summary:row.summary_zh};
-      if(geoTranslationIssues(original,translated).length) throw new CorrectionRejected(422,"invalid_translation","修订仍有已知漏译或年份问题，请重新提交。");
+      if(geoTranslationIssues(original,translated).length) throw new CorrectionRejected(422,"invalid_translation","修订仍有已知漏译、年份或作者署名问题，请重新提交。");
       for(const field of ["title","summary"] as const) {
         if(JSON.stringify(translationPercentages(decodeHTML(original[field]??"")))!==JSON.stringify(translationPercentages(translated[field]??""))) throw new CorrectionRejected(422,"invalid_translation","修订中的百分比与原文不一致，不能应用。");
       }

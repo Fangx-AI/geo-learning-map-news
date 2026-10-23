@@ -14,6 +14,7 @@ const chineseSecond = geoItem({ id: "zh-second", title: "citation & GEO 中文�
 const social = geoItem({ id: "social-post", title: "AI search citation field notes", sourceId: "social-fixture", sourceName: "研究者原帖", sourceUrl: "https://x.com/researcher", url: "https://x.com/researcher/status/123456", platform: "x", contentKind: "social" });
 const aggregate = geoItem({ id: "index-result", title: "GEO 方法研究 - 知乎专栏", sourceId: "index-fixture", sourceName: "知乎公开索引", sourceUrl: "https://news.google.com/", url: "https://news.google.com/rss/articles/fixture", language: "zh", platform: "zhihu", contentKind: "aggregated" });
 const googleSourceItem = geoItem({ id: "google-source-item", title: "Google AI search guidance", sourceId: "rss-google-search-central", sourceName: "Google Search Central", sourceUrl: "https://developers.google.com/search/blog", url: "https://developers.google.com/search/blog/2026/10/fixture", platform: "web", contentKind: "direct" });
+const paper = { ...geoItem({ id: "9".repeat(64), title: "Citation study of generative engines via @sejournal, @author", url: "https://arxiv.org/abs/2610.00001", publishedAt: "2026-10-02T00:00:00.000Z", platform: "web", contentKind: "direct" }), readingPriority: { tier: "priority" as const, label: "优先阅读", badge: "论文", folded: false, reasons: [], limitations: [], policyVersion: 5 } };
 const publicItems = [original, chineseFirst, chineseSecond, undated, social, aggregate, googleSourceItem];
 const sources = [...new Set(publicItems.map(item => item.sourceId))].map(id => {
   const items = publicItems.filter(item => item.sourceId === id);
@@ -41,6 +42,7 @@ const api = createServer((req, res) => {
     const query = url.searchParams;
     const platform = query.get("platform"), kind = query.get("kind"), period = query.get("period"), cursor = query.get("cursor");
     if (query.get("q") === "invalid-fixture" || platform && !["web", "x", "reddit", "bluesky", "mastodon", "youtube", "zhihu", "xiaohongshu", "wechat"].includes(platform) || kind && !["direct", "social", "aggregated"].includes(kind) || period && !["24h", "7d", "30d"].includes(period) || cursor && !/^page-\d+$/.test(cursor)) { res.statusCode = 400; return res.end('{}'); }
+    if (query.get("sort") === "recommended" && period === "30d") return res.end(JSON.stringify(geoFeed({ items: [paper, original], total: 2, sources })));
     const hours = period === "24h" ? 24 : period === "7d" ? 168 : period === "30d" ? 720 : null;
     const filtered = publicItems.filter(item => (!query.get("source") || item.sourceId === query.get("source"))
       && (!query.get("language") || item.language === query.get("language")) && (!platform || item.platform === platform) && (!kind || item.contentKind === kind)
@@ -171,7 +173,8 @@ test("cards show the source summary, and content-type chips separate articles, m
     await expect(card.getByText("公开摘要 & 引用研究", { exact: true })).toBeVisible();
     await expectReaderLink(card.locator("h2 a"), original.id, "/all");
     await expect(card.getByRole("link", { name: "官方资料", exact: true })).toHaveAttribute("href", "/all?source=official-fixture");
-    await expect(card.getByRole("link", { name: "原文 ↗", exact: true })).toHaveAttribute("href", original.url);
+    // Cards keep only source, time and bookmark; the original link, language switch and correction live in the reader.
+    await expect(card.getByRole("link", { name: "原文 ↗", exact: true })).toHaveCount(0);
     const kinds = page.getByRole("group", { name: "内容类型" });
     await kinds.getByRole("button", { name: "媒体报道", exact: true }).click();
     await expect(page.locator('[data-public-item="index-result"]')).toBeVisible();
@@ -300,6 +303,21 @@ test("daily redirects to the same today selection, and legacy library filters su
  await expect(page.locator('[data-digest-item]')).toHaveCount(1);
  } finally {await context.close();}
 });
+test("research library lists the month's studies apart from readings, and daily keeps undated items in their own group", async () => {
+  const context = await browser.newContext(); const page = await context.newPage();
+  try {
+    await page.goto(web.origin + "/library");
+    await expect(page.getByRole("heading", { name: "研究与解读", level: 1, exact: true })).toBeVisible();
+    const research = page.getByRole("region", { name: /近 30 天研究与数据/ });
+    await expect(research.locator(`[data-public-item="${paper.id}"] h2`)).toHaveText("Citation study of generative engines");
+    await expect(research.locator(`[data-public-item="${original.id}"]`)).toHaveCount(0);
+    await page.goto(web.origin + "/daily/2026-10-04");
+    const undatedGroup = page.getByRole("region", { name: /日期待确认/ });
+    await expect(undatedGroup.locator('[data-public-item="undated"]')).toBeVisible();
+    await expect(undatedGroup.locator(`[data-public-item="${original.id}"]`)).toHaveCount(0);
+  } finally { await context.close(); }
+});
+
 test("library search, work filters and follow choices survive reload", async () => {
  const context=await browser.newContext({viewport:{width:390,height:844}}); const page=await context.newPage();
  try {await page.goto(web.origin+'/library');

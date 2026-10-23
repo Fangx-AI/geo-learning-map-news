@@ -2,7 +2,9 @@ import { ContentLanguageToggle, useTranslatedContent } from "@aihot/web/componen
 import { Link, useLoaderData, useLocation } from "react-router";
 import { pageMeta } from "@aihot/web/lib/seo";
 import { PhoneBar } from "@aihot/web/components/shell/PhoneBar";
-import { indexedHeadline, ItemCard, ValueBadge, newsTime, type CardItem } from "./components.tsx";
+import { useState } from "react";
+import { withoutTitleCredit } from "@aihot/industry/translation";
+import { cardImageUrl, indexedHeadline, ItemCard, ValueBadge, newsTime, type CardItem } from "./components.tsx";
 import { CHANNELS, itemChannels } from "./channels.ts";
 import { geoReaderHref } from "./reader-links.ts";
 import type { featuredLoader as loader } from "./overview-pages.server.ts";
@@ -25,12 +27,15 @@ function TopStory({ item, lead }: { item: CardItem; lead: boolean }) {
   const channels = itemChannels(item.title, item.translation?.title);
   const aggregated = item.contentKind === "aggregated";
   const outlet = item.publisherName ?? indexedHeadline(item.title, aggregated).outlet;
+  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
+  const imageUrl = lead ? cardImageUrl(item.imageUrl) : null;
   return <article data-top-story={item.id} className={lead ? "border-b border-line pb-5" : "border-b border-line py-4 last:border-b-0 sm:[&:nth-last-child(2)]:border-b-0"}>
     <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
       <ValueBadge badge={item.readingPriority?.badge} />
       {channels.map(channel => <Link key={channel.slug} to={`/topics/${channel.slug}`} className="px-1 py-0.5 text-[11px] font-semibold text-accent hover:underline">{channel.name}</Link>)}
     </div>
-    <h3 lang={content.language} className={`font-semibold leading-snug text-ink ${lead ? "text-[22px]" : "text-[16px]"}`}><Link to={geoReaderHref(item.id, from)} state={{ geoReaderFrom: from }} className="hover:text-accent hover:underline">{indexedHeadline(content.title, aggregated).title}</Link></h3>
+    {imageUrl && imageUrl !== failedImageUrl && <Link to={geoReaderHref(item.id, from)} state={{ geoReaderFrom: from }} tabIndex={-1} aria-hidden="true" className="mb-3 block"><img src={imageUrl} alt="" loading="eager" decoding="async" referrerPolicy="no-referrer" ref={image => { if (image?.complete && !image.naturalWidth) setFailedImageUrl(imageUrl); }} onError={() => setFailedImageUrl(imageUrl)} className="aspect-[2/1] w-full rounded-control object-cover" /></Link>}
+    <h3 lang={content.language} className={`font-semibold leading-snug text-ink ${lead ? "text-[22px]" : "text-[16px]"}`}><Link to={geoReaderHref(item.id, from)} state={{ geoReaderFrom: from }} className="hover:text-accent hover:underline">{withoutTitleCredit(indexedHeadline(content.title, aggregated).title)}</Link></h3>
     {lead && content.summary && <p lang={content.language} className="mt-2 line-clamp-3 text-[15px] leading-7 text-ink-2">{content.summary}</p>}
     <p className="mt-2 text-[12px] text-ink-3">{outlet ? `${outlet} · ` : ""}{item.sourceName} · <time dateTime={item.publishedAt ?? undefined} suppressHydrationWarning>{newsTime(item.publishedAt)}</time>{item.nearDuplicates && item.nearDuplicates.count > 1 && ` · ${item.nearDuplicates.count} 个来源报道`}</p>
   </article>;
@@ -53,6 +58,8 @@ export default function FeaturedPage() {
     days.set(day, [...(days.get(day) ?? []), item]);
   }
   const [lead, ...rest] = data.highlights;
+  // A quiet day still leads with the newest important items, but does not call older news today's headline.
+  const leadFresh = !!lead?.publishedAt && now - Date.parse(lead.publishedAt) <= 86_400_000;
   const weekday = new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", month: "long", day: "numeric", weekday: "long" }).format(new Date(now));
   return (
     <div className="mx-auto max-w-6xl pb-12">
@@ -65,13 +72,13 @@ export default function FeaturedPage() {
         </div>
         <ContentLanguageToggle />
       </header>
-      <nav aria-label="按平台看" className="flex gap-2 overflow-x-auto py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <nav aria-label="按平台看" className="flex gap-2 overflow-x-auto py-3 [mask-image:linear-gradient(to_right,#000_85%,transparent)] [scrollbar-width:none] lg:flex-wrap lg:overflow-visible lg:[mask-image:none] [&::-webkit-scrollbar]:hidden">
         {CHANNELS.map(channel => <Link key={channel.slug} to={`/topics/${channel.slug}`} className="inline-flex min-h-9 shrink-0 items-center rounded-full bg-bg-sunk px-3 text-[13px] text-ink-2 hover:bg-accent-soft hover:text-accent">{channel.name}</Link>)}
       </nav>
       <div className="mt-2 grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="min-w-0 space-y-6">
           {lead && <section aria-labelledby="top-stories" className="rounded-card border border-line bg-surface px-5 py-5 lg:px-6">
-            <h2 id="top-stories" className="mb-4 text-[19px] font-semibold text-ink">头条</h2>
+            <h2 id="top-stories" className="mb-4 text-[19px] font-semibold text-ink">{leadFresh ? "头条" : data.window.kind === "48h" ? "近两日要闻" : "近期要闻"}</h2>
             <TopStory item={lead} lead />
             {rest.length > 0 && <div className="grid gap-x-6 sm:grid-cols-2">{rest.map(item => <TopStory key={item.id} item={item} lead={false} />)}</div>}
           </section>}
@@ -86,7 +93,10 @@ export default function FeaturedPage() {
               <ul className="divide-y divide-line overflow-hidden rounded-card border border-line bg-surface">{items.map(item => <ItemCard key={item.id} item={item} />)}</ul>
             </div>)}
             <div className="flex flex-wrap items-center justify-between gap-3 text-[13px]">
-              {data.hiddenTotal > 0 ? <p className="text-ink-3">已折叠 {data.hiddenTotal} 条服务商软文、排行榜和转载。<Link to="/all?quality=all" className="text-accent hover:underline">也看看</Link></p> : <span />}
+              <div className="space-y-1 text-ink-3">
+                {data.papersMoved > 0 && <p>另有 {data.papersMoved} 篇论文放在<Link to="/library#library-research" className="text-accent hover:underline">研究与解读</Link>。</p>}
+                {data.hiddenTotal > 0 && <p>已折叠 {data.hiddenTotal} 条服务商软文、排行榜和转载。<Link to="/all?quality=all" className="text-accent hover:underline">也看看</Link></p>}
+              </div>
               <Link to="/all" className="inline-flex min-h-11 items-center rounded-control border border-line bg-surface px-4 font-semibold text-accent hover:bg-accent-soft">查看更多资讯 →</Link>
             </div>
           </section>
@@ -97,7 +107,7 @@ export default function FeaturedPage() {
             <ol className="mt-2">{data.hot.map((cluster, index) => <li key={cluster.id}><Link to={`/topics/${cluster.topicSlug}`} className="flex min-h-11 items-center gap-3 border-b border-line-soft py-2 text-[14px] text-ink last:border-b-0 hover:text-accent"><span className="w-4 font-semibold text-accent">{index + 1}</span><span className="min-w-0 flex-1 truncate">{cluster.title}</span><span className="shrink-0 text-[12px] text-ink-3">{cluster.sourceCount} 个来源</span></Link></li>)}</ol>
           </section>}
           {data.readings.length > 0 && <section aria-labelledby="readings" className="rounded-card border border-line bg-surface px-5 py-4">
-            <div className="flex items-baseline justify-between gap-2"><h2 id="readings" className="text-[16px] font-semibold text-ink">深度解读</h2><Link to="/library" className="text-[12px] text-accent hover:underline">全部 →</Link></div>
+            <div className="flex items-baseline justify-between gap-2"><h2 id="readings" className="text-[16px] font-semibold text-ink">中文解读</h2><Link to="/library" className="text-[12px] text-accent hover:underline">全部 →</Link></div>
             <ul className="mt-1 divide-y divide-line-soft">{data.readings.map(item => <ReadingLink key={item.id} item={item} />)}</ul>
           </section>}
           <section aria-labelledby="daily" className="rounded-card bg-ink px-5 py-4 text-bg">

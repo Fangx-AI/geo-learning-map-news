@@ -16,8 +16,10 @@ export default function DailyPage() {
   // Days are newest first.
   const index = data.days.findIndex(day => day.day === data.selectedDay);
   const newer = index > 0 ? data.days[index - 1] : undefined, older = index >= 0 ? data.days[index + 1] : undefined;
-  const marked = data.dailyItems.filter(item => item.readingPriority?.badge && !item.readingPriority.folded);
-  const others = data.dailyItems.filter(item => !item.readingPriority?.badge && !item.readingPriority?.folded);
+  // Undated items are filed under the day they were collected; keep them apart from that day's news.
+  const dated = data.dailyItems.filter(item => item.publishedAt), undated = data.dailyItems.filter(item => !item.publishedAt && !item.readingPriority?.folded);
+  const marked = dated.filter(item => item.readingPriority?.badge && !item.readingPriority.folded);
+  const others = dated.filter(item => !item.readingPriority?.badge && !item.readingPriority?.folded);
   const folded = data.dailyItems.filter(item => item.readingPriority?.folded);
   return <div className="pb-12"><PublicHeader title={archive ? "按日期看资讯" : "GEO 日报"} description="按北京时间，看某一天收录的全部 GEO 资讯。" />
     <nav aria-label="有收录的日期" data-day-list="" className="mt-4">
@@ -35,6 +37,7 @@ export default function DailyPage() {
     </div>
     {marked.length > 0 && <section aria-labelledby="daily-marked" className="mb-6"><h3 id="daily-marked" className="mb-2 text-[14px] font-semibold text-ink">值得先看<span className="ml-2 text-[12px] font-normal text-ink-3">官方、平台变化、研究与论文 · {marked.length} 条</span></h3><ItemList items={marked} compact={compact} /></section>}
     {others.length > 0 && <section aria-labelledby="daily-others" className="mb-6"><h3 id="daily-others" className="mb-2 text-[14px] font-semibold text-ink">{marked.length ? "其他资讯" : "当天资讯"}<span className="ml-2 text-[12px] font-normal text-ink-3">{others.length} 条</span></h3><ItemList items={others} compact={compact} /></section>}
+    {undated.length > 0 && <section aria-labelledby="daily-undated" className="mb-6"><h3 id="daily-undated" className="mb-2 text-[14px] font-semibold text-ink">日期待确认<span className="ml-2 text-[12px] font-normal text-ink-3">来源没给发布日期，按收录日归在这天 · {undated.length} 条</span></h3><ItemList items={undated} compact={compact} /></section>}
     {folded.length > 0 && <details className="mb-6 rounded-card border border-line bg-bg-sunk"><summary className="min-h-11 cursor-pointer px-4 py-3 text-[13px] text-ink-3">已折叠 {folded.length} 条服务商软文、排行榜和转载</summary><div className="px-2 pb-2"><ItemList items={folded} compact /></div></details>}
     {!data.dailyItems.length && <ItemList items={[]} />}{data.dailyTotal > data.dailyItems.length && <p className="text-[12px] text-ink-3">当前展示前 {data.dailyItems.length} 条，该日共 {data.dailyTotal} 条。</p>}
   </div>;

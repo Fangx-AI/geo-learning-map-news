@@ -129,8 +129,8 @@ test('public cursor pages and daily/topics return offline with their own content
     await context.setOffline(true);await page.goBack();
     await expect(page.getByRole('link',{name:'全部第 1 页',exact:false})).toBeVisible({timeout:1500});
     await context.setOffline(false);await page.goto(origin+'/daily');
-    await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:'深度解读',exact:true}).click();
-    await expect(page.getByRole('heading',{name:'深度解读',level:1,exact:true})).toBeVisible();
+    await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:'研究与解读',exact:true}).click();
+    await expect(page.getByRole('heading',{name:'研究与解读',level:1,exact:true})).toBeVisible();
     await context.setOffline(true);
     await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:'首页',exact:true}).click();
     await expect(page.getByRole('heading',{name:'今日 GEO 资讯',exact:true})).toBeVisible({timeout:1500});
@@ -145,17 +145,17 @@ test('focusing visited navigation does not evict a still-valid page result',asyn
   const nav=()=>page.getByRole('navigation',{name:'主导航'});
   try{
     await page.goto(origin+'/');
-    await nav().getByRole('link',{name:'深度解读',exact:true}).click();
-    await expect(page.getByRole('heading',{name:'深度解读',level:1,exact:true})).toBeVisible();
-    await nav().getByRole('link',{name:'深度解读',exact:true}).focus();
+    await nav().getByRole('link',{name:'研究与解读',exact:true}).click();
+    await expect(page.getByRole('heading',{name:'研究与解读',level:1,exact:true})).toBeVisible();
+    await nav().getByRole('link',{name:'研究与解读',exact:true}).focus();
     await page.waitForTimeout(150);
     await nav().getByRole('link',{name:'首页',exact:true}).click();
     await expect(page.getByRole('heading',{name:'今日 GEO 资讯',exact:true})).toBeVisible();
     await nav().getByRole('link',{name:'首页',exact:true}).focus();
     await page.waitForTimeout(150);
     const before=requests.length;
-    await nav().getByRole('link',{name:'深度解读',exact:true}).click();
-    await expect(page.getByRole('heading',{name:'深度解读',level:1,exact:true})).toBeVisible();
+    await nav().getByRole('link',{name:'研究与解读',exact:true}).click();
+    await expect(page.getByRole('heading',{name:'研究与解读',level:1,exact:true})).toBeVisible();
     assert.deepEqual(requests.slice(before),[],'navigation keeps a still-valid visited page');
   }finally{await context.close();}
 });
@@ -165,8 +165,8 @@ test('a revisit never renews its original deadline; expiry shows failure and rel
   try{
     await page.clock.install();ttl=2;
     await page.goto(origin+'/');
-    await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:'深度解读',exact:true}).click();
-    await expect(page.getByRole('heading',{name:'深度解读',level:1,exact:true})).toBeVisible();
+    await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:'研究与解读',exact:true}).click();
+    await expect(page.getByRole('heading',{name:'研究与解读',level:1,exact:true})).toBeVisible();
     failing='/api/geo/daily';
     await page.clock.runFor(2500);
     await page.goBack();await expect(page.getByRole('heading',{name:'暂时无法加载',exact:true})).toBeVisible();

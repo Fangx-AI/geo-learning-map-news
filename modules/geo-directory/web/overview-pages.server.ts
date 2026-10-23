@@ -21,10 +21,31 @@ async function getOverview(request: Request, upstream: Headers, options: { day?:
   return loadOr404<GeoOverviewResponse>(`/api/geo/overview?${query}`, { signal: request.signal, responseHeaders: upstream });
 }
 
+const RESEARCH_BADGES = new Set(["研究", "论文", "一手数据"]);
+// Recommended order puts studies, data and papers first, so a few pages hold the month's research.
+async function recentResearchCandidates(request: Request) {
+  const items: CardItem[] = [];
+  let cursor: string | null = null;
+  for (let page = 0; page < 4; page++) {
+    const query = new URLSearchParams({ sort: "recommended", quality: "useful", kind: "direct", group: "title", period: "30d", limit: "50" });
+    if (cursor) query.set("cursor", cursor);
+    const feed: GeoLatestFeed & { nextCursor?: string | null } = await loadOr404(`/api/geo/public-items?${query}`, { signal: request.signal });
+    items.push(...feed.items);
+    cursor = feed.nextCursor ?? null;
+    if (!cursor || !feed.items.some(item => RESEARCH_BADGES.has(item.readingPriority?.badge ?? ""))) break;
+  }
+  return items;
+}
+/** Full readings first; the last 30 days' studies, original data and papers are listed whether or not a reading exists. */
 export async function libraryLoader({ request }: Pick<PageArgs, "request">) {
   const upstream = new Headers();
-  const digest = await loadOr404<GeoDailyDigest>("/api/geo/daily?view=library", { signal: request.signal, responseHeaders: upstream });
-  return cachedPage(60, { digest }, upstream);
+  const [digest, recent] = await Promise.all([
+    loadOr404<GeoDailyDigest>("/api/geo/daily?view=library", { signal: request.signal, responseHeaders: upstream }),
+    recentResearchCandidates(request).catch(() => []),
+  ]);
+  const research = recent.filter(item => RESEARCH_BADGES.has(item.readingPriority?.badge ?? ""))
+    .sort((a, b) => Date.parse(b.publishedAt ?? b.collectedAt) - Date.parse(a.publishedAt ?? a.collectedAt));
+  return cachedPage(60, { digest, research }, upstream);
 }
 /** The home page: rule-picked headlines, the latest useful items, what many sources cover, and the newest full readings. */
 export async function featuredLoader({ request }: Pick<PageArgs, "request">) {
@@ -42,11 +63,23 @@ export async function featuredLoader({ request }: Pick<PageArgs, "request">) {
     .map((item, index) => ({ item, index })).sort((a, b) => weight(a.item.readingPriority?.badge) - weight(b.item.readingPriority?.badge) || a.index - b.index).map(({ item }) => item)
     .filter((item, _, list) => item.readingPriority?.badge !== "论文" || list.find(other => other.readingPriority?.badge === "论文") === item).slice(0, 5);
   const platforms = new Set(overview.topics.filter(topic => topic.group === "company").map(topic => topic.slug));
+  // Papers arrive in batches from arXiv; two a day stay in the feed, the rest wait in 研究与解读.
+  const papersByDay = new Map<string, number>();
+  let papersMoved = 0;
+  const feed = latest.items.filter(item => !highlights.some(top => top.id === item.id)).filter(item => {
+    if (item.readingPriority?.badge !== "论文") return true;
+    const day = new Date(Date.parse(item.publishedAt ?? item.collectedAt) + 8 * 3600_000).toISOString().slice(0, 10);
+    const count = (papersByDay.get(day) ?? 0) + 1;
+    papersByDay.set(day, count);
+    if (count <= 2) return true;
+    papersMoved++;
+    return false;
+  });
   return cachedPage(60, {
     generatedAt: overview.generatedAt, window: overview.window, sourceCount: overview.stats.sourceCount,
     highlights,
     hot: overview.hotClusters.filter(cluster => platforms.has(cluster.topicSlug)).slice(0, 6).map(({ items, ...cluster }) => cluster),
-    latest: latest.items.filter(item => !highlights.some(top => top.id === item.id)), hiddenTotal: latest.hiddenTotal,
+    latest: feed, hiddenTotal: latest.hiddenTotal, papersMoved,
     readings: digest.research.slice(0, 4), latestEdition: digest.latestEdition ?? null,
   }, upstream);
 }

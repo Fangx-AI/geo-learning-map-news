@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import type { GuardedFetchOptions, GuardedResponse } from "@aihot/backend/lib/http-fetch";
 import { BingContentTranslationError, BingPublicTranslator, BingTranslationError, splitBingText } from "../backend/translation-bing.ts";
-import { GEO_TRANSLATION_VERSION, geoTranslationGlossary, geoTranslationIssues, geoTranslationPrefix, needsTranslationUpgrade, normalizeGeoTranslation } from "@aihot/industry/translation";
+import { GEO_TRANSLATION_VERSION, geoTranslationGlossary, geoTranslationIssues, geoTranslationPrefix, needsTranslationUpgrade, normalizeGeoTranslation, withoutTitleCredit } from "@aihot/industry/translation";
 
 const base = "https://www.bing.com";
 const textInput = { id: "fixture", title: "AI search citation study", summary: null, language: "en" };
@@ -195,6 +195,19 @@ test("glossary excludes substrings, ordinary meanings, URLs and correctly preser
   assert.deepEqual(normalizeGeoTranslation({ title: "Gemini research AI Mode and AI Overviews", summary: "ordinary text" }, unchanged), unchanged);
   assert.deepEqual(geoTranslationGlossary("https://example.org/GEO"), []);
   assert.equal(normalizeGeoTranslation({ title: "AI agent for GEO", summary: null }, { title: "用于地理分析的AI代理", summary: null }).title, "用于地理分析的AI代理", "ambiguous compounds require review, not partial substitution");
+});
+
+test("a trailing via @author credit is not sent for translation, and cached translations that kept it are retranslated", async () => {
+  const { translator, calls } = fixture();
+  const value = await translator.translate({ ...textInput, title: "How AI Overviews choose sources via @sejournal, @brookeosmundson" });
+  assert.equal(value.title, "译文 How AI Overviews choose sources");
+  assert.ok(calls.every(call => !call.text?.includes("@sejournal")));
+  const input = { title: "How AI Overviews choose sources via @sejournal, @brookeosmundson", summary: null };
+  assert.deepEqual(geoTranslationIssues(input, { title: "AI 概览如何通过 @sejournal、@brookeosmundson 选择来源", summary: null }), ["translated-credit"]);
+  assert.equal(needsTranslationUpgrade(input, { title: "AI 概览如何选择来源", summary: null }), false);
+  // A post's own author handle in the excerpt label is not the credit.
+  assert.equal(needsTranslationUpgrade({ title: "帖文节选｜@sejournal：AI search study via @sejournal", summary: null }, { title: "帖文节选｜@sejournal：AI 搜索研究", summary: null }), false);
+  assert.equal(withoutTitleCredit("via @sejournal"), "via @sejournal", "a title that is only a credit stays as it is");
 });
 
 test("upgrade signals distinguish cached term repair, untranslated prose and invented years", () => {

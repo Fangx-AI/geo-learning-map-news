@@ -5,13 +5,14 @@ import { PhoneBar } from "@aihot/web/components/shell/PhoneBar";
 import { libraryLoader } from "./overview-pages.server.ts";
 import { chooseReading, itemTasks, READING_TASKS } from "./reading-guide.ts";
 import { ReadingCard } from "./reading-card.tsx";
+import { ItemList } from "./components.tsx";
 export { headers } from "./overview-pages.server.ts";
 export const loader = libraryLoader;
-export const handle = { tab: "library", name: "深度解读" };
+export const handle = { tab: "library", name: "研究与解读" };
 export const meta = () =>
-  pageMeta({ title: "GEO 深度解读", path: "/library" });
+  pageMeta({ title: "GEO 研究与解读", description: "近 30 天的 GEO 研究、一手数据和论文，以及重点研究的中文解读。", path: "/library" });
 export default function Library() {
-  const { digest } = useLoaderData<typeof loader>();
+  const { digest, research } = useLoaderData<typeof loader>();
   const [params] = useSearchParams();
   const task = params.get("task") ?? "",
     q = (params.get("q") ?? "").slice(0, 200).trim();
@@ -35,18 +36,21 @@ export default function Library() {
         ),
   );
   const count = Math.max(12, Math.min(2000, Number(params.get("limit")) || 12));
+  const hasReadings = chooseReading(digest.research).length > 0;
   return (
     <div className="mx-auto max-w-4xl pb-12">
-      <PhoneBar title="深度解读" />
+      <PhoneBar title="研究与解读" />
       <div className="mb-3 flex justify-end">
         <ContentLanguageToggle />
       </div>
       <h1 data-page-title="" className="text-[30px] font-semibold text-ink">
-        深度解读
+        研究与解读
       </h1>
       <p className="mt-3 text-sm leading-7 text-ink-3">
-        重要研究和实测的中文解读：结论、关键数据、对 GEO 的启示。
+        近 30 天的研究、一手数据和论文；重点研究另有中文解读：结论、关键数据、对 GEO 的启示。
       </p>
+      {hasReadings && <>
+      <h2 className="mt-6 text-[18px] font-semibold text-ink">中文解读</h2>
       <Form method="get" action="/library" className="mt-5 space-y-3">
         <label className="block text-sm text-ink-2">
           工作问题
@@ -111,6 +115,12 @@ export default function Library() {
       >
         关注这些问题，接着读 →
       </Link>
+      </>}
+      <section aria-labelledby="library-research" className="mt-8">
+        <h2 id="library-research" className="mb-1 text-[18px] font-semibold text-ink">近 30 天研究与数据<span className="ml-2 text-[12px] font-normal text-ink-3">{research.length} 条</span></h2>
+        <p className="mb-3 text-[12px] leading-6 text-ink-3">来源摘要与原文链接；{hasReadings ? "有中文解读的会标出。" : "中文解读整理好后会出现在上方。"}</p>
+        {research.length > 0 ? <ItemList items={research} /> : <p className="rounded-card border border-dashed border-line p-8 text-center text-[13px] text-ink-3">近 30 天暂无研究或一手数据。<Link to="/all" className="ml-3 text-accent">查看全部资讯 →</Link></p>}
+      </section>
     </div>
   );
 }

@@ -27,3 +27,15 @@ test("a fragment URL reads only that entry of a longer page", () => {
   assert.doesNotMatch(article.text, /September/);
   assert.throws(() => extractReaderArticle(`${url}#march-2026`, reply), /no-article-section/);
 });
+
+test("a month anchor keeps only the changelog entry named by the item title", () => {
+  const url = "https://docs.example/updates";
+  const entry = (day: string, title: string, text: string) => `<dt>${day}</dt><dd><h3 id="${title.toLowerCase().replaceAll(" ", "-")}">${title}</h3><p>${text.repeat(3)}</p></dd>`;
+  const html = `<html><head><title>Search updates</title></head><body><article><h1>Search updates</h1><h2 id="february-2026">February 2026</h2><dl>${entry("February 5", "Added Discover guidance", "What: added more information on how sites can appear in Discover. ")}${entry("February 3", "Clarified Googlebot file size limits", "What: moved the default file size limits of crawlers and fetchers to the crawler documentation. ")}</dl></article></body></html>`;
+  const reply = { status: 200, url, body: Buffer.from(html), headers: new Headers({ "content-type": "text/html" }), text: () => html };
+  const article = extractReaderArticle(`${url}#february-2026`, reply, "Clarified  Googlebot file size limits");
+  assert.match(article.text, /file size limits of crawlers/);
+  assert.doesNotMatch(article.text, /Discover/);
+  assert.equal(article.paragraphs[0].text, "February 3");
+  assert.match(extractReaderArticle(`${url}#february-2026`, reply, "Another title").text, /Discover/);
+});

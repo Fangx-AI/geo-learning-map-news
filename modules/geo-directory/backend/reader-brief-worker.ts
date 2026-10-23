@@ -58,23 +58,36 @@ export function readerRetryAfter(value: string | null, now = Date.now()): number
   return Number.isFinite(seconds) && seconds > 0 ? seconds : undefined;
 }
 
-function fragmentSection($: cheerio.CheerioAPI, id: string): string {
-  const target = $("[id]").filter((_, element) => $(element).attr("id") === id).first();
-  if (!target.length) throw new ReaderArticleError("no-article-section");
-  const level = /^h([1-6])$/i.exec(target.prop("tagName") ?? "")?.[1];
-  if (!level) return $.html(target);
-  // A heading's section runs until the next heading of the same or a higher level.
-  const parts = [$.html(target)];
-  for (let next = target.next(); next.length; next = next.next()) {
-    const nextLevel = /^h([1-6])$/i.exec(next.prop("tagName") ?? "")?.[1];
-    if (nextLevel && Number(nextLevel) <= Number(level)) break;
+const headingLevel = (element: ReturnType<cheerio.CheerioAPI>) => Number(/^h([1-6])$/i.exec(element.prop("tagName") ?? "")?.[1] ?? 0);
+const sameText = (a: string, b: string) => a.replace(/\s+/g, " ").trim().toLowerCase() === b.replace(/\s+/g, " ").trim().toLowerCase();
+
+/** A heading's section runs until the next heading of the same or a higher level. */
+function headingSection($: cheerio.CheerioAPI, heading: ReturnType<cheerio.CheerioAPI>): string {
+  const level = headingLevel(heading);
+  const parts = [$.html(heading)];
+  for (let next = heading.next(); next.length; next = next.next()) {
+    const nextLevel = headingLevel(next);
+    if (nextLevel && nextLevel <= level) break;
     parts.push($.html(next));
   }
   return parts.join("");
 }
 
+function fragmentSection($: cheerio.CheerioAPI, id: string, title: string): string {
+  const target = $("[id]").filter((_, element) => $(element).attr("id") === id).first();
+  if (!target.length) throw new ReaderArticleError("no-article-section");
+  const section = headingLevel(target) ? headingSection($, target) : $.html(target);
+  // A changelog anchor can name a whole month of entries; keep only the reported one.
+  const entries = cheerio.load(section);
+  const entry = entries("h1,h2,h3,h4,h5,h6").filter((_, element) => sameText(entries(element).text(), title)).first();
+  if (!entry.length || entry.attr("id") === id) return section;
+  // Keep the entry's date from its definition-list term, as its own paragraph.
+  const date = entry.parent().is("dd") ? entry.parent().prevAll("dt").first().text().trim() : "";
+  return (date ? entries.html(entries("<p></p>").text(date)) : "") + headingSection(entries, entry);
+}
+
 /** Only the same public HTML article may become model input; never a login/challenge teaser. */
-export function extractReaderArticle(url: string, response: GuardedResponse): ArticleBody {
+export function extractReaderArticle(url: string, response: GuardedResponse, title = ""): ArticleBody {
   rejectAbstractOnly(url);
   if (response.status !== 200) throw new ReaderArticleError(`http-${response.status}`, readerRetryAfter(response.headers.get("retry-after")));
   if (!/^(?:text\/html|application\/xhtml\+xml)(?:;|$)/i.test(response.headers.get("content-type") ?? "")) throw new ReaderArticleError("not-html");
@@ -91,7 +104,7 @@ export function extractReaderArticle(url: string, response: GuardedResponse): Ar
     || $("form input[type=password]").length) throw new ReaderArticleError("restricted-content");
   // A fragment names one entry of a longer page, such as one month of a changelog.
   const fragment = decodeURIComponent(new URL(url).hash.slice(1));
-  const article = fragment ? { html: fragmentSection($, fragment) } : readable(html, response.url);
+  const article = fragment ? { html: fragmentSection($, fragment, title) } : readable(html, response.url);
   if (!article) throw new ReaderArticleError("no-article-body");
   // Insert paragraph boundaries without dropping any text from the extracted body, including tables.
   const body = cheerio.load(article.html);
@@ -206,7 +219,7 @@ export async function draftPublicReaderBriefs(options: RunOptions = {}): Promise
         // A model retry reuses a complete private body; scheduled refreshes always re-read the source.
         article = sameInput && item.status !== "ready-draft" && item.private_body && item.body_url && item.body_hash && item.paragraphs?.length
           ? { url: item.body_url, text: item.private_body, hash: item.body_hash, paragraphs: item.paragraphs }
-          : extractReaderArticle(item.url, await (options.fetcher ?? fetchArticle)(item.url));
+          : extractReaderArticle(item.url, await (options.fetcher ?? fetchArticle)(item.url), item.title);
         signal.throwIfAborted();
         const [stillEnabled] = await sql`SELECT i.id FROM geo_public_items i JOIN geo_public_source_status s ON s.source_id=i.source_id AND s.enabled
           WHERE i.id=${item.id} AND (i.title,i.summary,i.url) IS NOT DISTINCT FROM (${item.title},${item.summary},${item.url})`;

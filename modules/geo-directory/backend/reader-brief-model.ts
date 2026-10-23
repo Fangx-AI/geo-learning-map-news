@@ -130,8 +130,13 @@ export function validateReaderBriefDraft(raw: unknown, input: ReaderBriefModelIn
   return { ...draft, model: READER_BRIEF_MODEL, promptVersion: READER_BRIEF_PROMPT_VERSION, inputTokens };
 }
 
+const count = (text: string, mark: string) => text.split(mark).length - 1;
+const unclosedQuote = (text: string) => [["“", "”"], ["‘", "’"], ["「", "」"], ["『", "』"]].some(([open, close]) => count(text, open) !== count(text, close)) || count(text, '"') % 2 === 1;
+
 function claimError(value: ReaderBriefClaim, paragraphs: Map<string, string>, index: number): string | undefined {
   if (new Set(value.evidenceIds).size !== value.evidenceIds.length || value.evidenceIds.some(id => !paragraphs.has(id))) return `Claim ${index + 1}: cites a missing or duplicate paragraph`;
+  // A cut-off sentence passes the number checks but reads as broken text.
+  if (!/[。！？!?…）)」』”"]$/.test(value.text) || unclosedQuote(value.text)) return `Claim ${index + 1}: sentence is incomplete or has an unclosed quote`;
   const source = value.evidenceIds.map(id => paragraphs.get(id)!).join("\n");
   if (/显著/.test(value.text) && !/significan|显著/i.test(source)) return `Claim ${index + 1}: 原文未说明显著性，请删除自行添加的“显著”，忠实描述观察结果`;
   const supported = numbers(source);

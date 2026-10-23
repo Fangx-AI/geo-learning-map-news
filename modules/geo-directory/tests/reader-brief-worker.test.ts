@@ -108,6 +108,15 @@ test("a failed model retry uses the complete private body without re-fetching", 
   assert.equal(fetches, 1); assert.equal(repaired.counts.generated, 1);
 });
 
+test("a private body cached by an older extractor is re-read instead of reused", async () => {
+  await fixture("retry-old-extractor"); let fetches = 0;
+  const fetcher = async () => { fetches++; return response(); };
+  assert.equal((await draftPublicReaderBriefs({ ...generator({ generate: async () => { throw new ReaderArticleError("invalid"); } }), fetcher })).failed, 1);
+  await sql`UPDATE geo_public_reader_jobs SET next_attempt_at=now(),body_hash=encode(sha256(convert_to(private_body,'UTF8')),'hex')`;
+  assert.equal((await draftPublicReaderBriefs({ ...generator(), fetcher })).drafted, 1);
+  assert.equal(fetches, 2);
+});
+
 test("losing the reader lease cancels generation and releases the owned model", async () => {
   await fixture("lease-loss");
   const model = generator({ generate: async (_input, signal) => {

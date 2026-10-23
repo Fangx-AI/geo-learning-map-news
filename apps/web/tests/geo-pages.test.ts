@@ -175,6 +175,8 @@ test("cards show the source summary, and content-type chips separate articles, m
     await page.getByLabel("发布平台").selectOption("zhihu");
     await expect(page).toHaveURL(/platform=zhihu/);
     const index = page.locator('[data-public-item="index-result"]');
+    // The URL changes before the filtered list renders; wait for the card's return link to follow it.
+    await expect(index.locator("h2 a")).toHaveAttribute("href", /platform%3Dzhihu/);
     await expectReaderLink(index.locator("h2 a"), aggregate.id, "/all" + new URL(page.url()).search);
     await expect(index.locator("time")).toContainText("索引标注");
     await page.getByLabel("发布平台").selectOption("");

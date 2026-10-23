@@ -29,6 +29,7 @@ const readerWithBrief = { ...readerItem, id: "f".repeat(64), brief: {
   caveats: ["样本只覆盖英语查询，未检验其他语言。"], coverage: "full-article", updatedAt: "2026-10-17T08:00:00.000Z",
 } };
 const readerAbstract = { ...readerWithoutSummary, id: "1".repeat(64), brief: { ...readerWithBrief.brief, coverage: "abstract", caveats: [], automated: true } };
+const readerExcerpt = geoItem({ id: "2".repeat(64), title: "Is AI visibility a marketing scam?", summary: "Three studies showed data: GEO is a distraction, by Marie Haynes – https://www.mariehaynes.com/geo-is-a-distraction/ How much traffic…", sourceId: "reader-fixture", sourceName: "实测作者", language: "en", platform: "web", contentKind: "direct" });
 const readerAlias = "e".repeat(64);
 const readerSources = [{ id: "reader-fixture", name: "实测作者", count: 2 }];
 const sources = [{ id: "index-fixture", name: "公开索引", count: 42 }, { id: "author-fixture", name: "研究作者", count: 1 }];
@@ -47,7 +48,7 @@ const api = createServer((req, res) => {
   if (url.pathname === "/api/geo/daily") return send({ research: [readerWithBrief], recent: [] });
   if (url.pathname.startsWith("/api/geo/public-items/")) {
     const id = url.pathname.split("/").at(-1);
-    const item = id === readerAlias ? readerItem : [readerItem, readerWithoutSummary, readerWithBrief, readerAbstract].find(item => item.id === id);
+    const item = id === readerAlias ? readerItem : [readerItem, readerWithoutSummary, readerWithBrief, readerAbstract, readerExcerpt].find(item => item.id === id);
     res.setHeader("Cache-Control", "private, no-store");
     if (!item) { res.statusCode = 404; return send({ error: "内容不存在或已停止公开" }); }
     return send({ item });
@@ -199,6 +200,12 @@ test("direct reader loads without JavaScript, states missing excerpts honestly a
     await expect(page.getByText("来源暂未提供摘要。", { exact: true })).toBeVisible();
     await expect(page.locator("[data-reader-summary]")).toHaveCount(0);
     await expect(page.getByRole("link", { name: "返回列表", exact: true })).toHaveAttribute("href", "/all");
+    await page.goto(web.origin + `/read/${readerExcerpt.id}`);
+    const excerptLink = page.locator("[data-reader-summary] a");
+    await expect(excerptLink).toHaveText("mariehaynes.com ↗");
+    await expect(excerptLink).toHaveAttribute("href", "https://www.mariehaynes.com/geo-is-a-distraction/");
+    await expect(page.locator("[data-excerpt-truncated]")).toBeVisible();
+    await page.goto(web.origin + `/read/${readerWithoutSummary.id}?from=https%3A%2F%2Foutside.example%2F`);
     // No platform in the headline: the site's latest news keeps the reader going.
     await expect(page.locator("[data-reader-next]")).toHaveAttribute("href", /^\/read\//);
     await expect(page.getByRole("link", { name: "全部资讯 →", exact: true })).toHaveAttribute("href", "/all");

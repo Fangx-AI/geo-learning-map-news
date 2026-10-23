@@ -125,24 +125,34 @@ export function validateReaderBriefDraft(raw: unknown, input: ReaderBriefModelIn
   const paragraphs = new Map(input.paragraphs.map(value => [value.id, value.text]));
   const claims = [draft.conclusion, ...draft.findings, ...draft.geoValue, ...draft.caveats];
   if (claims.reduce((total, value) => total + value.text.length, 0) > 1800) throw new ReaderBriefModelError("invalid", "Brief exceeds the short-summary limit");
-  for (const [index, value] of claims.entries()) {
-    if (new Set(value.evidenceIds).size !== value.evidenceIds.length || value.evidenceIds.some(id => !paragraphs.has(id))) {
-      throw new ReaderBriefModelError("invalid", "A claim cites a missing or duplicate paragraph");
-    }
-    const source = value.evidenceIds.map(id => paragraphs.get(id)!).join("\n");
-    if (/显著/.test(value.text) && !/significan|显著/i.test(source)) throw new ReaderBriefModelError("invalid", `Claim ${index + 1}: 原文未说明显著性，请删除自行添加的“显著”，忠实描述观察结果`);
-    const supported = numbers(source);
-    const missing = [...numbers(value.text)].filter(number => !supported.has(number));
-    if (missing.length) throw new ReaderBriefModelError("invalid", `Claim ${index + 1}: numbers ${missing.join(",")} absent from cited paragraphs ${value.evidenceIds.join(",")}`);
-    const supportedPercentages = percentages(source);
-    if ([...percentages(value.text)].some(number => !supportedPercentages.has(number))) throw new ReaderBriefModelError("invalid", "A percentage has no matching percentage in its cited paragraphs");
-    // A percentage and a percentage-point difference are not interchangeable. Other
-    // direction, scope and causal distinctions still require semantic review.
-    if (/百分点/.test(value.text) && !/percentage[- ]points?|percent[- ]points?|百分点/i.test(source)) {
-      throw new ReaderBriefModelError("invalid", "A percentage-point claim has no explicit source support");
-    }
-  }
+  const errors = claims.flatMap((value, index) => claimError(value, paragraphs, index) ?? []);
+  if (errors.length) throw new ReaderBriefModelError("invalid", errors.join("; "));
   return { ...draft, model: READER_BRIEF_MODEL, promptVersion: READER_BRIEF_PROMPT_VERSION, inputTokens };
+}
+
+function claimError(value: ReaderBriefClaim, paragraphs: Map<string, string>, index: number): string | undefined {
+  if (new Set(value.evidenceIds).size !== value.evidenceIds.length || value.evidenceIds.some(id => !paragraphs.has(id))) return `Claim ${index + 1}: cites a missing or duplicate paragraph`;
+  const source = value.evidenceIds.map(id => paragraphs.get(id)!).join("\n");
+  if (/显著/.test(value.text) && !/significan|显著/i.test(source)) return `Claim ${index + 1}: 原文未说明显著性，请删除自行添加的“显著”，忠实描述观察结果`;
+  const supported = numbers(source);
+  const missing = [...numbers(value.text)].filter(number => !supported.has(number));
+  if (missing.length) return `Claim ${index + 1}: numbers ${missing.join(",")} absent from cited paragraphs ${value.evidenceIds.join(",")}`;
+  const supportedPercentages = percentages(source);
+  if ([...percentages(value.text)].some(number => !supportedPercentages.has(number))) return `Claim ${index + 1}: a percentage has no matching percentage in its cited paragraphs`;
+  // A percentage and a percentage-point difference are not interchangeable. Other
+  // direction, scope and causal distinctions still require semantic review.
+  if (/百分点/.test(value.text) && !/percentage[- ]points?|percent[- ]points?|百分点/i.test(source)) return `Claim ${index + 1}: a percentage-point claim has no explicit source support`;
+}
+
+/** Drops an unsupported extra finding or caveat instead of rejecting the whole draft.
+ *  The conclusion, the GEO reading and the last finding are never dropped. */
+function withoutUnsupportedExtras(raw: unknown, input: ReaderBriefModelInput): unknown {
+  const parsed = draftSchema.safeParse(raw);
+  if (!parsed.success) return raw;
+  const value = parsed.data;
+  const paragraphs = new Map(input.paragraphs.map(paragraph => [paragraph.id, paragraph.text]));
+  const supported = value.findings.filter(claim => !claimError(claim, paragraphs, 0));
+  return { ...value, findings: supported.length ? supported : value.findings, caveats: value.caveats.filter(claim => !claimError(claim, paragraphs, 0)) };
 }
 
 export function readerBriefMessages(input: ReaderBriefModelInput): Array<{ role: "system" | "user"; content: string }> {
@@ -204,7 +214,7 @@ export async function requestReaderBrief(input: ReaderBriefModelInput, request: 
   if (typeof result.usage?.prompt_tokens === "number" && result.usage.prompt_tokens < inputTokens - 2) throw new ReaderBriefModelError("invalid", "Runtime used fewer prompt tokens than the complete checked article");
   let raw: unknown;
   try { raw = JSON.parse(choice.message.content); } catch { throw new ReaderBriefModelError("invalid", "Model response is not JSON"); }
-  raw = conservativeWording(raw, input);
+  raw = withoutUnsupportedExtras(conservativeWording(raw, input), input);
   try { return { ...validateReaderBriefDraft(raw, input, inputTokens), generationMs: Date.now() - started }; }
   catch (error) { if (error instanceof ReaderBriefModelError && error.kind === "invalid") error.draft = raw; throw error; }
 }

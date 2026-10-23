@@ -220,3 +220,25 @@ test("a cached draft can be reviewed after restart without generating it again",
     if (previous === undefined) delete process.env.PUBLIC_READER_BRIEFS_ENABLED; else process.env.PUBLIC_READER_BRIEFS_ENABLED = previous;
   }
 });
+
+test("an unsupported extra finding or caveat is dropped, but never the last finding", async () => {
+  const response = (value: unknown) => async (endpoint: string) => endpoint === "/apply-template" ? { prompt: "full source" }
+    : endpoint === "/tokenize" ? { tokens: [1, 2, 3] } : { choices: [{ finish_reason: "stop", message: { content: JSON.stringify(value) } }] };
+  const changed = draft();
+  changed.findings.push(value("数据集共有10个分组，每组观察了不同网站。", ["p3"]));
+  changed.caveats = [value("研究只覆盖了20个国家，不能外推。", ["p2"])];
+  const result = await requestReaderBrief(input, response(changed));
+  assert.deepEqual(result.findings, draft().findings);
+  assert.deepEqual(result.caveats, []);
+  const only = draft(); only.findings = [value("数据集共有10个分组，每组观察了不同网站。", ["p3"])];
+  await assert.rejects(requestReaderBrief(input, response(only)), invalid);
+  const conclusion = draft(); conclusion.conclusion.text = "这项覆盖20个国家的研究发现，有AI摘要时点击比例较低。";
+  await assert.rejects(requestReaderBrief(input, response(conclusion)), invalid);
+});
+
+test("validation lists every failing claim so one repair can fix them all", () => {
+  const changed = draft();
+  changed.conclusion.text = "这项覆盖20个国家的研究发现，有AI摘要时点击比例较低。";
+  changed.geoValue[0].text = "启示：至少应比较30个查询的AI摘要点击情况。";
+  assert.throws(() => validateReaderBriefDraft(changed, input, 1), (error: unknown) => invalid(error) && /Claim 1:.*Claim 3:/.test((error as Error).message));
+});

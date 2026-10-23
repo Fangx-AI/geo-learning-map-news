@@ -18,7 +18,7 @@ async function verified(file: string): Promise<boolean> {
 
 export async function main(args = process.argv.slice(2)): Promise<void> {
   if (args.includes("--help")) {
-    console.log("node --env-file=.env modules/geo-directory/scripts/setup-reader-brief.ts\nDownloads a pinned Qwen3.5-4B community Q4_K_M GGUF (2.74 GB), with resume and SHA-256 validation. PUBLIC_READER_BRIEF_MODEL_PATH overrides .data/reader-brief/model.gguf. Reuses the existing llama runtime. Does not enable generation or change services.");
+    console.log("node --env-file=.env modules/geo-directory/scripts/setup-reader-brief.ts\nDownloads a pinned Qwen3.5-9B community Q4_K_M GGUF (5.68 GB), with resume and SHA-256 validation. PUBLIC_READER_BRIEF_MODEL_PATH overrides .data/reader-brief/model.gguf. Reuses the existing llama runtime. Does not enable generation or change services.");
     return;
   }
   if (args.length) throw new Error("Unknown option; use --help");

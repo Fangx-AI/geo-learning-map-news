@@ -36,5 +36,6 @@ test("a month anchor keeps only the changelog entry named by the item title", ()
   const article = extractReaderArticle(`${url}#february-2026`, reply, "Clarified  Googlebot file size limits");
   assert.match(article.text, /file size limits of crawlers/);
   assert.doesNotMatch(article.text, /Discover/);
+  assert.equal(article.paragraphs[0].text, "February 3");
   assert.match(extractReaderArticle(`${url}#february-2026`, reply, "Another title").text, /Discover/);
 });

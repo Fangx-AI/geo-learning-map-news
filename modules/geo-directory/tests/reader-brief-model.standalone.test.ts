@@ -250,4 +250,10 @@ test("a cut-off sentence or unclosed quote is not a publishable claim", async ()
   assert.deepEqual((await requestReaderBrief(input, response(cut))).findings, draft().findings);
   const conclusion = draft(); conclusion.conclusion.text = "这项美国用户观察研究发现，有AI摘要时传统结果的点击比例较低";
   assert.throws(() => validateReaderBriefDraft(conclusion, input, 1), invalid);
+  for (const text of ["研究称\"传统结果点击比例较低。", "研究称「传统结果点击比例较低。", "研究称『传统结果点击比例较低。"]) {
+    const quoted = draft(); quoted.conclusion.text = `这项美国用户观察${text}`;
+    assert.throws(() => validateReaderBriefDraft(quoted, input, 1), invalid);
+  }
+  const closed = draft(); closed.conclusion.text = "这项美国用户观察研究称“有AI摘要时”传统结果的点击比例较低。";
+  assert.doesNotThrow(() => validateReaderBriefDraft(closed, input, 1));
 });

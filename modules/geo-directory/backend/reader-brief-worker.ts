@@ -80,7 +80,10 @@ function fragmentSection($: cheerio.CheerioAPI, id: string, title: string): stri
   // A changelog anchor can name a whole month of entries; keep only the reported one.
   const entries = cheerio.load(section);
   const entry = entries("h1,h2,h3,h4,h5,h6").filter((_, element) => sameText(entries(element).text(), title)).first();
-  return entry.length && entry.attr("id") !== id ? headingSection(entries, entry) : section;
+  if (!entry.length || entry.attr("id") === id) return section;
+  // Keep the entry's date from its definition-list term, as its own paragraph.
+  const date = entry.parent().is("dd") ? entry.parent().prevAll("dt").first().text().trim() : "";
+  return (date ? entries.html(entries("<p></p>").text(date)) : "") + headingSection(entries, entry);
 }
 
 /** Only the same public HTML article may become model input; never a login/challenge teaser. */

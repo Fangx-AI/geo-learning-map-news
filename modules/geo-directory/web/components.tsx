@@ -93,7 +93,9 @@ export function ItemCard({ item, compact = false, query = "", grouped = true }: 
   const title = social ? postHeadline(content.summary ?? content.title) : withoutTitleCredit(indexedHeadline(content.title, aggregated).title);
   const outlet = item.publisherName ? null : indexedHeadline(item.title, aggregated).outlet;
   const summary = social ? null : content.summary;
-  const distinctSummary = summary && !repeatsTitle(summary, title, content.title) ? summary.split(EXCERPT_LINK).map((part, index) => index % 2 ? linkLabel(part) : part).join("") : null;
+  const distinctSummary = summary && !repeatsTitle(summary, title, content.title) ? summary : null;
+  // Search matches use the stored text; the card shows a link by its site name.
+  const shownSummary = distinctSummary?.split(EXCERPT_LINK).map((part, index) => index % 2 ? linkLabel(part) : part).join("");
   const matchesSummaryOnly = distinctSummary && !hasSearchMatch(title, query) && hasSearchMatch(distinctSummary, query);
   const alternativeTitle = content.translated ? content.originalTitle : content.translatedTitle;
   const alternativeSummary = content.translated ? content.originalSummary : content.translatedSummary;
@@ -121,7 +123,7 @@ export function ItemCard({ item, compact = false, query = "", grouped = true }: 
         <h2 lang={content.language} className={social ? "line-clamp-3 text-[15px] leading-relaxed text-ink" : `font-semibold leading-relaxed text-ink ${compact ? "text-[15px]" : "text-[17px]"}`}><Link to={readerHref} state={{ geoReaderFrom: location.pathname + location.search }} className="hover:text-accent hover:underline"><HighlightedText text={title} query={query} /></Link></h2>
         {matchesSummaryOnly && <p data-search-excerpt="" className="mt-2 text-[12px] leading-6 text-ink-3">摘要匹配：<HighlightedText text={searchExcerpt(distinctSummary!, query)} query={query} /></p>}
         {hiddenLanguageMatch && <p data-search-excerpt="" className="mt-2 text-[12px] leading-6 text-ink-3">{content.translated ? "原文匹配：" : "译文匹配："}<HighlightedText text={searchExcerpt(hiddenLanguageMatch, query)} query={query} /></p>}
-        {!compact && !matchesSummaryOnly && distinctSummary && <p lang={content.language} className="mt-1.5 line-clamp-2 text-[14px] leading-6 text-ink-2"><HighlightedText text={distinctSummary} query={query} /></p>}
+        {!compact && !matchesSummaryOnly && distinctSummary && <p lang={content.language} className="mt-1.5 line-clamp-2 text-[14px] leading-6 text-ink-2"><HighlightedText text={shownSummary!} query={query} /></p>}
       </div>
       {showImage && <Link to={readerHref} state={{ geoReaderFrom: location.pathname + location.search }} tabIndex={-1} aria-hidden="true" className="mt-1 shrink-0"><img src={imageUrl} width={120} height={80} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" ref={image => { if (image?.complete && !image.naturalWidth) setFailedImageUrl(imageUrl); }} onError={() => setFailedImageUrl(imageUrl)} className="aspect-[3/2] w-[84px] rounded-control object-cover lg:w-28" /></Link>}
     </div>

@@ -46,6 +46,10 @@ const REFRESH_MS = 7 * 24 * HOUR;
 // ?hl=zh-cn translation, which is a different page from the reported article.
 const fetchArticle: ReaderArticleFetch = url => guardedFetch(url, { timeoutMs: 20_000, maxBytes: 6 * 1024 * 1024, headers: { accept: "text/html,application/xhtml+xml", "accept-language": "en" } });
 const hash = (text: string) => createHash("sha256").update(text).digest("hex");
+// Bump when extraction changes, so a cached private body from the old extractor is re-read
+// instead of being reused for a model retry.
+const READER_EXTRACTOR_VERSION = "entry-v2";
+const bodyHash = (text: string) => hash(`${READER_EXTRACTOR_VERSION}\n${text}`);
 const primarySourceIds = sources.filter(source => source.evidence === "official" || source.evidence === "research").flatMap(source => source.sourceId ? [source.sourceId] : []);
 function rejectAbstractOnly(url: string): void {
   const source = new URL(url);
@@ -121,7 +125,7 @@ export function extractReaderArticle(url: string, response: GuardedResponse, tit
     .map((text, index) => ({ id: `p${index + 1}`, text }));
   const text = paragraphs.map(paragraph => paragraph.text).join("\n\n");
   if (text.length < 200) throw new ReaderArticleError("no-article-body");
-  return { url: response.url, text, hash: hash(text), paragraphs };
+  return { url: response.url, text, hash: bodyHash(text), paragraphs };
 }
 
 function validateDraft(value: ReaderBriefDraft, paragraphs: ReaderParagraph[]): ReaderBriefDraft {
@@ -217,7 +221,7 @@ export async function draftPublicReaderBriefs(options: RunOptions = {}): Promise
         // cause a stream of article downloads that can never become useful drafts.
         model ??= await (options.createModel ?? createReaderBriefModel)({ signal });
         // A model retry reuses a complete private body; scheduled refreshes always re-read the source.
-        article = sameInput && item.status !== "ready-draft" && item.private_body && item.body_url && item.body_hash && item.paragraphs?.length
+        article = sameInput && item.status !== "ready-draft" && item.private_body && item.body_url && item.body_hash === bodyHash(item.private_body) && item.paragraphs?.length
           ? { url: item.body_url, text: item.private_body, hash: item.body_hash, paragraphs: item.paragraphs }
           : extractReaderArticle(item.url, await (options.fetcher ?? fetchArticle)(item.url), item.title);
         signal.throwIfAborted();

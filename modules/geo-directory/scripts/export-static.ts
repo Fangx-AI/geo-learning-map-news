@@ -24,7 +24,7 @@ const maxPages = Number(arg("max", "5000"));
 const SKIP = [/^\/admin(\/|$)/, /^\/api\//, /^\/mcp(\/|$)/, /^\/items\/[^/]+\/original$/, /^\/feedback$/, /^\/starred$/];
 // Query parameters that only change the back link, not the page.
 const DROP_PARAMS = ["from"];
-const SEEDS = ["/", "/all", "/library", "/hot", "/topics", "/daily", "/daily/archive", "/daily/editions", "/weekly", "/monthly", "/about", "/agent", "/changelog", "/terms", "/privacy", "/more", "/robots.txt", "/feed.xml", "/feed/all.xml", "/llms.txt", "/manifest.webmanifest"];
+const SEEDS = ["/", "/all", "/library", "/hot", "/topics", "/daily", "/daily/archive", "/daily/editions", "/weekly", "/monthly", "/about", "/agent", "/changelog", "/terms", "/privacy", "/more", "/robots.txt", "/sitemap.xml", "/feed.xml", "/feed/all.xml", "/llms.txt", "/manifest.webmanifest"];
 
 function normalize(raw: string, from: URL): URL | null {
   let url: URL;
@@ -49,8 +49,10 @@ const publicPath = (url: URL) => prefix + localPath(url).replace(/index\.html$/,
 const seen = new Set<string>();
 const queue: URL[] = [];
 let pages = 0;
+const overLimit = new Set<string>();
 function visit(url: URL) {
-  if (seen.has(url.href) || (!isFile(url) && pages >= maxPages)) return;
+  if (seen.has(url.href)) return;
+  if (!isFile(url) && pages >= maxPages) { overLimit.add(url.href); return; }
   seen.add(url.href);
   if (!isFile(url)) pages++;
   queue.push(url);
@@ -140,6 +142,8 @@ while (queue.length) {
 const missing = await fetch(new URL("/__static-export-missing__", base));
 await writeFile(path.join(out, "404.html"), snapshotHtml(await missing.text(), base));
 await writeFile(path.join(out, ".nojekyll"), "");
+// Links to pages past --max would 404, so an export that hit the limit is not published.
+if (overLimit.size) failures.push(`${overLimit.size} pages over --max ${maxPages}`);
 console.log(JSON.stringify({ pages, files: seen.size - pages, failures: failures.length, out }));
 for (const failure of failures.slice(0, 20)) console.error(failure);
 if (failures.length) process.exitCode = 1;

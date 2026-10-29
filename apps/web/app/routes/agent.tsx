@@ -6,6 +6,7 @@ import { PUBLIC_INTERFACE_VERSION } from "@aihot/contracts/http-policy";
 import { SITE } from "@aihot/site";
 import { apiGet, cachedPage } from "../lib/api.server";
 import { pageReuse } from "../lib/page-reuse";
+import { isStaticSnapshotRequest } from "../lib/static-snapshot";
 import { listPath, pageMeta, siteUrl } from "../lib/seo";
 import { IconArrowUpRight, IconChevronRight, IconCode, IconPlug, IconRss } from "../components/icons";
 import { Kicker } from "../components/ui/Kicker";
@@ -58,14 +59,24 @@ const BANNERS = AGENT_PARTS.flatMap((p) => (p.Banner ? [p.Banner] : []));
 /** The tag's value: a hook, called on every render. */
 const useTag = TAG?.useValue ?? (() => null);
 
+const localHost = (base: string) => {
+  try {
+    const host = new URL(base).hostname.replace(/^\[|\]$/g, "").toLowerCase();
+    return host === "localhost" || host === "127.0.0.1" || host === "0.0.0.0" || host === "::1";
+  } catch { return true; }
+};
+
 export async function loader({ request }: Route.LoaderArgs) {
-  // Only whether the api answers, within three seconds.
-  const healthy = await apiGet("/api/health", { signal: AbortSignal.any([request.signal, AbortSignal.timeout(3000)]) }).then(() => true, () => false);
+  const base = siteUrl();
+  const staticSnapshot = isStaticSnapshotRequest(request);
+  // A Pages snapshot must not record "the API is healthy" just because export ran against localhost.
+  const healthy = staticSnapshot ? false : await apiGet("/api/health", { signal: AbortSignal.any([request.signal, AbortSignal.timeout(3000)]) }).then(() => true, () => false);
   return cachedPage(300, {
     healthy,
+    staticSnapshot,
     // The examples show the configured public address, the same on the server and in the browser; what
     // depends on the time reads the server's.
-    base: siteUrl(),
+    base,
     now: Date.now(),
   });
 }
@@ -89,7 +100,7 @@ export function meta({ location }: Route.MetaArgs) {
 }
 
 export default function AgentPage() {
-  const { healthy, base, now } = useLoaderData<typeof loader>();
+  const { healthy, staticSnapshot, base, now } = useLoaderData<typeof loader>();
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const tag = useTag();
@@ -121,8 +132,22 @@ export default function AgentPage() {
     setTarget(id);
   };
   const track = TRACKS.find((t) => t.key === tab);
+  const local = localHost(base);
 
   const chip = "inline-flex h-7 items-center gap-1.5 rounded-full border border-line bg-surface px-2.5 text-[12px] text-ink-3";
+  if (staticSnapshot) {
+    return <>
+      <PhoneBar back={{ to: "/more", label: "我的" }} title="Agent 接入" />
+      <ReadingLayout aside={<AsideCard title="能用的"><p className="text-[13px] leading-7 text-ink-3">快照里有已经导出的网页，以及 <a href="/llms.txt" className="text-accent hover:underline">llms.txt</a> 和 <a href="/feed.xml" className="text-accent hover:underline">RSS</a>。MCP 和 REST 不在这个页面上。</p><IntentLink viewTransition to="/" className="mt-3 inline-flex items-center gap-1 text-[13px] font-medium text-accent hover:underline">回今日资讯 <IconChevronRight size={14} /></IntentLink></AsideCard>}>
+        <header className="lg:pt-5">
+          <Kicker>AGENT 接入</Kicker>
+          <h1 data-page-title="" className="mt-4 text-[28px] font-semibold leading-[1.3] text-ink sm:text-[32px]">此快照不提供 Agent 接口</h1>
+          <p className="mt-3 max-w-[40em] text-[15px] leading-[1.8] text-ink-3">GitHub Pages 只托管导出那一刻的网页。这里没有 MCP，公开 API 也会 404。不要把本机地址当成已经连上的服务，本页也不报告接口健康，也不承诺可以免密钥调用。</p>
+          <p className="mt-3 max-w-[40em] text-[15px] leading-[1.8] text-ink-3">要接入 Agent，请在真正跑着接口的站点上打开这一页。阅读今天的资讯，从首页进入即可。</p>
+        </header>
+      </ReadingLayout>
+    </>;
+  }
   const aside = (
     <>
       <AsideCard title="接入方式" className="hidden lg:block">
@@ -180,13 +205,14 @@ export default function AgentPage() {
         <h1 data-page-title="" className="mt-4 text-[28px] font-semibold leading-[1.3] text-ink sm:text-[32px]">{`把 ${SITE.name} 接进你的 Agent`}</h1>
         <p className="mt-3 max-w-[40em] text-[15px] leading-[1.8] text-ink-3">当前网页的 GEO 原始资料、精选和每日汇编使用 /api/geo，无需登录、密钥或模型调用。下方 REST API 页签列出这些接口；MCP、RSS 与 /api/v1 保留为原引擎的可选入口，发布数据可能为空，不与当前公开资讯流混用。</p>
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <span className={`${chip} ${healthy ? "text-ok" : "text-hot"}`}>
-            <span className={`size-1.5 rounded-full ${healthy ? "bg-ok" : "bg-hot"}`} aria-hidden="true" />
-            {healthy ? "服务正常" : "服务异常"}
+          <span className={`${chip} ${local ? "text-ink-2" : healthy ? "text-ok" : "text-hot"}`}>
+            <span className={`size-1.5 rounded-full ${local ? "bg-ink-3" : healthy ? "bg-ok" : "bg-hot"}`} aria-hidden="true" />
+            {local ? "仅本机接口" : healthy ? "服务正常" : "服务异常"}
           </span>
           <span className={chip}>版本 <span className="mono text-ink-2">{V}</span></span>
-          <span className={chip}>匿名只读 · 无需 Key</span>
+          {!local && <span className={chip}>匿名只读 · 无需 Key</span>}
         </div>
+        {local && <p className="mt-3 max-w-[40em] text-[13px] leading-6 text-ink-3">下面的地址只指向这台机器。公开网页快照里没有这些接口，不能把本机显示成对外服务正常。</p>}
       </header>
 
       {BANNERS.map((Banner, i) => <Banner key={i} base={base} tag={tag} now={now} href={anchorHref} open={open} />)}

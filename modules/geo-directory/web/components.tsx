@@ -1,3 +1,4 @@
+import { useStaticSnapshot } from "@aihot/web/lib/static-snapshot";
 import { Link, useLocation, useSearchParams } from "react-router";
 import { useState } from "react";
 import { toggleStar, useIsStarred, type ChineseTranslation } from "@aihot/web/lib/local-state";
@@ -79,13 +80,14 @@ export function newsTime(value: string | null, now = Date.now()): string {
   const [year, month, date] = day.split("-").map(Number);
   return `${year === new Date(now + 8 * 3600_000).getUTCFullYear() ? "" : `${year}年`}${month}月${date}日`;
 }
-export function ItemCard({ item, compact = false, query = "", grouped = true }: { item: CardItem; compact?: boolean; query?: SearchTerms; grouped?: boolean }) {
+export function ItemCard({ item, compact = false, query = "", grouped = true, images = true }: { item: CardItem; compact?: boolean; query?: SearchTerms; grouped?: boolean; images?: boolean }) {
+  const staticSnapshot = useStaticSnapshot();
   const starred = useIsStarred(item.id);
   const [params] = useSearchParams();
   const location = useLocation();
   const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
   const imageUrl = cardImageUrl(item.imageUrl);
-  const showImage = !compact && imageUrl && failedImageUrl !== imageUrl;
+  const showImage = images && !compact && imageUrl && failedImageUrl !== imageUrl;
   const translation = useLiveTranslation(item);
   const content = useTranslatedContent({ ...item, translation });
   const social = item.contentKind === "social", aggregated = item.contentKind === "aggregated";
@@ -114,10 +116,10 @@ export function ItemCard({ item, compact = false, query = "", grouped = true }: 
   return <li data-public-item={item.id} data-card-key={item.id} className={compact ? "px-4 py-3 lg:px-5" : "px-5 py-4 lg:px-6"}>
     <div className="flex items-start gap-4">
       <div className="min-w-0 flex-1">
-        {(item.readingPriority?.badge || channels.length > 0 || item.readingReady || social) && <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
+        {(item.readingPriority?.badge || channels.length > 0 || item.readingReady || item.translation?.title?.trim() || social) && <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
           <ValueBadge badge={item.readingPriority?.badge} />
           {social && <span className="rounded-mark bg-bg-sunk px-1.5 py-0.5 text-[11px] text-ink-3">帖子</span>}
-          {item.readingReady && <span className="rounded-mark bg-ok-soft px-1.5 py-0.5 text-[11px] font-semibold text-ok-ink">有中文解读</span>}
+          {item.readingReady ? <span className="rounded-mark bg-ok-soft px-1.5 py-0.5 text-[11px] font-semibold text-ok-ink">有解读</span> : item.translation?.title?.trim() ? <span className="rounded-mark bg-bg-sunk px-1.5 py-0.5 text-[11px] text-ink-3">仅摘译</span> : null}
           {channels.map(channel => <Link key={channel.slug} to={`/topics/${channel.slug}`} className="relative z-10 rounded-mark px-1 py-0.5 text-[11px] font-semibold text-accent hover:underline">{channel.name}</Link>)}
         </div>}
         <h2 lang={content.language} className={social ? "line-clamp-3 text-[15px] leading-relaxed text-ink" : `font-semibold leading-relaxed text-ink ${compact ? "text-[15px]" : "text-[17px]"}`}><Link to={readerHref} state={{ geoReaderFrom: location.pathname + location.search }} className="hover:text-accent hover:underline"><HighlightedText text={title} query={query} /></Link></h2>
@@ -132,7 +134,7 @@ export function ItemCard({ item, compact = false, query = "", grouped = true }: 
       <Link to={`/all?source=${encodeURIComponent(item.sourceId)}`} className="max-w-[40%] truncate hover:text-accent hover:underline sm:max-w-[60%]" title={`只看 ${item.sourceName}`}><HighlightedText text={item.sourceName} query={query} /></Link>
       <time dateTime={item.publishedAt ?? undefined} title={!item.publishedAt ? "来源未提供发布日期" : aggregated ? "索引标注时间（北京时间）" : "原文发布时间（北京时间）"} suppressHydrationWarning>{(aggregated && item.publishedAt ? "索引标注 " : "") + newsTime(item.publishedAt)}</time>
       {showLanguage && <span className="hidden sm:inline">{languageNames[item.language] ?? item.language}</span>}
-      <button type="button" aria-label={starred ? "取消收藏" : "收藏这条内容"} aria-pressed={starred} className={`ml-auto inline-flex min-h-9 min-w-9 items-center justify-center ${starred ? "text-accent" : "text-ink-4 hover:text-accent"}`} onClick={() => toggleStar({ id: item.id, title: item.title, summary: item.summary, language: item.language, ...(content.translation ? { translation: content.translation } : {}), sourceName: item.sourceName, publishedAt: item.publishedAt, url: item.url, score: null, aiSelected: false })}><IconBookmark size={16} filled={starred} /></button>
+      {!staticSnapshot && <button type="button" aria-label={starred ? "取消收藏" : "收藏这条内容"} aria-pressed={starred} className={`ml-auto inline-flex min-h-9 min-w-9 items-center justify-center ${starred ? "text-accent" : "text-ink-4 hover:text-accent"}`} onClick={() => toggleStar({ id: item.id, title: item.title, summary: item.summary, language: item.language, ...(content.translation ? { translation: content.translation } : {}), sourceName: item.sourceName, publishedAt: item.publishedAt, url: item.url, score: null, aiSelected: false })}><IconBookmark size={16} filled={starred} /></button>}
     </div>
     {item.publisherName && <p className="mt-1 text-[12px] text-ink-3">{aggregated ? "索引标注发布者：" : "发布者："}{publisherUrl ? <a href={publisherUrl} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">{item.publisherName}<span className="sr-only">（发布者网站）</span> ↗</a> : item.publisherName}</p>}
     {siblings && siblings.count > 1 && <details data-similar-titles={siblings.key} className="mt-2 overflow-hidden rounded-control border border-line bg-bg-sunk"><summary className="cursor-pointer px-3 py-2 text-[12px] text-accent">另有 {siblings.count - 1} 条相似报道</summary><p className="px-3 pb-2 text-[11px] leading-6 text-ink-4">按标题、语言与日期自动归组，尚未核实为同一篇内容。</p><ul className="divide-y divide-line border-t border-line bg-surface">{siblings.items.map(sibling => <ItemCard key={sibling.id} item={sibling} compact query={query} grouped={false} />)}</ul>{(siblings.remainingCount ?? 0) > 0 && <Link to={`/all?${groupQuery}`} className="block border-t border-line px-3 py-3 text-[12px] text-accent hover:underline">还有 {siblings.remainingCount} 条，查看这一组全部条目 →</Link>}</details>}

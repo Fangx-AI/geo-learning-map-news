@@ -81,7 +81,7 @@ test('GEO overview and daily query variants return offline without another read'
   const page=await context.newPage();
   try{
     await page.goto(origin+'/');
-    await page.getByRole('link',{name:'按日期看',exact:true}).click();
+    await page.getByRole('link',{name:'按日期看资讯',exact:true}).click();
     await expect(page.getByRole('heading',{name:'按日期看资讯',level:1,exact:true})).toBeVisible();
     await context.setOffline(true);await page.goBack();
     await expect(page.getByRole('heading',{name:'今日 GEO 资讯',exact:true})).toBeVisible({timeout:1500});

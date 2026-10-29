@@ -3,6 +3,7 @@ import { Link, useRouteLoaderData } from "react-router";
 import { POLICY, SITE } from "@aihot/site";
 import type { loader as rootLoader } from "../root";
 import { useChangelogDot } from "../components/shell/Sidebar";
+import { useStaticSnapshot } from "../lib/static-snapshot";
 import { PhoneBar } from "../components/shell/PhoneBar";
 import { inNav } from "../components/shell/nav";
 import type { Screen } from "../components/shell/screens";
@@ -67,6 +68,7 @@ function RowLink({ row, dot = false }: { row: Row; dot?: boolean }) {
 
 export default function MorePage() {
   const root = useRouteLoaderData<typeof rootLoader>("root");
+  const staticSnapshot = useStaticSnapshot();
   const changelogDot = useChangelogDot(root?.changelogVersion ?? null);
   const starred = useStarred();
   const font = useFontPreference();
@@ -77,9 +79,10 @@ export default function MorePage() {
     <div className="mx-auto max-w-[var(--page-max-reading)] pb-8">
       <PhoneBar title="我的" large />
       <h1 className="hidden pb-4 pt-1 text-[22px] font-bold text-ink lg:block">我的</h1>
+      {staticSnapshot && <p className="mb-4 rounded-control bg-bg-sunk px-4 py-3 text-[13px] leading-6 text-ink-3">这是只读快照。收藏、关注、反馈、字体和深浅色都不会保存，所以不放成可点的开关。阅读从首页开始。</p>}
       <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-4 2xl:grid-cols-3">
         <Group>
-          <RowLink row={{ to: "/starred", label: "收藏", icon: <IconBookmark size={20} />, detail: here && starred.length > 0 ? <span className="num">{starred.length}</span> : undefined }} />
+          {!staticSnapshot && <RowLink row={{ to: "/starred", label: "收藏", icon: <IconBookmark size={20} />, detail: here && starred.length > 0 ? <span className="num">{starred.length}</span> : undefined }} />}
           <li className="flex min-h-[56px] items-center gap-3 px-4 text-[16px] font-medium text-ink">
             <span className="text-ink-3">
               <IconMoon size={20} />
@@ -90,21 +93,21 @@ export default function MorePage() {
           <li className="flex min-h-[56px] items-center gap-3 px-4 text-[16px] font-medium text-ink">
             <span className="w-5 text-center text-ink-3" aria-hidden="true">Aa</span>
             <span className="flex-1">字体</span>
-            <Select aria-label="字体" value={font ?? "system"} onChange={(e) => setFontPreference(e.target.value === "browser" ? "browser" : null)}>
+            {staticSnapshot ? <span className="text-[13px] text-ink-3">快照不改字体</span> : <Select aria-label="字体" value={font ?? "system"} onChange={(e) => setFontPreference(e.target.value === "browser" ? "browser" : null)}>
               <option value="system">默认字体</option>
               <option value="browser">浏览器默认字体</option>
-            </Select>
+            </Select>}
           </li>
         </Group>
         <Group title="工具与入口">
-          {tools().map((r) => (
+          {tools().filter((r) => !staticSnapshot || (r.to !== "/agent" && r.to !== "/following")).map((r) => (
             <RowLink key={r.to} row={r} />
           ))}
         </Group>
         <Group title="关于">
           <RowLink row={{ to: "/about", label: `关于 ${SITE.name}`, icon: <IconHeart size={20} /> }} />
           <RowLink row={{ to: "/changelog", label: "更新日志", icon: <IconSparkles size={20} /> }} dot={changelogDot} />
-          <RowLink row={{ to: "/feedback", label: "意见反馈", icon: <IconMessage size={20} /> }} />
+          {!staticSnapshot && <RowLink row={{ to: "/feedback", label: "意见反馈", icon: <IconMessage size={20} /> }} />}
         </Group>
       </div>
       <div className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-1 text-[12px] leading-[2] text-ink-4">

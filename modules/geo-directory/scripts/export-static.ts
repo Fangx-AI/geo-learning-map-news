@@ -1,6 +1,8 @@
 // Read-only snapshot of a running site for static hosting such as GitHub Pages. Pages are crawled
-// from the sitemap and their links, scripts are removed so links are plain page loads, and
-// same-origin URLs are rewritten under --prefix. Search, feedback, starred and admin need the server.
+// from the sitemap and their links. Each fetch sends x-geo-static so the site renders controls that
+// need a server or page script as plain text or ordinary links. Scripts, forms, buttons and selects
+// are still removed. Same-origin URLs are rewritten under --prefix. Search, feedback, starred and
+// admin need the server.
 //   node modules/geo-directory/scripts/export-static.ts --out .data/static \
 //     --prefix /geo-learning-map-news/ --site https://fangx-ai.github.io/geo-learning-map-news/ [--push]
 // --push replaces the gh-pages branch of this checkout's origin with the snapshot, as one commit.
@@ -11,6 +13,7 @@ import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import * as cheerio from "cheerio";
 
+const STATIC_HEADERS = { "x-geo-static": "1" };
 const arg = (name: string, fallback: string) => {
   const at = process.argv.indexOf(`--${name}`);
   return at > 0 ? process.argv[at + 1]! : fallback;
@@ -104,11 +107,12 @@ async function snapshotHtml(html: string, from: URL): Promise<string> {
   }).remove();
   $('link[rel="modulepreload"]').remove();
   $("form, [role=\"radiogroup\"]").remove();
-  // Buttons need the page script; drop them and any group they leave empty.
-  $('button[type="button"]').each((_, element) => {
-    const parent = $(element).parent();
-    $(element).remove();
-    if (!parent.children().length && !parent.text().trim()) parent.remove();
+  // Anything left that only works with script: selects, fields and every button. A group that
+  // then has no text was only a control, so it goes too.
+  $("button, select, textarea, input").remove();
+  $("[role=\"group\"]").each((_, element) => {
+    const node = $(element);
+    if (!node.text().trim()) node.remove();
   });
   $("a[href]").filter((_, element) => {
     try { const url = new URL($(element).attr("href")!, from); return url.origin === base.origin && SKIP.some(pattern => pattern.test(url.pathname)); }
@@ -131,11 +135,11 @@ const snapshotCss = (css: string, from: URL) =>
   css.replace(/url\((['"]?)([^'")]+)\1\)/g, (match, quote: string, src: string) => src.startsWith("data:") ? match : `url(${quote}${rewrite(src, from)}${quote})`);
 
 async function fetchWithRetry(url: URL) {
-  let response = await fetch(url, { redirect: "manual", signal: AbortSignal.timeout(60_000) });
+  let response = await fetch(url, { redirect: "manual", headers: STATIC_HEADERS, signal: AbortSignal.timeout(60_000) });
   // The image proxy answers 503 with Retry-After while its per-minute upstream budget is spent.
   for (let attempt = 1; response.status === 503 && attempt <= 3; attempt++) {
     await delay((Number(response.headers.get("retry-after")) || 60) * 1_000);
-    response = await fetch(url, { redirect: "manual", signal: AbortSignal.timeout(60_000) });
+    response = await fetch(url, { redirect: "manual", headers: STATIC_HEADERS, signal: AbortSignal.timeout(60_000) });
   }
   return response;
 }
@@ -166,7 +170,7 @@ async function save(url: URL) {
 
 await rm(out, { recursive: true, force: true });
 await mkdir(out, { recursive: true });
-const sitemap = await (await fetch(new URL("/sitemap.xml", base))).text();
+const sitemap = await (await fetch(new URL("/sitemap.xml", base), { headers: STATIC_HEADERS })).text();
 for (const loc of sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)) { const url = normalize(loc[1]!, base); if (url) visit(url); }
 for (const seed of SEEDS) { const url = normalize(seed, base); if (url) visit(url); }
 
@@ -180,7 +184,7 @@ while (queue.length) {
   }));
 }
 
-const missing = await fetch(new URL("/__static-export-missing__", base));
+const missing = await fetch(new URL("/__static-export-missing__", base), { headers: STATIC_HEADERS });
 await writeFile(path.join(out, "404.html"), await snapshotHtml(await missing.text(), base));
 await writeFile(path.join(out, ".nojekyll"), "");
 // Links to pages past --max would 404, so an export that hit the limit is not published.

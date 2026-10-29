@@ -1,3 +1,4 @@
+import { useStaticSnapshot } from "@aihot/web/lib/static-snapshot";
 import { Form, Link, redirect, useLoaderData, useSearchParams } from "react-router";
 import { loadOr404, cachedPage } from "@aihot/web/lib/api.server";
 import { pageReuse } from "@aihot/web/lib/page-reuse";
@@ -43,7 +44,22 @@ const beijingDay = (value: string) => new Date(Date.parse(value) + 8 * 3600_000)
 const dayHeading = (day: string, now = Date.now()) => day === beijingDay(new Date(now).toISOString()) ? "今天" : day === beijingDay(new Date(now - 86_400_000).toISOString()) ? "昨天" : `${Number(day.slice(5, 7))}月${Number(day.slice(8))}日`;
 const chip = (on: boolean) => `inline-flex min-h-9 items-center rounded-full border px-3 text-[13px] ${on ? "border-ink bg-ink text-bg" : "border-line text-ink-2 hover:border-accent hover:text-accent"}`;
 
+function StaticFeedFilters({ kind, period, sort }: { kind: string; period: string; sort: string }) {
+  const kinds: Array<[string, string]> = [["direct", "文章"], ["aggregated", "媒体报道"], ["social", "社交帖子"], ["all", "全部"]];
+  const one = (key: string, value: string) => value ? `/all?${key}=${encodeURIComponent(value)}` : "/all";
+  return <div className="space-y-3">
+    <p className="rounded-control bg-bg-sunk px-3 py-2 text-[13px] leading-6 text-ink-3">这是只读快照。搜索、来源、语言和发布平台筛选需要在线站点，点了也不会改列表，所以这里不放。下面每种条件单独打开一页。</p>
+    <div role="group" aria-label="内容类型" className="flex flex-wrap gap-2">{kinds.map(([value, name]) => <Link key={value} to={one("kind", value === "direct" ? "" : value)} aria-current={kind === value ? "page" : undefined} className={chip(kind === value)}>{name}</Link>)}</div>
+    <div role="group" aria-label="发布时间" className="flex flex-wrap gap-2">{[["", "全部时间"], ...Object.entries(periodNames)].map(([value, name]) => <Link key={value || "all-time"} to={one("period", value)} aria-current={period === value ? "page" : undefined} className={chip(period === value)}>{name}</Link>)}</div>
+    <div role="group" aria-label="内容排序" className="flex flex-wrap gap-2">
+      <Link to="/all" aria-current={sort !== "recommended" ? "page" : undefined} className={chip(sort !== "recommended")}>最新</Link>
+      <Link to="/all?sort=recommended" aria-current={sort === "recommended" ? "page" : undefined} className={chip(sort === "recommended")}>推荐</Link>
+    </div>
+  </div>;
+}
+
 export default function PublicStreamPage() {
+  const staticSnapshot = useStaticSnapshot();
   const feed = useLoaderData<typeof loader>();
   const [params, setParams] = useSearchParams();
   const next = () => {
@@ -80,12 +96,13 @@ export default function PublicStreamPage() {
     <header className="border-b border-line pb-4">
       <div className="flex flex-wrap items-center justify-between gap-2"><h1 data-page-title="" className="text-[27px] font-semibold tracking-tight text-ink">最新资讯</h1><ContentLanguageToggle /></div>
       <p role="status" aria-live="polite" className="mt-1 text-[14px] text-ink-3">
-        {active.length ? "找到" : "共"} <strong className="text-ink">{feed.total.toLocaleString("zh-CN")}</strong> 条{feed.groupMode === "title" && feed.totalGroups !== undefined && feed.totalGroups < feed.total && ` · 合为 ${feed.totalGroups.toLocaleString("zh-CN")} 组`}
+        {active.length ? "找到" : "共"} <strong className="text-ink">{feed.total.toLocaleString("zh-CN")}</strong> 条{feed.groupMode === "title" && feed.totalGroups !== undefined && feed.totalGroups < feed.total && ` · 合为 ${feed.totalGroups.toLocaleString("zh-CN")} 组`}{!active.length && " · 全部时间，不是首页那个时间窗"}
         {feed.quality === "useful" && feed.hiddenTotal > 0 && <> · 已折叠 {feed.hiddenTotal.toLocaleString("zh-CN")} 条服务商软文、排行榜和转载 <Link to={withAll()} preventScrollReset className="text-accent hover:underline">显示</Link></>}
         {feed.quality === "all" && <> · 含软文和转载 <Link to={without("quality")} preventScrollReset className="text-accent hover:underline">折叠</Link></>}
       </p>
     </header>
     <section aria-label="筛选资讯" className="space-y-3 pt-4">
+      {staticSnapshot ? <StaticFeedFilters kind={kind} period={params.get("period") ?? ""} sort={feed.sort} /> : <>
       <Form method="get" action="/all" className="flex gap-2" key={params.get("q") ?? ""}>
         {[...feedFilterKeys.filter(key => key !== "q"), "quality", "sort"].map(key => params.get(key) && <input key={key} type="hidden" name={key} value={params.get(key)!} />)}
         <label className="min-w-0 flex-1"><span className="sr-only">搜索资讯</span><input type="search" name="q" maxLength={200} defaultValue={params.get("q") ?? ""} placeholder="搜索标题和摘要，如 AI Mode、llms.txt、豆包" className={controlClass} /></label>
@@ -102,6 +119,7 @@ export default function PublicStreamPage() {
           <div><span className="mb-1 block text-[12px] text-ink-3">排序</span><SortToggle value={feed.sort} onChange={value => change("sort", value)} /></div>
         </div>
       </details>
+      </>}
       {active.length > 0 && <div aria-label="已选筛选" className="flex flex-wrap items-center gap-2">{active.map(key => <Link key={key} to={without(key)} aria-label={`移除筛选：${label(key)}`} preventScrollReset className="max-w-full break-words rounded-control bg-accent-soft px-2.5 py-2 text-[12px] text-accent">{label(key)} <span aria-hidden="true">×</span></Link>)}<Link to="/all" className="min-h-9 px-1 py-2 text-[12px] text-ink-3 hover:underline">清除全部</Link></div>}
     </section>
     <div className="mt-5">

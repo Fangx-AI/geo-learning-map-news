@@ -14,7 +14,7 @@ const chineseSecond = geoItem({ id: "zh-second", title: "citation & GEO 中文�
 const social = geoItem({ id: "social-post", title: "AI search citation field notes", sourceId: "social-fixture", sourceName: "研究者原帖", sourceUrl: "https://x.com/researcher", url: "https://x.com/researcher/status/123456", platform: "x", contentKind: "social" });
 const aggregate = geoItem({ id: "index-result", title: "GEO 方法研究 - 知乎专栏", sourceId: "index-fixture", sourceName: "知乎公开索引", sourceUrl: "https://news.google.com/", url: "https://news.google.com/rss/articles/fixture", language: "zh", platform: "zhihu", contentKind: "aggregated" });
 const googleSourceItem = geoItem({ id: "google-source-item", title: "Google AI search guidance", sourceId: "rss-google-search-central", sourceName: "Google Search Central", sourceUrl: "https://developers.google.com/search/blog", url: "https://developers.google.com/search/blog/2026/10/fixture", platform: "web", contentKind: "direct" });
-const paper = { ...geoItem({ id: "9".repeat(64), title: "Citation study of generative engines via @sejournal, @author", url: "https://arxiv.org/abs/2610.00001", publishedAt: "2026-10-02T00:00:00.000Z", platform: "web", contentKind: "direct" }), readingPriority: { tier: "priority" as const, label: "优先阅读", badge: "论文", folded: false, reasons: [], limitations: [], policyVersion: 5 } };
+const paper = { ...geoItem({ id: "f".repeat(64), title: "Citation study of generative engines via @sejournal, @author", url: "https://arxiv.org/abs/2610.00001", publishedAt: "2026-10-02T00:00:00.000Z", platform: "web", contentKind: "direct" }), readingPriority: { tier: "priority" as const, label: "优先阅读", badge: "论文", folded: false, reasons: [], limitations: [], policyVersion: 5 } };
 const publicItems = [original, chineseFirst, chineseSecond, undated, social, aggregate, googleSourceItem];
 const sources = [...new Set(publicItems.map(item => item.sourceId))].map(id => {
   const items = publicItems.filter(item => item.sourceId === id);
@@ -51,6 +51,7 @@ const api = createServer((req, res) => {
     const offset = cursor ? Number(cursor.slice(5)) : 0;
     return res.end(JSON.stringify(geoFeed({ items: filtered.slice(offset, offset + 1), nextCursor: offset + 1 < filtered.length ? `page-${offset + 1}` : null, total: filtered.length, sources })));
   }
+  if (url.pathname === "/api/geo/editions") return res.end(JSON.stringify({ editions: [] }));
   if (url.pathname === "/api/geo/overview") {
     const day = url.searchParams.get("day") ?? "2026-10-04";
     if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || !Number.isFinite(Date.parse(day)) || new Date(day).toISOString().slice(0, 10) !== day) { res.statusCode = 400; return res.end('{}'); }
@@ -79,8 +80,10 @@ test("GEO home leads with attributed headlines and full readings, preserving sou
   try {
     await page.goto(web.origin);
     await expect(page.getByRole("heading", { name: "今日 GEO 资讯", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "值得先看", exact: true })).toBeVisible();
     const lead = page.locator(`[data-top-story="${original.id}"]`);
     await expect(lead).toContainText("GEO & AI <img src=x onerror=alert(1)>");
+    await expect(lead).toContainText("官方来源");
     await expect(lead).toContainText(original.sourceName);
     await expect(lead.locator("time")).toHaveAttribute("datetime", original.publishedAt!);
     await expect(lead.locator("img")).toHaveCount(0);
@@ -293,6 +296,12 @@ test("daily redirects to the same today selection, and legacy library filters su
  const context=await browser.newContext({viewport:{width:390,height:844}}); const page=await context.newPage();
  try { await page.goto(web.origin+'/daily'); await expect(page).toHaveURL(web.origin+'/');
  await expect(page.getByRole('heading',{name:'今日 GEO 资讯',exact:true})).toBeVisible();
+ const pad = await page.locator("#main").evaluate((el) => parseFloat(getComputedStyle(el).paddingBottom));
+ assert.ok(pad >= 100, `phone main padding clears the tab bar, got ${pad}`);
+ for (const name of ["Bing / Copilot", "Kimi"]) {
+   const box = await page.getByRole("link", { name, exact: true }).boundingBox();
+   assert.ok(box && box.x >= 0 && box.x + box.width <= 391, `${name} is clipped`);
+ }
  await expect(page.locator('[data-reading-link]')).toHaveCount(4);
  await expect(page.locator('[data-reading-link]').first()).toContainText('中文研究 0');
  await page.getByRole('group',{name:'阅读语言'}).getByRole('button',{name:'原文',exact:true}).click();
@@ -360,6 +369,33 @@ test("daily archives select actual dates, show the cap honestly and hot clusters
     await expect(page.locator(`[data-public-item="${original.id}"]`)).toBeVisible();
     await expect(page.locator('[data-public-item="undated"]')).toBeVisible();
   } finally { await context.close(); }
+});
+
+test("static snapshot header is a read-only page and empty editions leave the archive", async () => {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  try {
+    await page.setExtraHTTPHeaders({ "x-geo-static": "1" });
+    await page.goto(web.origin + "/");
+    await expect(page.getByRole("heading", { name: "值得先看", exact: true })).toBeVisible();
+    await expect(page.getByText("已有文章的信源")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Agent 接入", exact: true })).toHaveCount(0);
+    await page.goto(web.origin + "/all");
+    await expect(page.getByText("这是只读快照")).toBeVisible();
+    await expect(page.locator("#main select, #main input")).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "媒体报道", exact: true })).toHaveAttribute("href", "/all?kind=aggregated");
+    await page.goto(web.origin + "/agent");
+    await expect(page.getByRole("heading", { name: "此快照不提供 Agent 接口" })).toBeVisible();
+    await expect(page.getByText("服务正常")).toHaveCount(0);
+    await expect(page.getByText("无需 Key")).toHaveCount(0);
+    await expect(page.getByText(/localhost:3000\/api\/mcp/)).toHaveCount(0);
+    await page.goto(web.origin + "/more");
+    await expect(page.getByRole("link", { name: "整期日报", exact: true })).toHaveCount(0);
+    await expect(page.getByText("这是只读快照")).toBeVisible();
+  } finally { await context.close(); }
+  const editions = await fetch(web.origin + "/daily/editions", { redirect: "manual" });
+  assert.equal(editions.status, 302);
+  assert.match(editions.headers.get("location") ?? "", /\/daily\/archive$/);
 });
 
 test("invalid public filters and dates preserve API 400 status and are not cached", async () => {

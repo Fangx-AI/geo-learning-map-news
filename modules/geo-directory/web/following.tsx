@@ -1,3 +1,4 @@
+import { useStaticSnapshot } from "@aihot/web/lib/static-snapshot";
 import { useState } from "react";
 import { Link, useLoaderData, useSearchParams } from "react-router";
 import { pageMeta } from "@aihot/web/lib/seo";
@@ -16,6 +17,7 @@ export const handle = { tab: "me", name: "我的关注" };
 export const meta = () =>
   pageMeta({ title: "我的 GEO 关注", path: "/following", noindex: true });
 export default function Following() {
+  const staticSnapshot = useStaticSnapshot();
   const { digest } = useLoaderData<typeof loader>();
   const state = useReadingState();
   const [params] = useSearchParams();
@@ -32,6 +34,12 @@ export default function Following() {
       ),
   );
   const visits = state.visits.filter((v) => all.some((i) => i.id === v.id));
+  if (staticSnapshot) return <div className="mx-auto max-w-4xl pb-12">
+    <PhoneBar title="我的关注" back={{ to: "/more", label: "我的" }} />
+    <h1 data-page-title="" className="text-[30px] font-semibold text-ink">关注和已读不在快照里</h1>
+    <p className="mt-3 max-w-xl text-sm leading-7 text-ink-3">关注和已读只存在于打开了脚本的浏览器。这个快照不会记住，所以这里没有可点的关注按钮。</p>
+    <p className="mt-4 flex flex-wrap gap-4 text-sm"><Link to="/library" className="text-accent hover:underline">去看已有解读 →</Link><Link to="/" className="text-accent hover:underline">回今日资讯</Link></p>
+  </div>;
   return (
     <div className="mx-auto max-w-4xl pb-12">
       <PhoneBar title="我的关注" />

@@ -10,7 +10,7 @@ export default defineWebModule({
   name: "geo-directory",
   sidebar: { section: "内容", items: [{ to: "/library", label: "研究与解读", icon: IconDoc }, { to: "/daily/archive", label: "日报", icon: IconHistory }] },
   tabs: [{ key: "all", to: "/all", label: "最新", icon: IconList }, { key: "library", to: "/library", label: "研究", icon: IconDoc }],
-  tools: [{ to: "/following", label: "我的关注", icon: <IconHeart size={20} /> }, { to: "/daily/editions", label: "整期日报", icon: <GlobeIcon /> }, { to: "/hot", label: "热点榜", icon: <GlobeIcon /> }, { to: "/atlas", label: "全球 GEO 信源目录", icon: <GlobeIcon /> }],
+  tools: [{ to: "/following", label: "我的关注", icon: <IconHeart size={20} /> }, { to: "/hot", label: "热点榜", icon: <GlobeIcon /> }, { to: "/atlas", label: "全球 GEO 信源目录", icon: <GlobeIcon /> }],
   starredItemActions: () => import("./web/starred-actions.tsx"),
   starredItemHref: (item, from) => item.url && /^[a-f0-9]{64}$/i.test(item.id) ? geoReaderHref(item.id, from) : null,
   admin: { content: [{ to: "/admin/geo-corrections", label: "译文纠错", count: "geoCorrections" }] },

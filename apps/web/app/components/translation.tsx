@@ -1,9 +1,12 @@
+import { useStaticSnapshot } from "../lib/static-snapshot";
 import { useEffect, useState } from "react";
 import { decodeHTML } from "entities";
 import { setContentLanguage, useContentLanguage, type ChineseTranslation, type ContentLanguage } from "../lib/local-state";
 
 export function ContentLanguageToggle() {
+  const staticSnapshot = useStaticSnapshot();
   const language = useContentLanguage();
+  if (staticSnapshot) return <p className="max-w-xs text-[12px] leading-5 text-ink-3">快照默认显示中文译文，不能在这里切换原文。</p>;
   return <div role="group" aria-label="阅读语言" className="inline-flex shrink-0 rounded-control border border-line bg-surface p-0.5 text-[12px]">
     {([["zh", "中文"], ["original", "原文"]] as const).map(([value, label]) => <button key={value} type="button" aria-pressed={language === value} onClick={() => setContentLanguage(value)} className={`min-h-9 rounded px-3 ${language === value ? "bg-accent-soft font-semibold text-accent" : "text-ink-3 hover:text-accent"}`}>{label}</button>)}
   </div>;

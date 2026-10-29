@@ -6,7 +6,7 @@ import { SITE } from "@aihot/site";
 const at = process.argv.indexOf("--base");
 const base = (at > 0 ? process.argv[at + 1] : process.env.SITE_URL) ?? "http://localhost:3000";
 
-const PAGES = ["/", "/library", "/following", "/all", "/hot", "/daily/archive", "/daily/editions", "/topics", "/starred", "/agent", "/about", "/changelog", "/feedback", "/terms", "/privacy", "/more", "/admin/login"];
+const PAGES = ["/", "/library", "/following", "/all", "/hot", "/daily/archive", "/topics", "/starred", "/agent", "/about", "/changelog", "/feedback", "/terms", "/privacy", "/more", "/admin/login"];
 const MACHINE: Array<[path: string, type: RegExp]> = [
   ["/api/health", /json/],
   ["/api/v1/items", /json/],
@@ -45,6 +45,7 @@ const htmlName = SITE.name.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(
 for (const path of PAGES) await check(path, (_res, body) => (body.includes(SITE.name) || body.includes(htmlName) ? null : `the page does not name ${SITE.name}`));
 await check("/daily", () => null, "/");
 await check("/daily?view=library&q=GEO", () => null, "/library?q=GEO");
+await check("/daily/editions", () => null, "/daily/archive");
 for (const [path, type] of MACHINE) await check(path, (res) => (type.test(res.headers.get("content-type") ?? "") ? null : `content-type ${res.headers.get("content-type")}`));
 // MCP: the handshake answers with the site's server name.
 const mcp = await fetch(`${base}/api/mcp`, {

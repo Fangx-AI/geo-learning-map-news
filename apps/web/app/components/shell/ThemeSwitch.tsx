@@ -1,3 +1,4 @@
+import { useStaticSnapshot } from "../../lib/static-snapshot";
 import { useEffect, useState, type ReactNode } from "react";
 import { IconMonitor, IconMoon, IconSun } from "../icons";
 import { applyTheme, resolvedTheme, setThemePreference, useThemePreference, type ThemePreference } from "../../lib/local-state";
@@ -12,9 +13,11 @@ const OPTIONS: Array<{ key: Choice; label: string; icon: ReactNode }> = [
 
 /** Three-way appearance switch (dark / follow the system / light) with a sliding thumb. */
 export function ThemeSwitch({ className = "" }: { className?: string }) {
+  const staticSnapshot = useStaticSnapshot();
   const pref = useThemePreference();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+  if (staticSnapshot) return <span className={`text-[12px] leading-5 text-ink-3 ${className}`}>快照不切换深浅色</span>;
   const current: Choice = !mounted ? "system" : (pref ?? "system");
   const index = OPTIONS.findIndex((o) => o.key === current);
 

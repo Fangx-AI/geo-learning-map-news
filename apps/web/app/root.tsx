@@ -17,6 +17,7 @@ import { BackToTop, NavigationProgress } from "./components/shell/Chrome";
 import { buttonClass } from "./components/ui/Controls";
 import { rememberPage, APPEARANCE_BOOT_SCRIPT, useAppearanceSync } from "./lib/local-state";
 import { apiGet } from "./lib/api.server";
+import { isPublicSiteUrl, isStaticSnapshotRequest } from "./lib/static-snapshot";
 import { useHydratedFlag } from "./lib/hydration";
 import { titled } from "./lib/seo";
 import { webModules } from "./site-modules";
@@ -32,14 +33,17 @@ export const links: Route.LinksFunction = () => [
 /** The release rendering this document: once a newer one is deployed, a render error reloads the page (entry.client). */
 export async function loader({ request }: Route.LoaderArgs) {
   const release = process.env.AIHOT_RELEASE ?? null;
+  const staticSnapshot = isStaticSnapshotRequest(request);
+  // Pages snapshots and localhost must not advertise Agent as a working public API.
+  const showAgentNav = !staticSnapshot && isPublicSiteUrl(process.env.SITE_URL);
   try {
     const meta = await apiGet<SiteMeta>("/api/site/meta", {
       headers: Object.assign({}, ...webModules().map((m) => m.root?.documentHeaders?.(request) ?? {})),
       signal: request.signal,
     });
-    return { ...meta, release };
+    return { ...meta, release, staticSnapshot, showAgentNav };
   } catch {
-    return { changelogVersion: null, release };
+    return { changelogVersion: null, release, staticSnapshot, showAgentNav };
   }
 }
 
@@ -93,7 +97,7 @@ function SiteShell({ changelogVersion, children }: { changelogVersion: string | 
       <Sidebar changelogVersion={changelogVersion} />
       {/* Phone shell (≤ 960px): each page's top bar (PhoneBar), one centred column, the tab bar below.
           Desktop: the page fills the main area up to the list width (--page-max-wide), centred beyond it. */}
-      <main id="main" className="min-w-0 flex-1 pb-[calc(72px+env(safe-area-inset-bottom))] lg:px-7 lg:pb-[72px] lg:pt-6">
+      <main id="main" className="min-w-0 flex-1 pb-[calc(112px+env(safe-area-inset-bottom))] lg:px-7 lg:pb-[72px] lg:pt-6">
         <div className="mx-auto w-full max-w-[640px] pl-[var(--gutter-l)] pr-[var(--gutter-r)] lg:max-w-[var(--page-max-wide)] lg:px-0">
           {webModules().map((m) => m.root?.Top && <m.root.Top key={m.name} />)}
           {children}

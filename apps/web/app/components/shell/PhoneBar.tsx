@@ -2,7 +2,8 @@
 // once its own heading has scrolled up under the bar, or a switch that always shows; right: actions. Tab
 // pages also get a large title under the bar. Desktop pages keep their own headers.
 import { forwardRef, useEffect, useLayoutEffect, useState, type ButtonHTMLAttributes, type ReactNode } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
+import { useStaticSnapshot } from "../../lib/static-snapshot";
 import { IconChevronLeft } from "../icons";
 import { historyIndex, previousScreen } from "./screens";
 import { markBack } from "./transitions";
@@ -70,14 +71,16 @@ export function PhoneBar({ back, title, large = false, sub, leading, center, act
 
 /** "‹ 精选": back through the reader's history, or to the page's parent when it was opened directly. */
 function BackButton({ to, label }: BackTarget) {
+  const staticSnapshot = useStaticSnapshot();
   const navigate = useNavigate();
   const { key } = useLocation();
   const [text, setText] = useState(label);
   useIsoLayoutEffect(() => {
-    if (historyIndex() === 0) return setText(label);
+    if (staticSnapshot || historyIndex() === 0) return setText(label);
     const behind = previousScreen();
     setText(behind ? behind : "返回");
-  }, [key, label]);
+  }, [key, label, staticSnapshot]);
+  if (staticSnapshot) return <Link to={to} className="flex h-11 min-w-11 items-center pl-1 pr-2 text-[16px] text-accent"><IconChevronLeft size={25} strokeWidth={2.1} /><span className="max-w-[7em] truncate">{label}</span></Link>;
   return (
     <button
       type="button"

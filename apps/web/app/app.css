@@ -573,6 +573,12 @@
   white-space: nowrap;
 }
 
+/* In-page jumps (解读目录) stay above the phone tab bar. */
+html { scroll-padding-bottom: calc(112px + env(safe-area-inset-bottom)); }
+@media (min-width: 1024px) {
+  html { scroll-padding-bottom: 2rem; }
+}
+
 /* Report pages read on a faintly toned paper in the light theme, lighter than the site's page ground;
    the archive column is halfway between the site sidebar and white. */
 :root:not([data-theme="dark"]) body:has(.report-shell) {

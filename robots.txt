@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /api/v1/
+Allow: /api/mcp
+Disallow: /api/
+Disallow: /admin/
+Disallow: /starred
+Disallow: /feedback
+
+Sitemap: https://fangx-ai.github.io/geo-learning-map-news/sitemap.xml

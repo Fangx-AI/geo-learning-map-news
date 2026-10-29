@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>GEO 学习地图 — 全部 GEO 动态</title>
+    <link>https://fangx-ai.github.io/geo-learning-map-news/all</link>
+    <description>最近 7 天公开动态，按真实发布时间倒序；不含未审内容、低相关条目和已合并重复条目。</description>
+    <language>zh-CN</language>
+    <atom:link href="https://fangx-ai.github.io/geo-learning-map-news/feed/all.xml" rel="self" type="application/rss+xml" />
+    <ttl>30</ttl>
+    <generator>GEO 学习地图 (https://fangx-ai.github.io/geo-learning-map-news/agent)</generator>
+
+  </channel>
+</rss>

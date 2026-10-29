@@ -37,15 +37,10 @@ function normalize(raw: string, from: URL): URL | null {
   return url;
 }
 
-// Proxied images are saved as img/<hash> with the original image's extension, so Pages serves an image type.
 const isImage = (url: URL) => url.pathname === "/api/img-proxy";
-const isFile = (url: URL) => isImage(url) || /\.[a-z0-9]+$/i.test(url.pathname);
+const isFile = (url: URL) => /\.[a-z0-9]+$/i.test(url.pathname);
 const hashed = (text: string) => createHash("sha1").update(text).digest("hex");
 function localPath(url: URL): string {
-  if (isImage(url)) {
-    const extension = /\.(jpe?g|png|webp|gif|avif|svg)$/i.exec(new URL(url.searchParams.get("u") ?? "", base).pathname)?.[0] ?? ".jpg";
-    return `img/${hashed(url.search).slice(0, 16)}${extension.toLowerCase()}`;
-  }
   if (isFile(url)) return url.pathname.slice(1);
   // Pages become <path>/index.html; a query string becomes a hashed subdirectory of its page.
   const dir = url.pathname.replace(/^\/|\/$/g, "");
@@ -70,13 +65,34 @@ function visit(url: URL) {
 function rewrite(raw: string, from: URL): string {
   const url = normalize(raw, from);
   if (!url) return raw.startsWith(base.origin) ? raw.replace(base.origin, site ? site.replace(/\/$/, "") : "") : raw;
+  // An image the proxy could not serve links to its source instead.
+  if (isImage(url)) return images.get(url.href) ?? url.searchParams.get("u") ?? raw;
   const hash = new URL(raw, from).hash;
   visit(url);
   return publicPath(url) + hash;
 }
 
-function snapshotHtml(html: string, from: URL): string {
+// Proxied images are saved as img/<hash> with the extension of the type the proxy returned, which may
+// differ from the source's (an SVG can come back as WebP), so Pages serves them with the right type.
+const IMAGE_TYPES: Record<string, string> = { "image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp", "image/gif": ".gif", "image/avif": ".avif", "image/svg+xml": ".svg" };
+const images = new Map<string, string | null>();
+async function saveImage(url: URL) {
+  if (images.has(url.href)) return;
+  images.set(url.href, null);
+  const response = await fetchWithRetry(url);
+  if (!response.ok) { imageFailures.push(`${response.status} ${url.pathname}${url.search}`); return; }
+  const file = `img/${hashed(url.search).slice(0, 16)}${IMAGE_TYPES[response.headers.get("content-type")?.split(";")[0] ?? ""] ?? ""}`;
+  await mkdir(path.join(out, "img"), { recursive: true });
+  await writeFile(path.join(out, file), new Uint8Array(await response.arrayBuffer()));
+  images.set(url.href, prefix + file);
+}
+
+async function snapshotHtml(html: string, from: URL): Promise<string> {
   const $ = cheerio.load(html);
+  const sources = [...$("[src]").map((_, element) => $(element).attr("src")!),
+    ...$("[srcset]").map((_, element) => $(element).attr("srcset")!.split(",").map(part => part.trim().split(/\s+/)[0]!)).get().flat(),
+    ...$('meta[content^="http"]').map((_, element) => $(element).attr("content")!)];
+  await Promise.all(sources.map(raw => normalize(raw, from)).filter(url => url && isImage(url)).map(url => saveImage(url!)));
   $("script").filter((_, element) => {
     const script = $(element);
     return Boolean(script.attr("src")) || script.attr("type") === "module" || /reactRouter|history\./.test(script.text());
@@ -109,16 +125,21 @@ function snapshotHtml(html: string, from: URL): string {
 const snapshotCss = (css: string, from: URL) =>
   css.replace(/url\((['"]?)([^'")]+)\1\)/g, (match, quote: string, src: string) => src.startsWith("data:") ? match : `url(${quote}${rewrite(src, from)}${quote})`);
 
-const failures: string[] = [];
-// An image whose source is gone shows as missing, as it does on the live site; it does not stop the export.
-const imageFailures: string[] = [];
-async function save(url: URL) {
+async function fetchWithRetry(url: URL) {
   let response = await fetch(url, { redirect: "manual", signal: AbortSignal.timeout(60_000) });
   // The image proxy answers 503 with Retry-After while its per-minute upstream budget is spent.
   for (let attempt = 1; response.status === 503 && attempt <= 3; attempt++) {
     await delay((Number(response.headers.get("retry-after")) || 60) * 1_000);
     response = await fetch(url, { redirect: "manual", signal: AbortSignal.timeout(60_000) });
   }
+  return response;
+}
+
+const failures: string[] = [];
+// An image the proxy cannot serve links to its source; it does not stop the export.
+const imageFailures: string[] = [];
+async function save(url: URL) {
+  const response = await fetchWithRetry(url);
   const target = path.join(out, localPath(url));
   if (response.status >= 300 && response.status < 400 && response.headers.get("location")) {
     const location = rewrite(response.headers.get("location")!, url);
@@ -127,10 +148,10 @@ async function save(url: URL) {
     await writeFile(target, `<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=${location}"><link rel="canonical" href="${location}">`);
     return;
   }
-  if (!response.ok) { (isImage(url) ? imageFailures : failures).push(`${response.status} ${url.pathname}${url.search}`); return; }
+  if (!response.ok) { failures.push(`${response.status} ${url.pathname}${url.search}`); return; }
   const type = response.headers.get("content-type") ?? "";
   let body: string | Uint8Array;
-  if (type.includes("text/html")) body = snapshotHtml(await response.text(), url);
+  if (type.includes("text/html")) body = await snapshotHtml(await response.text(), url);
   else if (type.includes("text/css")) body = snapshotCss(await response.text(), url);
   else if (/xml|text\/plain|json/.test(type)) body = (await response.text()).replaceAll(base.origin + "/", site || prefix);
   else body = new Uint8Array(await response.arrayBuffer());
@@ -155,11 +176,11 @@ while (queue.length) {
 }
 
 const missing = await fetch(new URL("/__static-export-missing__", base));
-await writeFile(path.join(out, "404.html"), snapshotHtml(await missing.text(), base));
+await writeFile(path.join(out, "404.html"), await snapshotHtml(await missing.text(), base));
 await writeFile(path.join(out, ".nojekyll"), "");
 // Links to pages past --max would 404, so an export that hit the limit is not published.
 if (overLimit.size) failures.push(`${overLimit.size} pages over --max ${maxPages}`);
-console.log(JSON.stringify({ pages, files: seen.size - pages, failures: failures.length, imageFailures: imageFailures.length, out }));
+console.log(JSON.stringify({ pages, files: seen.size - pages, failures: failures.length, images: images.size - imageFailures.length, imageFailures: imageFailures.length, out }));
 for (const failure of imageFailures.slice(0, 5)) console.error(`image ${failure}`);
 for (const failure of failures.slice(0, 20)) console.error(failure);
 if (failures.length) process.exitCode = 1;

@@ -8,6 +8,7 @@ import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { setTimeout as delay } from "node:timers/promises";
 import * as cheerio from "cheerio";
 
 const arg = (name: string, fallback: string) => {
@@ -21,7 +22,7 @@ const site = arg("site", "").replace(/\/?$/, "/");
 const maxPages = Number(arg("max", "5000"));
 
 // Paths that only work with the server behind them.
-const SKIP = [/^\/admin(\/|$)/, /^\/api\//, /^\/mcp(\/|$)/, /^\/items\/[^/]+\/original$/, /^\/feedback$/, /^\/starred$/];
+const SKIP = [/^\/admin(\/|$)/, /^\/api\/(?!img-proxy$)/, /^\/mcp(\/|$)/, /^\/items\/[^/]+\/original$/, /^\/feedback$/, /^\/starred$/];
 // Query parameters that only change the back link, not the page.
 const DROP_PARAMS = ["from"];
 const SEEDS = ["/", "/all", "/library", "/hot", "/topics", "/daily", "/daily/archive", "/daily/editions", "/weekly", "/monthly", "/about", "/agent", "/changelog", "/terms", "/privacy", "/more", "/robots.txt", "/sitemap.xml", "/feed.xml", "/feed/all.xml", "/llms.txt", "/manifest.webmanifest"];
@@ -36,12 +37,19 @@ function normalize(raw: string, from: URL): URL | null {
   return url;
 }
 
-const isFile = (url: URL) => /\.[a-z0-9]+$/i.test(url.pathname);
-// Pages become <path>/index.html; a query string becomes a hashed subdirectory of its page.
+// Proxied images are saved as img/<hash> with the original image's extension, so Pages serves an image type.
+const isImage = (url: URL) => url.pathname === "/api/img-proxy";
+const isFile = (url: URL) => isImage(url) || /\.[a-z0-9]+$/i.test(url.pathname);
+const hashed = (text: string) => createHash("sha1").update(text).digest("hex");
 function localPath(url: URL): string {
+  if (isImage(url)) {
+    const extension = /\.(jpe?g|png|webp|gif|avif|svg)$/i.exec(new URL(url.searchParams.get("u") ?? "", base).pathname)?.[0] ?? ".jpg";
+    return `img/${hashed(url.search).slice(0, 16)}${extension.toLowerCase()}`;
+  }
   if (isFile(url)) return url.pathname.slice(1);
+  // Pages become <path>/index.html; a query string becomes a hashed subdirectory of its page.
   const dir = url.pathname.replace(/^\/|\/$/g, "");
-  const query = url.search ? `_q/${createHash("sha1").update(url.search).digest("hex").slice(0, 12)}` : "";
+  const query = url.search ? `_q/${hashed(url.search).slice(0, 12)}` : "";
   return [dir, query, "index.html"].filter(Boolean).join("/");
 }
 const publicPath = (url: URL) => prefix + localPath(url).replace(/index\.html$/, "");
@@ -102,8 +110,15 @@ const snapshotCss = (css: string, from: URL) =>
   css.replace(/url\((['"]?)([^'")]+)\1\)/g, (match, quote: string, src: string) => src.startsWith("data:") ? match : `url(${quote}${rewrite(src, from)}${quote})`);
 
 const failures: string[] = [];
+// An image whose source is gone shows as missing, as it does on the live site; it does not stop the export.
+const imageFailures: string[] = [];
 async function save(url: URL) {
-  const response = await fetch(url, { redirect: "manual", signal: AbortSignal.timeout(60_000) });
+  let response = await fetch(url, { redirect: "manual", signal: AbortSignal.timeout(60_000) });
+  // The image proxy answers 503 while its preparation budget is full.
+  for (let attempt = 1; response.status === 503 && attempt <= 3; attempt++) {
+    await delay(attempt * 5_000);
+    response = await fetch(url, { redirect: "manual", signal: AbortSignal.timeout(60_000) });
+  }
   const target = path.join(out, localPath(url));
   if (response.status >= 300 && response.status < 400 && response.headers.get("location")) {
     const location = rewrite(response.headers.get("location")!, url);
@@ -112,7 +127,7 @@ async function save(url: URL) {
     await writeFile(target, `<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=${location}"><link rel="canonical" href="${location}">`);
     return;
   }
-  if (!response.ok) { failures.push(`${response.status} ${url.pathname}${url.search}`); return; }
+  if (!response.ok) { (isImage(url) ? imageFailures : failures).push(`${response.status} ${url.pathname}${url.search}`); return; }
   const type = response.headers.get("content-type") ?? "";
   let body: string | Uint8Array;
   if (type.includes("text/html")) body = snapshotHtml(await response.text(), url);
@@ -144,7 +159,8 @@ await writeFile(path.join(out, "404.html"), snapshotHtml(await missing.text(), b
 await writeFile(path.join(out, ".nojekyll"), "");
 // Links to pages past --max would 404, so an export that hit the limit is not published.
 if (overLimit.size) failures.push(`${overLimit.size} pages over --max ${maxPages}`);
-console.log(JSON.stringify({ pages, files: seen.size - pages, failures: failures.length, out }));
+console.log(JSON.stringify({ pages, files: seen.size - pages, failures: failures.length, imageFailures: imageFailures.length, out }));
+for (const failure of imageFailures.slice(0, 5)) console.error(`image ${failure}`);
 for (const failure of failures.slice(0, 20)) console.error(failure);
 if (failures.length) process.exitCode = 1;
 else if (process.argv.includes("--push")) {

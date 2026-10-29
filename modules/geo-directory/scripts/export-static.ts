@@ -114,9 +114,9 @@ const failures: string[] = [];
 const imageFailures: string[] = [];
 async function save(url: URL) {
   let response = await fetch(url, { redirect: "manual", signal: AbortSignal.timeout(60_000) });
-  // The image proxy answers 503 while its preparation budget is full.
+  // The image proxy answers 503 with Retry-After while its per-minute upstream budget is spent.
   for (let attempt = 1; response.status === 503 && attempt <= 3; attempt++) {
-    await delay(attempt * 5_000);
+    await delay((Number(response.headers.get("retry-after")) || 60) * 1_000);
     response = await fetch(url, { redirect: "manual", signal: AbortSignal.timeout(60_000) });
   }
   const target = path.join(out, localPath(url));

@@ -76,8 +76,13 @@ function rewrite(raw: string, from: URL): string {
 // differ from the source's (an SVG can come back as WebP), so Pages serves them with the right type.
 const IMAGE_TYPES: Record<string, string> = { "image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp", "image/gif": ".gif", "image/avif": ".avif", "image/svg+xml": ".svg" };
 const images = new Map<string, string | null>();
-async function saveImage(url: URL) {
-  if (images.has(url.href)) return;
+// Pages sharing an image wait for the one download instead of falling back to the source.
+const downloads = new Map<string, Promise<void>>();
+function saveImage(url: URL): Promise<void> {
+  if (!downloads.has(url.href)) downloads.set(url.href, downloadImage(url));
+  return downloads.get(url.href)!;
+}
+async function downloadImage(url: URL) {
   images.set(url.href, null);
   const response = await fetchWithRetry(url);
   if (!response.ok) { imageFailures.push(`${response.status} ${url.pathname}${url.search}`); return; }

@@ -68,23 +68,22 @@ export function DayHeader({ day, today, count, collapsed, onToggle, aside }: { d
       {/* Desktop: date text shares the page's left edge, regardless of how many digits it has. */}
       <div className="hidden h-11 items-center gap-3 lg:flex">
         {onToggle ? (
-          <button type="button" onClick={onToggle} aria-expanded={!collapsed} className="whitespace-nowrap text-left text-[18px] font-semibold leading-6 text-ink">
-            {date}
-          </button>
-        ) : (
-          <time dateTime={day} className="whitespace-nowrap text-[18px] font-semibold leading-6 text-ink">{date}</time>
-        )}
-        {onToggle ? (
+          // Single button covers both the date label and the arrow — one Tab stop instead of two.
           <button
             type="button"
             onClick={onToggle}
             aria-expanded={!collapsed}
             aria-label={collapsed ? `展开${date}` : `收起${date}`}
-            className="grid size-6 place-items-center justify-self-center rounded-full text-ink-4 transition-colors hover:bg-bg-sunk hover:text-ink"
+            className="flex items-center gap-1.5 text-left"
           >
-            <IconChevronDown size={14} className={`transition-transform duration-200 ${collapsed ? "-rotate-90" : ""}`} />
+            <span className="whitespace-nowrap text-[18px] font-semibold leading-6 text-ink">{date}</span>
+            <span aria-hidden="true" className="grid size-6 place-items-center rounded-full text-ink-4 transition-colors group-hover:bg-bg-sunk group-hover:text-ink">
+              <IconChevronDown size={14} className={`transition-transform duration-200 ${collapsed ? "-rotate-90" : ""}`} />
+            </span>
           </button>
-        ) : null}
+        ) : (
+          <time dateTime={day} className="whitespace-nowrap text-[18px] font-semibold leading-6 text-ink">{date}</time>
+        )}
         <span className="text-[13px] text-ink-4">
           {weekday}
           {count !== null && (

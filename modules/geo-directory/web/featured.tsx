@@ -38,16 +38,52 @@ function TopStory({ item, lead }: { item: CardItem; lead: boolean }) {
   const channels = itemChannels(item.title, item.translation?.title);
   const aggregated = item.contentKind === "aggregated";
   const outlet = item.publisherName ?? indexedHeadline(item.title, aggregated).outlet;
-  return <article data-top-story={item.id} className={lead ? "border-b border-line pb-5" : "border-b border-line py-4 last:border-b-0 sm:[&:nth-last-child(2)]:border-b-0"}>
-    <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
-      <ValueBadge badge={item.readingPriority?.badge} />
-      {item.readingReady ? <span className="rounded-mark bg-ok-soft px-1.5 py-0.5 text-[11px] font-semibold text-ok-ink">有解读</span> : item.translation?.title?.trim() ? <span className="rounded-mark bg-bg-sunk px-1.5 py-0.5 text-[11px] text-ink-3">仅摘译</span> : null}
-      {channels.map(channel => <Link key={channel.slug} to={`/topics/${channel.slug}`} className="px-1 py-0.5 text-[11px] font-semibold text-accent hover:underline">{channel.name}</Link>)}
-    </div>
-    <h3 lang={content.language} className={`font-semibold leading-snug text-ink ${lead ? "text-[22px]" : "text-[16px]"}`}><Link to={geoReaderHref(item.id, from)} state={{ geoReaderFrom: from }} className="hover:text-accent hover:underline">{withoutTitleCredit(indexedHeadline(content.title, aggregated).title)}</Link></h3>
-    <p className="mt-1.5 text-[13px] leading-6 text-ink-2">{careLine(item)}</p>
-    <p className="mt-2 text-[12px] text-ink-3">{outlet ? `${outlet} · ` : ""}{item.sourceName} · <time dateTime={item.publishedAt ?? undefined} suppressHydrationWarning>{newsTime(item.publishedAt)}</time>{item.nearDuplicates && item.nearDuplicates.count > 1 && ` · ${item.nearDuplicates.count} 个来源报道`}</p>
-  </article>;
+  const titleText = withoutTitleCredit(indexedHeadline(content.title, aggregated).title);
+  const readerHref = geoReaderHref(item.id, from);
+
+  const statusBadge = item.readingReady
+    ? <span className="rounded-mark bg-ok-soft px-1.5 py-0.5 text-[11px] font-semibold text-ok-ink">有解读</span>
+    : item.translation?.title?.trim()
+      ? <span className="rounded-mark bg-bg-sunk px-1.5 py-0.5 text-[11px] text-ink-3">仅摘译</span>
+      : null;
+
+  const duplicateNote = item.nearDuplicates && item.nearDuplicates.count > 1
+    ? ` · ${item.nearDuplicates.count} 个来源报道`
+    : null;
+
+  return (
+    <article
+      data-top-story={item.id}
+      className={lead ? "border-b border-line pb-5" : "border-b border-line py-4 last:border-b-0 sm:[&:nth-last-child(2)]:border-b-0"}
+    >
+      <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
+        <ValueBadge badge={item.readingPriority?.badge} />
+        {statusBadge}
+        {channels.map(channel => (
+          <Link key={channel.slug} to={`/topics/${channel.slug}`} className="px-1 py-0.5 text-[11px] font-semibold text-accent hover:underline">
+            {channel.name}
+          </Link>
+        ))}
+      </div>
+      <h3
+        lang={content.language}
+        className={`font-semibold leading-snug text-ink ${lead ? "text-[22px]" : "text-[16px]"}`}
+      >
+        <Link to={readerHref} state={{ geoReaderFrom: from }} className="hover:text-accent hover:underline">
+          {titleText}
+        </Link>
+      </h3>
+      <p className="mt-1.5 text-[13px] leading-6 text-ink-2">{careLine(item)}</p>
+      <p className="mt-2 text-[12px] text-ink-3">
+        {outlet ? `${outlet} · ` : ""}
+        {item.sourceName} ·{" "}
+        <time dateTime={item.publishedAt ?? undefined} suppressHydrationWarning>
+          {newsTime(item.publishedAt)}
+        </time>
+        {duplicateNote}
+      </p>
+    </article>
+  );
 }
 
 function ReadingLink({ item }: { item: GeoDailyItem }) {
@@ -80,7 +116,6 @@ export default function FeaturedPage() {
           <p className="text-[13px] text-ink-3">{weekday}</p>
           <h1 data-page-title="" className="mt-1 text-[28px] font-semibold tracking-tight text-ink">今日 GEO 资讯</h1>
           <p className="mt-1 text-[14px] text-ink-3">{data.window.label} · {data.window.itemCount} 条文章，来自 {data.sourceCount} 个已有文章的信源</p>
-          <p className="mt-1 max-w-xl text-[12px] leading-5 text-ink-4">首页只数这个时间窗。最新资讯的「共 N 条」是全部时间的文章；信源目录另计入口和已采集来源，三个数不是一回事。</p>
         </div>
         <ContentLanguageToggle />
       </header>
@@ -91,13 +126,12 @@ export default function FeaturedPage() {
         <div className="min-w-0 space-y-6">
           {lead && <section aria-labelledby="top-stories" className="rounded-card border border-line bg-surface px-5 py-5 lg:px-6">
             <h2 id="top-stories" className="text-[19px] font-semibold text-ink">值得先看</h2>
-            <p className="mb-4 mt-1 text-[13px] leading-6 text-ink-3">{leadFresh ? "官方、平台变化和一手资料排在前面。" : "这几条不是按时间堆出来的全部，而是这个时间窗里更值得先看的。"}每条一行原因。打开后看解读或摘要，再到原文。</p>
+            <p className="mb-4 mt-1 text-[13px] leading-6 text-ink-3">官方变化和一手数据排在前面，每条附一行原因。</p>
             <TopStory item={lead} lead />
             {rest.length > 0 && <div className="grid gap-x-6 sm:grid-cols-2">{rest.map(item => <TopStory key={item.id} item={item} lead={false} />)}</div>}
           </section>}
           {data.readings.length > 0 && <section aria-labelledby="readings" className="rounded-card border border-line bg-surface px-5 py-4">
             <div className="flex items-baseline justify-between gap-2"><h2 id="readings" className="text-[16px] font-semibold text-ink">已有解读</h2><Link to="/library" className="text-[12px] text-accent hover:underline">全部 →</Link></div>
-            <p className="mt-1 text-[12px] leading-5 text-ink-4">这些已经写成中文结论。先看解读，再回原文。</p>
             <ul className="mt-1 divide-y divide-line-soft">{data.readings.map(item => <ReadingLink key={item.id} item={item} />)}</ul>
           </section>}
           <section aria-labelledby="latest">
@@ -116,14 +150,12 @@ export default function FeaturedPage() {
                 {data.hiddenTotal > 0 && <p>已折叠 {data.hiddenTotal} 条服务商软文、排行榜和转载。<Link to="/all?quality=all" className="text-accent hover:underline">也看看</Link></p>}
               </div>
               <Link to="/all" className="inline-flex min-h-11 items-center rounded-control border border-line bg-surface px-4 font-semibold text-accent hover:bg-accent-soft">查看更多资讯 →</Link>
-              {data.latest.length > latest.length && <p className="w-full text-[12px] text-ink-4">首页只留 {latest.length} 条最新，其余在全部资讯里。</p>}
             </div>
           </section>
         </div>
         <aside className="space-y-4">
           {data.hot.length > 0 && <section aria-labelledby="hot" className="rounded-card border border-line bg-surface px-5 py-4">
             <h2 id="hot" className="text-[16px] font-semibold text-ink">近期热门平台</h2>
-            <p className="mt-1 text-[12px] leading-5 text-ink-4">这个时间窗里提到该平台的不同域名，不是信源目录的人数。</p>
             <ol className="mt-2">{data.hot.map((cluster, index) => <li key={cluster.id}><Link to={`/topics/${cluster.topicSlug}`} className="flex min-h-11 items-center gap-3 border-b border-line-soft py-2 text-[14px] text-ink last:border-b-0 hover:text-accent"><span className="w-4 font-semibold text-accent">{index + 1}</span><span className="min-w-0 flex-1 truncate">{cluster.title}</span><span className="shrink-0 text-[12px] text-ink-3" title="时间窗内的不同域名">{cluster.sourceCount} 个域名</span></Link></li>)}</ol>
           </section>}
           <section aria-labelledby="daily" className="rounded-card border border-line bg-surface px-5 py-4">

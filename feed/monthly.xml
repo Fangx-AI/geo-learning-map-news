@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>GEO 学习地图 月报</title>
+    <link>https://fangx-ai.github.io/geo-learning-map-news/monthly</link>
+    <description>GEO 学习地图 每月 1 日 10:30（北京时间）发布的月报：从上个月每天的日报里选出的重要动态，按栏目分好，附总述；保留最近 12 期。</description>
+    <language>zh-CN</language>
+    <atom:link href="https://fangx-ai.github.io/geo-learning-map-news/feed/monthly.xml" rel="self" type="application/rss+xml" />
+    <ttl>360</ttl>
+    <generator>GEO 学习地图 (https://fangx-ai.github.io/geo-learning-map-news/agent)</generator>
+
+  </channel>
+</rss>
